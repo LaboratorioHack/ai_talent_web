@@ -23,7 +23,7 @@ export function useStuck<T extends HTMLElement = HTMLDivElement>() {
       // Si la página es tan corta que encoger el encabezado la dejaría sin scroll,
       // no se encoge: así no entra en bucle al filtrar listas cortas.
       const room = document.documentElement.scrollHeight - window.innerHeight;
-      setStuck((was) => (was ? top < -4 : top < -24 && room > 200));
+      setStuck((was) => (was ? top < -4 : top < -24 && room > 320));
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(check);
