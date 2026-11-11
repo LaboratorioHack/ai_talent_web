@@ -13,7 +13,7 @@ import { ConnectFolderModal } from "./connect-folder-modal";
 import { Dropzone } from "./dropzone";
 import { EvaluateModal } from "./evaluate-modal";
 import { FileRow } from "./file-row";
-import { ReadingSummary } from "./reading-summary";
+import { SieveSummary } from "./sieve-summary";
 
 type Group = "busy" | "read" | "unreadable" | "duplicate" | "rejected";
 type View = "all" | "attention" | "read";
@@ -124,7 +124,7 @@ export function IngestView({ data }: { data: IngestData }) {
 
         {emptyJob ? null : (
           <div className="animate-rise [animation-delay:80ms]">
-            <ReadingSummary counts={counts} active={group} onPick={setGroup} />
+            <SieveSummary counts={counts} active={group} onPick={setGroup} />
           </div>
         )}
 
