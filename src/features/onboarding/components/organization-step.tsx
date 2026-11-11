@@ -64,8 +64,8 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
     >
       <TextField label="Nombre de la organización" value={name} onChange={(e) => setName(e.target.value)} validated={name === detectedName} />
       <div className="grid grid-cols-2 gap-4">
-        <SelectField label="Sector" value={sector} onChange={(e) => setSector(e.target.value)} options={SECTORS.map((s) => ({ value: s, label: s }))} />
-        <SelectField label="Tamaño" kind="Personas" value={size} onChange={(e) => setSize(e.target.value)} options={SIZES.map((s) => ({ value: s, label: s }))} />
+        <SelectField label="Sector" value={sector} onChange={setSector} options={SECTORS.map((s) => ({ value: s, label: s }))} />
+        <SelectField label="Tamaño" kind="Personas" value={size} onChange={setSize} options={SIZES.map((s) => ({ value: s, label: s }))} />
       </div>
 
       <div className="flex flex-col gap-1.5">

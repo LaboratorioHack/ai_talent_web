@@ -85,7 +85,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
 
         <div className="grid grid-cols-[1fr_220px_220px_160px] gap-5">
           <TextField label="Nombre de la vacante" value={draft.title} maxLength={80} onChange={(e) => patch({ title: e.target.value })} error={errors.title} help="Máximo 80 caracteres" />
-          <SelectField label="Área" value={draft.area} placeholder="Elige" onChange={(e) => patch({ area: e.target.value })} error={errors.area} options={mockAreas.map((a) => ({ value: a, label: a }))} />
+          <SelectField label="Área" value={draft.area} placeholder="Elige" onChange={(area) => patch({ area })} error={errors.area} options={mockAreas.map((a) => ({ value: a, label: a }))} />
           <DateField label="Cierre de postulaciones" value={fromISODate(draft.closesAt)} minDate={today ?? undefined} onChange={(d) => patch({ closesAt: toISODate(d) })} error={errors.closesAt} help="Solo fechas futuras" />
           <NumberField label="Número de vacantes" value={draft.openings} min={1} max={50} onChange={(n) => patch({ openings: n })} />
         </div>
