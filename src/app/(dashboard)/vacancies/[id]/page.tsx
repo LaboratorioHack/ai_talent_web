@@ -7,6 +7,7 @@ import { PageTop } from "@/shared/components/layout";
 import { ButtonLink, Skeleton } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { getPipeline, getVacancy } from "@/features/vacancies/api/vacancies";
+import { CopyApplyLink } from "@/features/vacancies/components/copy-apply-link";
 import { DeleteVacancy } from "@/features/vacancies/components/delete-vacancy";
 import { PipelineBoard } from "@/features/vacancies/components/pipeline-board";
 
@@ -35,6 +36,7 @@ async function Board({ params }: { params: Promise<{ id: string }> }) {
         actions={
           <>
             <DeleteVacancy id={vacancy.id} title={vacancy.title} evaluations={evaluations} />
+            {vacancy.status === "OPEN" ? <CopyApplyLink jobId={vacancy.id} /> : null}
             <ButtonLink href={routes.vacancyEdit(vacancy.id)} variant="outline" icon={<Pencil />}>
               Editar perfil
             </ButtonLink>

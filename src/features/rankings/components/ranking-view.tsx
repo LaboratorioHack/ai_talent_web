@@ -108,11 +108,16 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
         <div className="flex flex-1 flex-col px-4 sm:px-6 lg:px-12 py-16">
           <EmptyState
             title="Todavía no hay candidatos"
-            description="Sube hojas de vida para empezar. Criba las evalúa con el perfil de esta vacante."
+            description="Sube hojas de vida o comparte el enlace para que las personas se postulen. Criba las evalúa con el perfil de esta vacante."
             action={
               <ButtonLink href={`${routes.candidates}?job=${data.job.id}`} icon={<Upload />}>
                 Subir hojas de vida
               </ButtonLink>
+            }
+            alternative={
+              <Link href={routes.apply(data.job.id)} target="_blank">
+                o abrir el enlace de postulación
+              </Link>
             }
             className="animate-rise"
           />
