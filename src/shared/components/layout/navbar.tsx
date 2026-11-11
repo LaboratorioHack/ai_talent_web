@@ -3,13 +3,13 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Briefcase, FileText, Home, LayoutGrid, ListOrdered, MessagesSquare, Plug, ShieldCheck, type LucideIcon } from "lucide-react";
+import { Bell, Briefcase, FileText, Home, LayoutGrid, ListOrdered, MessagesSquare, ShieldCheck, type LucideIcon } from "lucide-react";
 import { Logo, Popover } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import type { CurrentUser } from "@/shared/types/domain";
 import { NavSearch, type SearchItem } from "./nav-search";
-import { OrgSwitcher } from "./org-switcher";
+import { OrgBadge } from "./org-badge";
 import { ThemeToggle } from "./theme-toggle";
 
 export interface NavNotice {
@@ -34,7 +34,6 @@ const LINKS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: routes.candidates, label: "Candidatos", icon: FileText },
   { href: routes.rankings, label: "Ranking", icon: ListOrdered },
   { href: routes.interviews, label: "Entrevistas", icon: MessagesSquare },
-  { href: routes.integrations, label: "Integraciones", icon: Plug },
   { href: routes.governance, label: "Gobierno", icon: ShieldCheck },
 ];
 
@@ -83,7 +82,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
           </Link>
           <span aria-hidden className="hidden h-6 w-px bg-border-strong md:block" />
           <span className="hidden md:block">
-            <OrgSwitcher user={user} />
+            <OrgBadge user={user} />
           </span>
         </div>
 
@@ -218,7 +217,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
         <div className="min-h-0 overflow-hidden">
           <nav aria-label="Secciones" className="flex flex-col gap-1 px-3 pt-3 pb-4 sm:px-6">
             <div className="mb-2 md:hidden">
-              <OrgSwitcher user={user} />
+              <OrgBadge user={user} />
             </div>
             {LINKS.map((link) => {
               const active = link.href === activeHref;

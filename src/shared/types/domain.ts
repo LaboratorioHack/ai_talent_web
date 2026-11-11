@@ -21,18 +21,12 @@ export interface Company {
   name: string;
 }
 
-export interface Membership {
-  company: Company;
-  role: UserRole | "VIEWER";
-}
-
 export interface CurrentUser {
   id: Id;
   name: string;
   email: string;
   company: Company;
   role: UserRole;
-  memberships: Membership[];
 }
 
 export interface Equivalence {
@@ -179,24 +173,6 @@ export interface Interview {
   recommendation?: InterviewRecommendation;
 }
 
-export type IntegrationState = "connected" | "error" | "disconnected" | "paused";
-
-export interface Integration {
-  id: Id;
-  name: string;
-  kind: "ATS" | "MCP" | "DRIVE" | "WEB" | "API";
-  state: IntegrationState;
-  detail: string;
-  lastSync: string;
-}
-
-export interface IntegrationLogEntry {
-  when: string;
-  source: string;
-  message: string;
-  tone: "success" | "warning" | "danger";
-}
-
 export interface AuditDecision {
   when: string;
   action: string;
@@ -207,7 +183,7 @@ export interface AuditDecision {
 
 export interface PendingItem {
   id: Id;
-  kind: "unreadable" | "token" | "contrast";
+  kind: "unreadable" | "duplicate" | "contrast";
   text: string;
   actionLabel: string;
   href: string;

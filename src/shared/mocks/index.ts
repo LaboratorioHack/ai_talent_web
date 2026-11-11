@@ -2,7 +2,6 @@ export * from "./organization";
 export * from "./vacancies";
 export * from "./applications";
 export * from "./interviews";
-export * from "./integrations";
 export * from "./governance";
 export * from "./resume-docs";
 export * from "./candidates";

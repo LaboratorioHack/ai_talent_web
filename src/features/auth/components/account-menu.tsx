@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, Settings, ShieldCheck } from "lucide-react";
+import { LogOut, ShieldCheck } from "lucide-react";
 import { Avatar, Popover } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import type { CurrentUser } from "@/shared/types/domain";
@@ -44,10 +44,6 @@ export function AccountMenu({ user }: { user: CurrentUser }) {
             </div>
           </div>
           <div className="flex flex-col p-1.5">
-            <Link href={routes.integrations} onClick={close} className={item}>
-              <Settings aria-hidden className="size-4" />
-              Fuentes y permisos
-            </Link>
             <Link href={routes.governance} onClick={close} className={item}>
               <ShieldCheck aria-hidden className="size-4" />
               Auditoría de la IA
