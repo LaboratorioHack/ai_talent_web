@@ -104,8 +104,9 @@ export function LoginForm() {
 
       <p className="text-sm text-ink-2" style={{ "--i": 4 } as React.CSSProperties}>
         ¿Tu empresa no usa Criba todavía?{" "}
-        <a href="mailto:hola@criba.app?subject=Demo" className="text-ink underline-offset-4 transition-colors hover:underline">
-          Pedir una demo →
+        <a href="mailto:hola@criba.app?subject=Demo" className="inline-flex items-center gap-1 text-ink underline-offset-4 transition-colors hover:underline">
+          Pedir una demo
+          <ArrowRight aria-hidden className="size-3.5" />
         </a>
       </p>
     </div>

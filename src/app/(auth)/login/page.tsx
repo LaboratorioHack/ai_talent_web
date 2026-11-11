@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { ChevronDown } from "lucide-react";
 import { Logo, ProgressSegments } from "@/shared/components/ui";
 import { EvidencePanel } from "@/features/auth/components/evidence-panel";
 import { LoginForm } from "@/features/auth/components/login-form";
@@ -25,7 +26,10 @@ export default function LoginPage() {
 
         <footer className="flex items-center justify-between text-xs text-ink-3">
           <span>Privacidad · Términos</span>
-          <span>Español ▾</span>
+          <span className="inline-flex items-center gap-1">
+            Español
+            <ChevronDown aria-hidden className="size-3" />
+          </span>
         </footer>
       </section>
       <EvidencePanel />
