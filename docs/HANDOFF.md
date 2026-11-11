@@ -68,7 +68,7 @@ Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1
 
 ## 5 · `feat/ui-polish`
 
-- **Bug de animaciones**: las curvas `--ease-*` solo vivían en `@theme inline`, que Tailwind no publica como variables. Toda clase `animate-[... var(--ease-…)]` o `ease-[var(...)]` quedaba con duración 0 y todo parecía instantáneo. Ahora también están en `:root`. Regla: si una variable se usa con `var()` a mano, debe existir en `:root`.
+- **Bug de animaciones**: las curvas `--ease-*` solo vivían en `@theme inline`, que Tailwind no publica como variables. Toda clase arbitraria de animación o transición que usara `var(--ease-…)` quedaba con duración 0 y todo parecía instantáneo. Ahora también están en `:root`. Regla: si una variable se usa con `var()` a mano, debe existir en `:root`.
 - **Campos**: clase `.field-box` (borde suave, sombra mínima, anillo de foco de 4px, estados `is-invalid` / `is-valid`) para texto, selector, fecha, número y buscador. La etiqueta va sola arriba; ayuda y formato abajo en una línea (se acabó "Número de / vacantes" partido). Sin rótulos "Texto libre / Elegir de lista".
 - **Fondo y tarjetas**: fondo `#f6f7f4` menos beige, líneas `#e1e6df`, clase `.card` para agrupar.
 - **Editor de perfil**: datos en tarjeta 2×2, requisitos en tarjeta con cabecera y conteo, chips de tipo sobrios, título pegajoso que al bajar se vuelve barra flotante con subtítulo (área · cierre · requisitos), lateral fijo con su propio scroll. `useStuck()` en `shared/hooks`.
