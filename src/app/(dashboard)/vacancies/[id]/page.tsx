@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Pipeline" };
 
 async function Board({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [vacancy, applications] = await Promise.all([getVacancy(id), getPipeline(id)]);
+  const [vacancy, cards] = await Promise.all([getVacancy(id), getPipeline(id)]);
   if (!vacancy) notFound();
   const evaluations = vacancy.stats.meets + vacancy.stats.partial + vacancy.stats.doesNotMeet;
   return (
@@ -30,6 +30,7 @@ async function Board({ params }: { params: Promise<{ id: string }> }) {
           </nav>
         }
         title={vacancy.title}
+        description={`${vacancy.stats.received} hojas de vida, ${vacancy.stats.meets} cumplen el perfil, ${vacancy.openings} ${vacancy.openings === 1 ? "plaza" : "plazas"}`}
         actions={
           <>
             <DeleteVacancy id={vacancy.id} title={vacancy.title} evaluations={evaluations} />
@@ -42,9 +43,7 @@ async function Board({ params }: { params: Promise<{ id: string }> }) {
           </>
         }
       />
-      <div className="flex flex-1 flex-col px-10 pt-6 pb-10">
-        <PipelineBoard jobId={vacancy.id} applications={applications} />
-      </div>
+      <PipelineBoard jobId={vacancy.id} cards={cards} />
     </>
   );
 }
@@ -68,7 +67,7 @@ function BoardSkeleton() {
 /** Pantalla 05 · Vacantes · Tablero de pipeline. */
 export default function VacancyBoardPage({ params }: PageProps<"/vacancies/[id]">) {
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex h-[calc(100dvh-var(--app-header,0px))] min-h-[640px] flex-col">
       <Suspense fallback={<BoardSkeleton />}>
         <Board params={params} />
       </Suspense>
