@@ -12,7 +12,7 @@ export interface ModalProps {
   children?: ReactNode;
   /** Botones del pie: normalmente un Botón Texto "Cancelar" y la acción principal. */
   footer?: ReactNode;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
   /** Si es false, Escape y el velo no cierran (p. ej. mientras se procesa). */
   dismissible?: boolean;
 }
@@ -48,10 +48,10 @@ export function Modal({ open, onClose, title, description, children, footer, siz
       className={cn(
         "m-auto w-[calc(100vw-2rem)] overflow-visible rounded-2xl border border-border bg-surface p-0 text-ink shadow-[0_40px_80px_-30px_rgba(0,0,0,0.85)] backdrop:bg-panel/55 backdrop:backdrop-blur-[2px]",
         "open:animate-pop-in backdrop:animate-fade-in",
-        size === "sm" ? "max-w-[360px]" : "max-w-[440px]",
+        size === "sm" ? "max-w-[360px]" : size === "lg" ? "max-w-[900px]" : "max-w-[440px]",
       )}
     >
-      <div className="flex flex-col gap-5 p-6">
+      <div className={cn("flex flex-col gap-5 p-6", size === "lg" && "max-h-[calc(100dvh-4rem)]")}>
         <header className="flex items-start gap-4">
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
             <h2 id={titleId} className="font-head text-[21px] leading-tight font-semibold">
@@ -69,7 +69,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
             </button>
           ) : null}
         </header>
-        {children}
+        {size === "lg" ? <div className="-mx-6 min-h-0 flex-1 overflow-y-auto px-6">{children}</div> : children}
         {footer ? <footer className="flex items-center justify-end gap-2">{footer}</footer> : null}
       </div>
     </dialog>
