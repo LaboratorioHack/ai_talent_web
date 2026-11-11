@@ -2,84 +2,107 @@
 
 import { useMemo, useState, type DragEvent } from "react";
 import Link from "next/link";
-import { GripVertical } from "lucide-react";
-import { Avatar, SearchField, StatusChip, useToast, type EvaluationStatus } from "@/shared/components/ui";
+import { ArrowUpRight, GripVertical } from "lucide-react";
+import { Avatar, ScrollArea, SearchField, Segmented, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
-import type { Application, PipelineStage } from "@/shared/types/domain";
+import type { PipelineStage } from "@/shared/types/domain";
 import { moveApplication } from "../api/mutations";
+import type { PipelineCard } from "../api/vacancies";
 
-const COLUMNS: { stage: PipelineStage; label: string; accent: string; hint: string }[] = [
-  { stage: "received", label: "Recibidos", accent: "bg-ink-3", hint: "Arrastra aquí para devolver a recibidos" },
-  { stage: "evaluated", label: "Evaluados", accent: "bg-blue", hint: "Arrastra aquí para marcar como evaluado" },
-  { stage: "meets", label: "Cumplen", accent: "bg-success", hint: "Arrastra aquí si cumple el perfil" },
-  { stage: "interview", label: "Entrevista IA", accent: "bg-amber", hint: "Arrastra aquí para invitar a entrevista" },
-  { stage: "finalist", label: "Finalistas", accent: "bg-success-deep", hint: "Arrastra aquí para marcar finalista" },
+const COLUMNS: { stage: PipelineStage; label: string; hint: string; dot: string }[] = [
+  { stage: "received", label: "Recibidos", hint: "Aún sin evaluar", dot: "bg-ink-3" },
+  { stage: "evaluated", label: "Evaluados", hint: "No cumplen todo lo obligatorio", dot: "bg-blue" },
+  { stage: "meets", label: "Cumplen", hint: "Listos para entrevista", dot: "bg-success" },
+  { stage: "interview", label: "Entrevista IA", hint: "Invitados o respondiendo", dot: "bg-amber" },
+  { stage: "finalist", label: "Finalistas", hint: "Elegidos por tu equipo", dot: "bg-success-deep" },
 ];
 
-const chipFor = (a: Application): EvaluationStatus => {
-  const f = a.evaluation?.fulfillment;
-  if (!f) return "unevaluated";
-  return f === "MEETS" ? "meets" : f === "PARTIAL" ? "partial" : "does_not_meet";
-};
-const scoreTone = (n: number) => (n >= 80 ? "text-success" : n >= 60 ? "text-warning" : "text-danger");
+const TONE = { MEETS: "text-success", PARTIAL: "text-warning", DOES_NOT_MEET: "text-danger" } as const;
+const BAR = { MEETS: "bg-success", PARTIAL: "bg-amber", DOES_NOT_MEET: "bg-danger" } as const;
+
+type Filter = "all" | "meets" | "partial";
 
 /**
- * Pantalla 05 · Tablero de pipeline. Se arrastra la tarjeta a otra columna y
- * aterriza con animación; el cambio se envía a la API en segundo plano.
+ * Pantalla 05 · Tablero de pipeline. Cada etapa es una columna con su propio
+ * scroll; las tarjetas se arrastran y aterrizan con animación, el cambio se
+ * guarda en segundo plano y se puede deshacer desde el aviso.
  */
-export function PipelineBoard({ jobId, applications }: { jobId: string; applications: Application[] }) {
+export function PipelineBoard({ jobId, cards }: { jobId: string; cards: PipelineCard[] }) {
   const { toast } = useToast();
-  const [items, setItems] = useState(applications);
+  const [items, setItems] = useState(cards);
   const [dragging, setDragging] = useState<string | null>(null);
   const [over, setOver] = useState<PipelineStage | null>(null);
   const [landed, setLanded] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
 
-  const visible = useMemo(() => items.filter((a) => a.candidate.name.toLowerCase().includes(query.trim().toLowerCase())), [items, query]);
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return items.filter(
+      (c) => c.name.toLowerCase().includes(q) && (filter === "all" || (filter === "meets" ? c.fulfillment === "MEETS" : c.fulfillment === "PARTIAL")),
+    );
+  }, [items, query, filter]);
 
-  function drop(stage: PipelineStage, e: DragEvent) {
-    e.preventDefault();
-    const id = e.dataTransfer.getData("text/plain") || dragging;
-    setOver(null);
-    setDragging(null);
-    if (!id) return;
-    const app = items.find((a) => a.id === id);
-    if (!app || app.stage === stage) return;
-    const previous = app.stage;
-    setItems((list) => list.map((a) => (a.id === id ? { ...a, stage } : a)));
+  function move(id: string, stage: PipelineStage) {
+    const card = items.find((c) => c.id === id);
+    if (!card || card.stage === stage) return;
+    const previous = card.stage;
+    setItems((list) => list.map((c) => (c.id === id ? { ...c, stage } : c)));
     setLanded(id);
     window.setTimeout(() => setLanded(null), 700);
     const column = COLUMNS.find((c) => c.stage === stage)?.label;
     moveApplication(id, stage).then(
       () =>
         toast({
-          title: `${app.candidate.name} pasó a ${column}`,
+          title: `${card.name} pasó a ${column}`,
+          description: "Queda registrado en la auditoría.",
           action: {
             label: "Deshacer",
             onClick: () => {
-              setItems((list) => list.map((a) => (a.id === id ? { ...a, stage: previous } : a)));
+              setItems((list) => list.map((c) => (c.id === id ? { ...c, stage: previous } : c)));
               void moveApplication(id, previous);
             },
           },
         }),
       () => {
-        setItems((list) => list.map((a) => (a.id === id ? { ...a, stage: previous } : a)));
+        setItems((list) => list.map((c) => (c.id === id ? { ...c, stage: previous } : c)));
         toast({ tone: "error", title: "No se pudo mover", description: "Revisa tu conexión e inténtalo de nuevo." });
       },
     );
   }
 
+  function drop(stage: PipelineStage, e: DragEvent) {
+    e.preventDefault();
+    const id = e.dataTransfer.getData("text/plain") || dragging;
+    setOver(null);
+    setDragging(null);
+    if (id) move(id, stage);
+  }
+
   return (
-    <div className="flex flex-1 flex-col gap-5">
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-[13px] text-ink-2">Arrastra una tarjeta para cambiarla de etapa. Cada cambio queda en la auditoría.</p>
+    <div className="flex min-h-0 flex-1 flex-col gap-4 px-8 pt-5 pb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Segmented
+            aria-label="Mostrar"
+            size="sm"
+            value={filter}
+            onChange={setFilter}
+            items={[
+              { value: "all", label: "Todos", count: items.length },
+              { value: "meets", label: "Cumplen", count: items.filter((c) => c.fulfillment === "MEETS").length },
+              { value: "partial", label: "Parciales", count: items.filter((c) => c.fulfillment === "PARTIAL").length },
+            ]}
+          />
+          <span className="text-[13px] text-ink-3">Arrastra una tarjeta para cambiarla de etapa.</span>
+        </div>
         <SearchField placeholder="Buscar en esta vacante" containerClassName="w-[260px]" value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
 
-      <div className="grid flex-1 grid-cols-5 gap-4">
+      <div className="grid min-h-0 flex-1 grid-cols-5 gap-3">
         {COLUMNS.map((col, ci) => {
-          const cards = visible.filter((a) => a.stage === col.stage).sort((a, b) => (b.evaluation?.totalScore ?? 0) - (a.evaluation?.totalScore ?? 0));
+          const list = visible.filter((c) => c.stage === col.stage).sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
           const isOver = over === col.stage;
           return (
             <section
@@ -95,63 +118,88 @@ export function PipelineBoard({ jobId, applications }: { jobId: string; applicat
               }}
               onDrop={(e) => drop(col.stage, e)}
               className={cn(
-                "flex min-h-[420px] flex-col gap-2.5 rounded-2xl p-2 transition-[background-color,box-shadow] duration-300 animate-rise",
-                isOver ? "bg-surface-2 shadow-[inset_0_0_0_2px_var(--border-strong)]" : "bg-transparent",
+                "flex min-h-0 flex-col rounded-2xl ring-1 transition-[background-color,box-shadow] duration-300 animate-rise",
+                isOver ? "bg-surface ring-2 ring-ink/70" : "bg-surface-2/60 ring-border",
               )}
               style={{ animationDelay: `${ci * 60}ms` }}
             >
-              <header className="flex items-center gap-2 px-2 pt-1 pb-1.5">
-                <span className={cn("size-2 rounded-full", col.accent)} />
-                <h2 className="text-[13.5px] font-semibold">{col.label}</h2>
-                <span className="rounded-full bg-surface-2 px-1.5 py-px font-mono text-[11px] text-ink-2">{cards.length}</span>
+              <header className="flex flex-col gap-0.5 px-4 pt-4 pb-3">
+                <span className="flex items-center gap-2">
+                  <span className={cn("size-2 rounded-full", col.dot)} />
+                  <h2 className="text-[14px] font-semibold">{col.label}</h2>
+                  <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-surface px-1.5 text-[11px] font-medium text-ink-2 tabular-nums ring-1 ring-border">{list.length}</span>
+                </span>
+                <span className="text-[12px] text-ink-3">{col.hint}</span>
               </header>
 
-              {cards.map((a) => {
-                const score = a.evaluation?.totalScore;
-                return (
-                  <article
-                    key={a.id}
-                    draggable
-                    onDragStart={(e) => {
-                      e.dataTransfer.setData("text/plain", a.id);
-                      e.dataTransfer.effectAllowed = "move";
-                      setDragging(a.id);
-                    }}
-                    onDragEnd={() => {
-                      setDragging(null);
-                      setOver(null);
-                    }}
+              <ScrollArea aria-label={`Tarjetas de ${col.label}`} className="flex-1" viewportClassName="px-2.5 pb-3">
+                <div className="flex flex-col gap-2">
+                  <div
                     className={cn(
-                      "group flex cursor-grab flex-col gap-3 rounded-xl border border-border bg-surface p-3.5 transition-[opacity,transform,box-shadow] duration-300 ease-[var(--ease-out-soft)] active:cursor-grabbing",
-                      "hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-20px_rgba(21,32,27,0.5)]",
-                      dragging === a.id && "scale-[0.98] opacity-40",
-                      landed === a.id && "animate-[pop-in_420ms_var(--ease-spring)]",
+                      "grid transition-[grid-template-rows,opacity] duration-300 ease-[var(--ease-out-soft)]",
+                      dragging && isOver ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
                     )}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Avatar name={a.candidate.name} size={30} />
-                      <div className="flex min-w-0 flex-1 flex-col">
-                        <Link href={routes.ranking(jobId, a.id)} className="truncate text-[13.5px] font-medium hover:text-blue" draggable={false}>
-                          {a.candidate.name}
-                        </Link>
-                        <span className={cn("font-mono text-[11px]", score !== undefined ? scoreTone(score) : "text-ink-3")}>{score !== undefined ? `${score} de 100` : "Sin evaluar"}</span>
-                      </div>
-                      <GripVertical aria-hidden className="size-4 text-ink-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="min-h-0 overflow-hidden">
+                      <div className="mb-0.5 flex h-16 items-center justify-center rounded-xl border-2 border-dashed border-ink/40 text-[12.5px] text-ink-2">Suelta aquí</div>
                     </div>
-                    <StatusChip status={chipFor(a)} size="sm" />
-                  </article>
-                );
-              })}
+                  </div>
 
-              <div
-                className={cn(
-                  "mt-auto flex min-h-14 items-center justify-center rounded-xl border border-dashed px-3 text-center text-[12px] transition-[border-color,color,opacity] duration-300",
-                  dragging ? "border-border-strong text-ink-2 opacity-100" : "border-transparent text-ink-3 opacity-0",
-                  isOver && "border-ink text-ink",
-                )}
-              >
-                {col.hint}
-              </div>
+                  {list.map((c, i) => (
+                    <article
+                      key={c.id}
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("text/plain", c.id);
+                        e.dataTransfer.effectAllowed = "move";
+                        setDragging(c.id);
+                      }}
+                      onDragEnd={() => {
+                        setDragging(null);
+                        setOver(null);
+                      }}
+                      className={cn(
+                        "group relative flex cursor-grab flex-col gap-2.5 rounded-xl bg-surface p-3.5 ring-1 ring-border transition-[opacity,transform,box-shadow] duration-300 ease-[var(--ease-out-soft)] active:cursor-grabbing animate-[option-in_340ms_var(--ease-out-soft)_both]",
+                        "hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-20px_rgba(21,32,27,0.55)]",
+                        dragging === c.id && "scale-[0.97] opacity-40",
+                        landed === c.id && "animate-[pop-in_420ms_var(--ease-spring)]",
+                      )}
+                      style={{ animationDelay: `${Math.min(i, 10) * 30}ms` }}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Avatar name={c.name} size={32} />
+                        <span className="flex min-w-0 flex-1 flex-col">
+                          <span className="truncate text-[14px] font-medium">{c.name}</span>
+                          <span className="truncate text-[11.5px] text-ink-3">{c.source}</span>
+                        </span>
+                        {c.score !== undefined && c.fulfillment ? (
+                          <span className={cn("font-head text-[20px] leading-none font-semibold tabular-nums", TONE[c.fulfillment])}>{c.score}</span>
+                        ) : (
+                          <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[11px] text-ink-3">Sin evaluar</span>
+                        )}
+                      </div>
+                      {c.score !== undefined && c.fulfillment ? (
+                        <span className="h-1 overflow-hidden rounded-full bg-surface-2">
+                          <span className={cn("block h-full rounded-full", BAR[c.fulfillment])} style={{ width: `${c.score}%` }} />
+                        </span>
+                      ) : null}
+                      {c.note ? <span className={cn("truncate text-[12px]", c.fulfillment === "MEETS" ? "text-ink-2" : "text-ink-3")}>{c.note}</span> : null}
+                      <span className="pointer-events-none absolute right-2.5 bottom-2.5 flex gap-1 opacity-0 transition-opacity duration-300 group-hover:pointer-events-auto group-hover:opacity-100">
+                        {c.score !== undefined ? (
+                          <Link href={routes.ranking(jobId, c.id)} draggable={false} aria-label={`Ver a ${c.name} en el ranking`} className="flex size-7 items-center justify-center rounded-full bg-surface text-ink-2 shadow-[0_4px_12px_-6px_rgba(21,32,27,0.4)] ring-1 ring-border hover:text-ink">
+                            <ArrowUpRight aria-hidden className="size-3.5" />
+                          </Link>
+                        ) : null}
+                        <span className="flex size-7 items-center justify-center rounded-full bg-surface text-ink-3 ring-1 ring-border">
+                          <GripVertical aria-hidden className="size-3.5" />
+                        </span>
+                      </span>
+                    </article>
+                  ))}
+
+                  {list.length === 0 && !(dragging && isOver) ? <p className="rounded-xl border border-dashed border-border-strong px-3 py-6 text-center text-[12.5px] text-ink-3">{dragging ? "Arrastra aquí" : "Nadie en esta etapa"}</p> : null}
+                </div>
+              </ScrollArea>
             </section>
           );
         })}
