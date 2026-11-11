@@ -200,6 +200,41 @@
   }
 }
 
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+}
+
+/* La fila del toast abre y cierra su hueco, para que la pila se deslice. */
+@keyframes toast-expand {
+  from {
+    grid-template-rows: 0fr;
+  }
+  to {
+    grid-template-rows: 1fr;
+  }
+}
+
+@keyframes toast-collapse {
+  from {
+    grid-template-rows: 1fr;
+  }
+  to {
+    grid-template-rows: 0fr;
+  }
+}
+
+@keyframes toast-timer {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
