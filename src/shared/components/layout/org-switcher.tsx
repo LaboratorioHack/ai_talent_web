@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ChevronDown } from "lucide-react";
+import { Building2, Check, ChevronDown } from "lucide-react";
 import { Modal, useToast } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 import type { CurrentUser, Membership } from "@/shared/types/domain";
@@ -25,10 +25,12 @@ export function OrgSwitcher({ user }: { user: CurrentUser }) {
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
-        className="flex h-11 min-w-0 items-center gap-2.5 rounded-full border border-border bg-surface pr-3 pl-3.5 text-[14px] font-medium text-ink shadow-[0_1px_2px_rgba(21,32,27,0.04)] transition-[border-color,box-shadow] duration-300 hover:border-border-strong hover:shadow-[0_6px_16px_-10px_rgba(21,32,27,0.3)]"
+        className="flex h-11 shrink-0 items-center gap-2.5 rounded-full border border-border bg-surface pr-3 pl-1.5 text-[14px] font-medium text-ink shadow-[0_1px_2px_rgba(21,32,27,0.04)] transition-[border-color,box-shadow] duration-300 hover:border-border-strong hover:shadow-[0_6px_16px_-10px_rgba(21,32,27,0.3)]"
       >
-        <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-amber" />
-        <span className="truncate">{current.company.name}</span>
+        <span aria-hidden className="flex size-7 shrink-0 items-center justify-center rounded-full bg-amber/20 text-[#b26d06]">
+          <Building2 className="size-4" />
+        </span>
+        <span className="max-w-[200px] truncate">{current.company.name}</span>
         <ChevronDown aria-hidden className="size-4 text-ink-3" />
       </button>
 
@@ -47,7 +49,9 @@ export function OrgSwitcher({ user }: { user: CurrentUser }) {
                   }}
                   className={cn("flex w-full items-center gap-3 rounded-md px-2.5 py-3 text-left hover:bg-surface-2", active && "bg-surface-2")}
                 >
-                  <span aria-hidden className={cn("size-2.5 rounded-full", active ? "bg-amber" : "bg-border")} />
+                  <span aria-hidden className={cn("flex size-8 shrink-0 items-center justify-center rounded-full", active ? "bg-amber/20 text-[#b26d06]" : "bg-surface-2 text-ink-3")}>
+                    <Building2 className="size-4" />
+                  </span>
                   <span className="flex flex-1 flex-col gap-0.5">
                     <span className={cn("text-[13.5px]", active && "font-semibold")}>{m.company.name}</span>
                     <span className="text-xs text-ink-2">{roleLabel[m.role]}</span>
