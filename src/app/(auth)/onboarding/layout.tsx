@@ -3,8 +3,9 @@ import Link from "next/link";
 import { Logo } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { OnboardingSteps } from "@/features/onboarding/components/onboarding-steps";
+import { OnboardingProvider } from "@/features/onboarding/state/onboarding-store";
 
-/** Barra del onboarding: marca, pasos y salida suave. */
+/** Barra del onboarding: marca, pasos y salida suave. El estado del alta vive en OnboardingProvider. */
 export default function OnboardingLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-1 flex-col">
@@ -17,7 +18,9 @@ export default function OnboardingLayout({ children }: { children: ReactNode }) 
           Guardar y salir
         </Link>
       </header>
-      <main className="flex flex-1 flex-col">{children}</main>
+      <main className="flex flex-1 flex-col">
+        <OnboardingProvider>{children}</OnboardingProvider>
+      </main>
     </div>
   );
 }
