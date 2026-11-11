@@ -7,9 +7,9 @@ import { cn } from "@/shared/lib/cn";
 
 /**
  * Panel derecho del login (oscuro, como en el diseño). Al centro, la criba;
- * alrededor, las fuentes de donde llegan las hojas de vida. En cada turno una
- * fuente se enciende, su hoja viaja por la línea hasta la criba, los puntos de
- * la marca hacen una onda y abajo aparece el resultado. Debajo, qué ganas al entrar.
+ * alrededor, las hojas de vida tal como llegan: PDF, Word, escaneos y las que
+ * sube el propio candidato al postularse. En cada turno una se enciende, viaja
+ * por la línea hasta la criba y abajo aparece el resultado. Debajo, qué ganas al entrar.
  */
 const STEP_MS = 3400;
 const SIZE = 420;
@@ -17,10 +17,10 @@ const C = SIZE / 2;
 const R = 160;
 
 const SOURCES = [
-  { logo: "linkedin", name: "LinkedIn", angle: -140 },
-  { logo: "computrabajo", name: "Computrabajo", angle: -40 },
-  { logo: "gmail", name: "Gmail", angle: 40 },
-  { logo: "gdrive", name: "Google Drive", angle: 140 },
+  { tag: "PDF", name: "Hoja de vida en PDF", angle: -140 },
+  { tag: "DOCX", name: "Documento de Word", angle: -40 },
+  { tag: "SCAN", name: "Escaneo o foto", angle: 40 },
+  { tag: "WEB", name: "Postulación del candidato", angle: 140 },
 ].map((s) => {
   const a = (s.angle * Math.PI) / 180;
   return { ...s, x: Math.round(Math.cos(a) * R), y: Math.round(Math.sin(a) * R) };
@@ -65,7 +65,7 @@ export function LoginShowcase() {
           <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-0">
             {SOURCES.map((s, k) => (
               <line
-                key={s.logo}
+                key={s.tag}
                 x1={C + s.x}
                 y1={C + s.y}
                 x2={C}
@@ -81,19 +81,20 @@ export function LoginShowcase() {
           {/* Fuentes */}
           {SOURCES.map((s, k) => (
             <div
-              key={s.logo}
+              key={s.tag}
               className="absolute flex flex-col items-center gap-2"
               style={{ left: C + s.x, top: C + s.y, transform: "translate(-50%, -50%)" }}
             >
               <span
                 className={cn(
-                  "flex size-14 items-center justify-center rounded-2xl bg-white p-2.5 transition-[box-shadow,transform,translate,scale,rotate] duration-500 ease-[var(--ease-spring)] animate-[float_6s_ease-in-out_infinite]",
+                  "flex size-14 items-center justify-center rounded-2xl bg-surface-2 p-2.5 ring-1 ring-border transition-[box-shadow,transform,translate,scale,rotate] duration-500 ease-[var(--ease-spring)] animate-[float_6s_ease-in-out_infinite]",
                   k === i ? "scale-110 shadow-[0_0_0_4px_rgba(242,169,59,0.45),0_18px_40px_-14px_rgba(0,0,0,0.9)]" : "shadow-[0_14px_30px_-14px_rgba(0,0,0,0.9)]",
                 )}
                 style={{ animationDelay: `${k * -1.4}s` }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element -- logo estático pequeño de public/ */}
-                <img src={`/logos/${s.logo}.png`} alt="" width={36} height={36} className="size-full object-contain" />
+                <span className="flex h-full w-[30px] flex-col justify-end rounded-[3px] border border-[#1a211d]/15 bg-[#f5f1e8] pb-1">
+                  <span className="text-center font-mono text-[8.5px] font-semibold tracking-wide text-[#1a211d]/70">{s.tag}</span>
+                </span>
               </span>
               <span className={cn("text-[11.5px] transition-colors duration-500", k === i ? "text-ink" : "text-ink-3")}>{s.name}</span>
             </div>

@@ -7,17 +7,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button, TextField, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
-import { signInWithPassword, signInWithProvider } from "../api/auth";
+import { requestPasswordReset, signInWithPassword } from "../api/auth";
 import { hasFinishedOnboarding } from "@/features/onboarding/state/onboarding-store";
 import { loginSchema, organizationFromEmail, type LoginInput } from "../schemas/login";
-import { ProviderButton } from "./provider-button";
 
 export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
-  const [providerLoading, setProviderLoading] = useState<"google" | "azure" | null>(null);
+  const [resetting, setResetting] = useState(false);
   const requested = params.get("next");
 
   const form = useForm<LoginInput>({
@@ -42,34 +41,27 @@ export function LoginForm() {
     router.refresh();
   }
 
-  async function onProvider(provider: "google" | "azure") {
-    setProviderLoading(provider);
-    const result = await signInWithProvider(provider, requested ?? routes.onboarding(2));
-    if (!result.ok) {
-      toast({ tone: "error", title: result.message });
-      setProviderLoading(null);
+  async function onForgot() {
+    const ok = await form.trigger("email");
+    if (!ok) {
+      form.setFocus("email");
+      return;
     }
+    setResetting(true);
+    const result = await requestPasswordReset(form.getValues("email"));
+    setResetting(false);
+    if (!result.ok) toast({ tone: "error", title: result.message });
+    else toast({ title: "Revisa tu correo", description: "Si la cuenta existe, te llega un enlace para crear una contraseña nueva." });
   }
 
   return (
     <div className="stagger flex flex-col gap-7 short:gap-5 shorter:gap-4 [&>*]:animate-rise">
       <div className="flex flex-col gap-2" style={{ "--i": 0 } as React.CSSProperties}>
-        <h1 className="font-head text-[32px] leading-tight short:text-[28px] shorter:text-[26px] font-semibold">Crea tu cuenta o entra</h1>
-        <p className="text-base text-ink-2">Paso 1 de 3. Con tu correo de empresa detectamos la organización.</p>
+        <h1 className="font-head text-[32px] leading-tight short:text-[28px] shorter:text-[26px] font-semibold">Entra a Criba</h1>
+        <p className="text-base text-ink-2">Con el correo de empresa que te dio tu organización. Las cuentas se crean por invitación.</p>
       </div>
 
-      <div className="flex flex-col gap-2.5" style={{ "--i": 1 } as React.CSSProperties}>
-        <ProviderButton provider="google" loading={providerLoading === "google"} disabled={providerLoading !== null} onClick={() => onProvider("google")} />
-        <ProviderButton provider="azure" loading={providerLoading === "azure"} disabled={providerLoading !== null} onClick={() => onProvider("azure")} />
-      </div>
-
-      <div className="flex items-center gap-3" style={{ "--i": 2 } as React.CSSProperties} aria-hidden>
-        <span className="h-px flex-1 bg-border" />
-        <span className="text-xs text-ink-3">o con correo</span>
-        <span className="h-px flex-1 bg-border" />
-      </div>
-
-      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6 short:gap-4 shorter:gap-3" style={{ "--i": 3 } as React.CSSProperties}>
+      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6 short:gap-4 shorter:gap-3" style={{ "--i": 1 } as React.CSSProperties}>
         <TextField
           label="Correo de empresa"
           type="email"
@@ -98,12 +90,15 @@ export function LoginForm() {
           }
           {...form.register("password")}
         />
+        <button type="button" onClick={onForgot} disabled={resetting} className="-mt-3 self-end text-[13px] text-ink-2 underline-offset-4 transition-colors hover:text-ink hover:underline disabled:opacity-60 short:-mt-2">
+          {resetting ? "Enviando enlace" : "¿Olvidaste tu contraseña?"}
+        </button>
         <Button type="submit" block loading={form.formState.isSubmitting} iconRight={<ArrowRight />}>
           Entrar
         </Button>
       </form>
 
-      <p className="text-sm text-ink-2" style={{ "--i": 4 } as React.CSSProperties}>
+      <p className="text-sm text-ink-2" style={{ "--i": 2 } as React.CSSProperties}>
         ¿Tu empresa no usa Criba todavía?{" "}
         <a href="mailto:hola@criba.app?subject=Demo" className="inline-flex items-center gap-1 text-ink underline-offset-4 transition-colors hover:underline">
           Pedir una demo
