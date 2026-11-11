@@ -23,7 +23,8 @@ export function StepFrame({ step, title, description, children, footer, width = 
         <h1 className="font-head text-[34px] leading-[1.1] font-semibold tracking-[-0.01em]">{title}</h1>
         <p className="text-[15px] text-ink-2">{description}</p>
       </div>
-      <div className={cn("flex max-w-full flex-col gap-6", !bare && "card p-7")} style={{ width, "--i": 1 } as React.CSSProperties}>
+      {/* Por encima del pie: los menús desplegables no deben quedar tapados por los botones. */}
+      <div className={cn("relative z-10 flex max-w-full flex-col gap-6", !bare && "card p-7")} style={{ width, "--i": 1 } as React.CSSProperties}>
         {children}
       </div>
       <div className="flex max-w-full items-center justify-between" style={{ width, "--i": 2 } as React.CSSProperties}>
