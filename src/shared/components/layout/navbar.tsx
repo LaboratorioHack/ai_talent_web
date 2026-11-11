@@ -10,6 +10,7 @@ import { cn } from "@/shared/lib/cn";
 import type { CurrentUser } from "@/shared/types/domain";
 import { NavSearch, type SearchItem } from "./nav-search";
 import { OrgSwitcher } from "./org-switcher";
+import { ThemeToggle } from "./theme-toggle";
 
 export interface NavNotice {
   id: string;
@@ -74,7 +75,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-bg/80 backdrop-blur-xl backdrop-saturate-150">
-      <div className="flex h-[68px] items-center justify-between gap-6 px-8">
+      <div className="flex h-[68px] items-center justify-between gap-4 px-6 min-[1680px]:gap-6 min-[1680px]:px-8">
         <div className="flex min-w-0 items-center gap-4">
           <Link href={routes.home} aria-label="Inicio" className="shrink-0 rounded-lg transition-opacity hover:opacity-80">
             <Logo size="lg" />
@@ -112,7 +113,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
                     tabIndex={searching ? -1 : undefined}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative z-10 flex h-10 items-center gap-1.5 rounded-full px-3.5 text-[14px] whitespace-nowrap transition-colors duration-300",
+                      "relative z-10 flex h-10 items-center gap-1.5 rounded-full px-3 text-[14px] whitespace-nowrap transition-colors duration-300 min-[1680px]:px-3.5",
                       active ? "font-medium text-ink" : "text-ink-2 hover:text-ink",
                     )}
                   >
@@ -148,6 +149,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
 
         <div className="flex items-center justify-end gap-2">
           <NavSearch items={[...PAGES, ...searchItems]} onOpenChange={setSearching} />
+          <ThemeToggle />
 
           <Popover
             label={`Avisos${notices.length && !seen ? `, ${notices.length} nuevos` : ""}`}

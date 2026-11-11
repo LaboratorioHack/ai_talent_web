@@ -103,9 +103,11 @@ export function NavSearch({ items, onOpenChange }: NavSearchProps) {
   return (
     <div ref={root} className="relative">
       <div
+        onClick={() => input.current?.focus()}
+        title={open ? undefined : "Buscar (Ctrl K)"}
         className={cn(
           "flex h-11 items-center gap-2.5 rounded-full border bg-surface pr-2 pl-4 text-[14px] transition-[width,border-color,box-shadow] duration-[650ms] ease-[var(--ease-out-soft)]",
-          open ? "w-[min(560px,44vw)] border-border-strong shadow-[0_0_0_4px_rgba(242,169,59,0.16),0_16px_36px_-20px_rgba(21,32,27,0.45)]" : "w-[220px] border-border shadow-[0_1px_2px_rgba(21,32,27,0.04)] hover:border-border-strong 2xl:w-[300px]",
+          open ? "w-[min(560px,44vw)] border-border-strong shadow-[0_0_0_4px_rgba(242,169,59,0.16),0_16px_36px_-20px_rgba(21,32,27,0.45)]" : "w-11 cursor-pointer border-border pl-[12px] shadow-[0_1px_2px_rgba(21,32,27,0.04)] hover:border-border-strong min-[1680px]:w-[300px] min-[1680px]:cursor-text min-[1680px]:pl-4",
         )}
       >
         <Search aria-hidden className={cn("size-[18px] shrink-0 transition-colors duration-300", open ? "text-ink" : "text-ink-3")} />
@@ -126,7 +128,7 @@ export function NavSearch({ items, onOpenChange }: NavSearchProps) {
           aria-label="Buscar"
           className="h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-ink-3"
         />
-        <kbd className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 font-sans text-[11.5px] text-ink-3 ring-1 ring-border">{open ? "Esc" : "Ctrl K"}</kbd>
+        <kbd className={cn("shrink-0 rounded-full bg-surface-2 px-2.5 py-1 font-sans text-[11.5px] text-ink-3 ring-1 ring-border", !open && "hidden min-[1680px]:inline")}>{open ? "Esc" : "Ctrl K"}</kbd>
       </div>
 
       {mounted ? (
