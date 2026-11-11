@@ -15,5 +15,9 @@ export const routes = {
   interviews: "/interviews",
   interview: (id: string) => `/interviews/${id}`,
   governance: "/governance",
+  /** Públicas, para el candidato: vacante con postulación, confirmación y entrevista IA. */
+  apply: (jobId: string) => `/jobs/${jobId}`,
+  applied: (jobId: string) => `/jobs/${jobId}/applied`,
+  candidateInterview: (token: string) => `/interview/${token}`,
   design: "/design",
 } as const;

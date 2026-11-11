@@ -3,7 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/config/env";
 import { routes } from "@/shared/constants/routes";
 
-const PUBLIC_PREFIXES = ["/login", "/auth", "/design", "/_next", "/favicon.ico"];
+/** Rutas sin sesión. /jobs y /interview/ son del candidato, que no tiene cuenta de empresa. */
+const PUBLIC_PREFIXES = ["/login", "/auth", "/design", "/jobs", "/interview/", "/_next", "/favicon.ico"];
 
 /**
  * Refresca la sesión de Supabase en cada petición y protege el panel.

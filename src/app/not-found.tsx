@@ -19,12 +19,12 @@ export default function NotFound() {
           Esta página ya no existe
         </h1>
         <p className="text-base text-ink-2" style={{ "--i": 2 } as React.CSSProperties}>
-          Pudo ser eliminada o pertenece a otra organización.
+          Pudo ser eliminada, o el enlace está incompleto.
         </p>
         <div className="flex gap-3 pt-3.5" style={{ "--i": 3 } as React.CSSProperties}>
           <ButtonLink href={routes.home}>Ir al inicio</ButtonLink>
-          <ButtonLink href={routes.home} variant="outline">
-            Cambiar de organización
+          <ButtonLink href={routes.vacancies} variant="outline">
+            Ver vacantes
           </ButtonLink>
         </div>
       </section>
