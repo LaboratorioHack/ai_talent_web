@@ -49,11 +49,11 @@ export function Dropzone({ onFiles, onSample, onConnectFolder }: DropzoneProps) 
       }}
       onDrop={onDrop}
       className={cn(
-        "relative flex items-center gap-10 overflow-hidden rounded-2xl border-[1.5px] border-dashed px-10 py-8 transition-[border-color,background-color,box-shadow] duration-500 ease-[var(--ease-out-soft)]",
+        "relative flex flex-col items-start gap-6 overflow-hidden rounded-2xl border-[1.5px] border-dashed px-5 py-6 sm:flex-row sm:items-center sm:gap-10 sm:px-10 sm:py-8 transition-[border-color,background-color,box-shadow] duration-500 ease-[var(--ease-out-soft)]",
         over ? "border-amber bg-[color-mix(in_oklab,var(--amber)_7%,var(--surface))] shadow-[0_0_0_6px_rgba(242,169,59,0.12)]" : "border-border-strong bg-surface",
       )}
     >
-      <div aria-hidden className="relative flex h-[118px] w-[150px] shrink-0 items-center justify-center">
+      <div aria-hidden className="relative hidden h-[118px] w-[150px] shrink-0 items-center justify-center sm:flex">
         {SHEETS.map((s, i) => (
           <span key={i} className="absolute animate-[float_6s_ease-in-out_infinite]" style={{ animationDelay: s.delay }}>
             <span
@@ -85,7 +85,7 @@ export function Dropzone({ onFiles, onSample, onConnectFolder }: DropzoneProps) 
           <Button variant="text" icon={<FolderSync />} onClick={onConnectFolder}>
             Conectar carpeta compartida
           </Button>
-          <span aria-hidden className="mx-1 h-5 w-px bg-border" />
+          <span aria-hidden className="mx-1 hidden h-5 w-px bg-border sm:block" />
           <Button variant="text" icon={<Files />} onClick={onSample}>
             Probar con archivos de ejemplo
           </Button>

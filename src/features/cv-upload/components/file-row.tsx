@@ -42,7 +42,7 @@ export function FileRow({ file, index, onRetry, onRemove, onRequestOriginal }: F
 
   return (
     <li
-      className="group relative grid grid-cols-[44px_1fr_auto_auto] items-center gap-4 border-b border-border py-3.5 pr-2 last:border-0 animate-[option-in_380ms_var(--ease-out-soft)_both]"
+      className="group relative grid grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 sm:grid-cols-[44px_1fr_auto_auto] sm:gap-4 max-sm:[&>*:nth-child(4)]:col-span-3 max-sm:[&>*:nth-child(4)]:w-auto max-sm:[&>*:nth-child(4)]:justify-start border-b border-border py-3.5 pr-2 last:border-0 animate-[option-in_380ms_var(--ease-out-soft)_both]"
       style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
     >
       <span className={cn("flex h-11 w-9 items-center justify-center rounded-[5px] border font-mono text-[9.5px] font-semibold tracking-wide", file.status === "READ" ? "border-border bg-surface text-ink-2" : "border-border bg-surface-2 text-ink-3")}>{file.kind.slice(0, 4)}</span>
