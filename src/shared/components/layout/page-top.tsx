@@ -12,6 +12,8 @@ export interface PageTopProps {
   actions?: ReactNode;
   /** Pestañas o filtros bajo el título; quedan fijos con él. */
   children?: ReactNode;
+  /** false en pantallas de alto fijo (tablero, chat): el encabezado no se pega ni se encoge. */
+  sticky?: boolean;
   className?: string;
 }
 
@@ -29,16 +31,18 @@ function Collapsible({ children }: { children: ReactNode }) {
  * título se reduce, la ruta y la descripción se pliegan y queda solo lo útil.
  * Al volver arriba recupera su tamaño, siempre con transición suave.
  */
-export function PageTop({ eyebrow, title, description, actions, children, className }: PageTopProps) {
-  const { sentinel, stuck } = useStuck();
+export function PageTop({ eyebrow, title, description, actions, children, sticky = true, className }: PageTopProps) {
+  const { sentinel, stuck: scrolled } = useStuck();
+  const stuck = sticky && scrolled;
   return (
     <>
       <div ref={sentinel} aria-hidden className="h-0" />
       <div
         data-stuck={stuck}
         className={cn(
-          "group/top sticky top-[var(--app-header,0px)] z-30 border-b border-border bg-surface/90 backdrop-blur-xl backdrop-saturate-150 transition-shadow duration-500",
+          "group/top z-30 border-b border-border bg-surface transition-shadow duration-500",
           "data-[stuck=true]:shadow-[0_14px_30px_-26px_rgba(21,32,27,0.5)]",
+          sticky && "sticky top-[var(--app-header,0px)]",
           className,
         )}
       >

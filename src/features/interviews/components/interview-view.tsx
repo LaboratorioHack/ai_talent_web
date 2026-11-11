@@ -99,6 +99,7 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
   return (
     <div className="flex h-[calc(100dvh-var(--app-header,0px))] flex-col">
       <PageTop
+        sticky={false}
         eyebrow={
           <nav aria-label="Ruta" className="flex items-center gap-1.5">
             <Link href={routes.interviews} className="transition-colors hover:text-ink">

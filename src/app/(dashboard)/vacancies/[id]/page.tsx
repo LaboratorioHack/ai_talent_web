@@ -20,6 +20,7 @@ async function Board({ params }: { params: Promise<{ id: string }> }) {
   return (
     <>
       <PageTop
+        sticky={false}
         eyebrow={
           <nav aria-label="Ruta" className="flex items-center gap-1.5">
             <Link href={routes.vacancies} className="transition-colors hover:text-ink">
@@ -67,7 +68,7 @@ function BoardSkeleton() {
 /** Pantalla 05 · Vacantes · Tablero de pipeline. */
 export default function VacancyBoardPage({ params }: PageProps<"/vacancies/[id]">) {
   return (
-    <div className="flex h-[calc(100dvh-var(--app-header,0px))] min-h-[640px] flex-col">
+    <div className="flex h-[calc(100dvh-var(--app-header,0px))] flex-col">
       <Suspense fallback={<BoardSkeleton />}>
         <Board params={params} />
       </Suspense>
