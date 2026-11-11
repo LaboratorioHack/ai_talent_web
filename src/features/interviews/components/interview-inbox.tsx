@@ -184,7 +184,7 @@ export function InterviewInbox({ interviews }: { interviews: Interview[] }) {
   const groups = useMemo(() => GROUPS.map((g) => ({ ...g, list: interviews.filter((i) => i.status === g.status) })).filter((g) => g.list.length), [interviews]);
 
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-[400px_1fr]">
+    <div className="mt-4 grid min-h-0 flex-1 grid-cols-[400px_1fr] border-t border-border">
       <ScrollArea aria-label="Entrevistas" className="border-r border-border bg-bg" viewportClassName="px-5 pt-5 pb-10">
         {groups.map((g, gi) => (
           <section key={g.status} className="flex flex-col gap-1 pb-4">
