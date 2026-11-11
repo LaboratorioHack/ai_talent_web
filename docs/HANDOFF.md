@@ -10,6 +10,7 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 1 | `feat/design-system` | `develop` | lista | Tokens, fuentes, kit de UI compartido, `/design` |
 | 2 | `feat/app-shell` | 1 | lista | Movimiento, tipos de dominio, mocks, navbar, layout del panel, rutas y 404 |
 | 3 | `feat/auth-onboarding` | 2 | lista | Supabase Auth, login, onboarding 2–4, editor de perfil de cargo |
+| 4 | `feat/custom-select` | 3 | lista | Desplegable propio animado; reemplaza todos los `<select>` nativos |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -55,6 +56,14 @@ Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1
 **Editor de perfil de cargo** (`features/vacancies/components/RoleProfileEditor`): sirve igual para la pantalla 06 (`/vacancies/[id]/profile`). Tabla de requisitos con tipo (obligatorio / deseable / descalificante), peso con stepper, equivalencias como chips (`GCP 80` → `GCP ≈ 80 %`), lateral "Cómo se puntúa" con suma de pesos en vivo y umbrales. Validación con `roleProfileDraftSchema`. "Pegar la descripción del cargo" queda como botón inerte hasta que el AI Engine exponga el endpoint.
 
 **Cache Components, dos reglas que ya nos mordieron**: no usar `new Date()` en el render de un Client Component (hook `useToday()` en `shared/hooks`), y no leer `params` / `searchParams` fuera de `Suspense` (por eso los pasos son rutas estáticas `2/`, `3/`, `4/`).
+
+## 4 · `feat/custom-select`
+
+**`Select`** en [src/shared/components/ui/select.tsx](../src/shared/components/ui/select.tsx): desplegable propio con patrón combobox de solo selección. Controlado (`value` + `onChange(value)`) o no controlado (`defaultValue`). Teclado completo: flechas, Inicio/Fin, Enter/Espacio, Escape, Tab y búsqueda por letra. Animación de apertura y de cierre (la lista se queda montada mientras sale), chevron que gira, opciones que entran escalonadas y check con resorte. Opciones con `hint` opcional. `triggerClassName` permite disparadores con otro aspecto, como el chip de tipo de requisito.
+
+**`SelectField`** ahora envuelve `Select` con `Field`. **Cambio de API**: `onChange` recibe el valor, no el evento. Ya no hay `<select>` nativos en el código.
+
+**Hooks nuevos** en `shared/hooks`: `usePresence(open)` (montar mientras corre la salida) y `useDismiss(ref, open, onClose)` (clic fuera + Escape). `DateField` los usa también y ahora anima su salida. El `Modal` deja desbordar los popovers.
 
 ## Convenciones
 
