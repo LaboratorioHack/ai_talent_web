@@ -24,7 +24,7 @@ export function ScoringSidebar({ requirements, autoInterview, onAutoInterviewCha
   const ok = total === 100;
 
   return (
-    <aside className="sticky top-[var(--app-header,0px)] flex h-[calc(100dvh-var(--app-header,0px))] w-[380px] shrink-0 flex-col gap-8 self-start overflow-y-auto overscroll-contain border-l border-border px-9 pt-10 pb-12">
+    <aside className="sticky top-[var(--app-header,0px)] flex h-[calc(100dvh-var(--app-header,0px))] w-[380px] shrink-0 flex-col gap-8 self-start overflow-y-auto overscroll-contain border-l border-border px-9 pt-10 pb-12 animate-[page-in_700ms_var(--ease-out-soft)_200ms_backwards]">
       <h2 className="font-head text-[22px] font-semibold">Cómo se puntúa</h2>
 
       <div className="flex flex-col gap-2.5">
