@@ -35,7 +35,7 @@ export function Tabs<T extends string>({ items, value, onChange, className, ...r
             )}
           >
             {item.label}
-            {item.count !== undefined ? <span className="ml-1.5 rounded-full bg-surface-2 px-1.5 py-px font-mono text-[11px] text-ink-2">{item.count}</span> : null}
+            {item.count !== undefined ? <span className="ml-2 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-surface-3 px-1.5 align-[1px] text-[11px] leading-none font-medium text-ink-2 tabular-nums">{item.count}</span> : null}
           </button>
         );
       })}

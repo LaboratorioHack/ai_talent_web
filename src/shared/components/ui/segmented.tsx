@@ -49,14 +49,23 @@ export function Segmented<T extends string>({ items, value, onChange, size = "md
             data-value={item.value}
             onClick={() => onChange(item.value)}
             className={cn(
-              "relative z-10 flex items-center justify-center gap-1.5 rounded-full whitespace-nowrap transition-colors duration-300",
+              "relative z-10 flex items-center justify-center gap-2 rounded-full whitespace-nowrap transition-colors duration-300",
               fill && "flex-1",
               size === "sm" ? (fill ? "h-8 px-1.5 text-[12.5px]" : "h-8 px-3 text-[13px]") : "h-9 px-4 text-[13.5px]",
               active ? "font-medium text-ink" : "text-ink-2 hover:text-ink",
             )}
           >
             {item.label}
-            {item.count !== undefined ? <span className={cn("font-mono text-[11px]", active ? "text-ink-2" : "text-ink-3")}>{item.count}</span> : null}
+            {item.count !== undefined ? (
+              <span
+                className={cn(
+                  "inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1.5 text-[11px] leading-none font-medium tabular-nums transition-colors duration-300",
+                  active ? "bg-ink text-ink-inverse" : "bg-surface-3 text-ink-2",
+                )}
+              >
+                {item.count}
+              </span>
+            ) : null}
           </button>
         );
       })}
