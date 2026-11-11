@@ -46,7 +46,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
         if (dismissible && e.target === ref.current) onClose();
       }}
       className={cn(
-        "m-auto w-[calc(100vw-2rem)] rounded-xl bg-surface p-0 text-ink shadow-xl backdrop:bg-panel/60",
+        "m-auto w-[calc(100vw-2rem)] overflow-visible rounded-xl bg-surface p-0 text-ink shadow-xl backdrop:bg-panel/60",
         "open:animate-pop-in backdrop:animate-fade-in",
         size === "sm" ? "max-w-[360px]" : "max-w-[440px]",
       )}
