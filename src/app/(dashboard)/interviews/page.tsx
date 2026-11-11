@@ -1,20 +1,27 @@
 import type { Metadata } from "next";
-import { PageBody, PageHeader } from "@/shared/components/layout";
-import { ButtonLink, EmptyState } from "@/shared/components/ui";
-import { routes } from "@/shared/constants/routes";
+import { Suspense } from "react";
+import { PageTop } from "@/shared/components/layout";
+import { Skeleton } from "@/shared/components/ui";
+import { listInterviews } from "@/features/interviews/api/interviews";
+import { InterviewList } from "@/features/interviews/components/interview-list";
 
-export const metadata: Metadata = { title: "Entrevista IA" };
+export const metadata: Metadata = { title: "Entrevistas" };
 
+async function Interviews() {
+  const interviews = await listInterviews();
+  return <InterviewList interviews={interviews} />;
+}
+
+/** Lista de entrevistas con IA. */
 export default function InterviewsPage() {
   return (
-    <PageBody>
-      <PageHeader eyebrow="ÚLTIMOS 30 DÍAS" title="Entrevistas" />
-      <EmptyState
-        title="Ninguna entrevista todavía"
-        description="Invita a entrevista desde el ranking para que el agente haga 5 a 10 preguntas."
-        action={<ButtonLink href={routes.rankings}>Ir al ranking</ButtonLink>}
-        className="w-[480px] animate-rise"
-      />
-    </PageBody>
+    <div className="flex flex-1 flex-col">
+      <PageTop title="Entrevistas" description="La IA pregunta por lo que falta validar y marca lo que no coincide con la hoja de vida." />
+      <div className="flex flex-col px-12 pt-7 pb-14">
+        <Suspense fallback={<Skeleton className="h-[420px] rounded-2xl" />}>
+          <Interviews />
+        </Suspense>
+      </div>
+    </div>
   );
 }
