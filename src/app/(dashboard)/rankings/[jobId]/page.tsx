@@ -19,17 +19,17 @@ async function Ranking({ params, searchParams }: PageProps<"/rankings/[jobId]">)
 function RankingSkeleton() {
   return (
     <div className="flex flex-1 flex-col" aria-busy>
-      <div className="border-b border-border bg-surface px-12 pt-6 pb-5">
+      <div className="border-b border-border bg-surface px-4 sm:px-6 lg:px-12 pt-6 pb-5">
         <Skeleton className="h-4 w-48" />
         <Skeleton className="mt-3 h-8 w-80" />
       </div>
-      <div className="grid flex-1 grid-cols-[440px_1fr]">
+      <div className="grid flex-1 grid-cols-1 lg:grid-cols-[440px_1fr]">
         <div className="flex flex-col gap-3 border-r border-border px-6 pt-6">
           {Array.from({ length: 8 }, (_, i) => (
             <Skeleton key={i} className="h-14 rounded-xl" />
           ))}
         </div>
-        <div className="flex flex-col gap-6 bg-surface px-12 pt-8">
+        <div className="flex flex-col gap-6 bg-surface px-4 sm:px-6 lg:px-12 pt-8">
           <Skeleton className="h-20 w-2/3" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-[360px] w-full" />
