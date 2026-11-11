@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { FileSearch, ListChecks, MessagesSquare } from "lucide-react";
+import { LogoMark } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 
 /**
@@ -38,7 +39,6 @@ const HIGHLIGHTS = [
   { icon: MessagesSquare, title: "Entrevista con IA", detail: "Preguntas a la medida y contraste con lo que dice el CV." },
 ];
 
-const DOTS = [1, 1, 1, 1, 1, 1, 0.35, 1, 0.35];
 
 export function LoginShowcase() {
   const [step, setStep] = useState(0);
@@ -111,12 +111,11 @@ export function LoginShowcase() {
             <span className="absolute top-[27px] right-2 left-1.5 h-[2px] rounded-full bg-[#1a211d]/25" />
           </span>
 
-          {/* La criba */}
-          <div className="absolute grid size-[104px] grid-cols-3 gap-[9px] rounded-[26px] bg-amber p-[22px] shadow-[0_0_0_10px_rgba(242,169,59,0.08),0_30px_60px_-20px_rgba(242,169,59,0.45)]" style={{ left: C - 52, top: C - 52 }}>
-            {DOTS.map((o, d) => (
-              <span key={`${step}-${d}`} className="sieve-dot size-full rounded-full bg-ink-inverse" style={{ opacity: o, animationDelay: `${1050 + (Math.floor(d / 3) + (d % 3)) * 70}ms` }} />
-            ))}
-          </div>
+          {/* La marca recibe la hoja y la "lee": su línea resaltada vuelve a pasarse en cada turno. */}
+        <div className="absolute flex size-[104px] items-center justify-center rounded-[28px] bg-surface-2 shadow-[0_0_0_10px_rgba(242,169,59,0.07),0_30px_60px_-20px_rgba(0,0,0,0.8)] ring-1 ring-border" style={{ left: C - 52, top: C - 52 }}>
+          <span key={step} aria-hidden className="absolute inset-0 rounded-[28px] ring-2 ring-amber/60 animate-[mark-pulse_1400ms_var(--ease-out-soft)_1000ms_both]" />
+          <LogoMark size={56} inverse />
+        </div>
         </div>
 
         {/* Resultado de la hoja actual */}
