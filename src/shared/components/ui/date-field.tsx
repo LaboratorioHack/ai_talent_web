@@ -31,7 +31,7 @@ export function DateField({
   minDate,
   maxDate,
   placeholder = "Elegir fecha",
-  kind = "Elegir fecha",
+  kind,
   help,
   error,
   disabled,
@@ -56,7 +56,7 @@ export function DateField({
             aria-expanded={open}
             aria-describedby={describedBy}
             onClick={() => setOpen((o) => !o)}
-            className={cn(inputBoxClass, inputBorderClass(Boolean(error)), "justify-between text-left hover:border-ink-3", open && "border-ink", disabled && "opacity-45")}
+            data-open={open} className={cn(inputBoxClass, inputBorderClass(Boolean(error)), "justify-between text-left", disabled && "opacity-45")}
           >
             <span className={cn(!value && "text-ink-3")}>{value ? formatDateDisplay(value) : placeholder}</span>
             <CalendarIcon aria-hidden className={cn("size-[15px] shrink-0 transition-colors duration-300", open ? "text-ink" : "text-ink-3")} />

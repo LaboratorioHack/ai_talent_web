@@ -43,18 +43,14 @@ export function NumberField({
     <Field label={label} kind={kindLabel} help={help} error={error} className={className}>
       {({ id, describedBy }) => (
         <div
-          className={cn(
-            "flex h-10 w-full items-stretch overflow-hidden rounded-md border bg-surface",
-            inputBorderClass(Boolean(error)),
-            disabled && "opacity-45",
-          )}
+          className={cn("field-box flex h-11 w-full items-stretch overflow-hidden", inputBorderClass(Boolean(error)), disabled && "opacity-45")}
         >
           <button
             type="button"
             aria-label="Restar"
             disabled={disabled || value <= min}
             onClick={() => set(value - step)}
-            className="flex w-10 shrink-0 items-center justify-center border-r border-border text-ink-2 hover:bg-surface-2 disabled:opacity-40"
+            className="flex w-11 shrink-0 items-center justify-center text-ink-2 transition-colors duration-300 hover:bg-surface-2 hover:text-ink disabled:opacity-35"
           >
             <Minus aria-hidden className="size-3.5" />
           </button>
@@ -73,14 +69,14 @@ export function NumberField({
               const next = Number(e.target.value);
               if (!Number.isNaN(next)) set(next);
             }}
-            className="min-w-0 flex-1 bg-transparent text-center font-mono text-base outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            className="min-w-0 flex-1 border-x border-border bg-transparent text-center font-mono text-[14px] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           <button
             type="button"
             aria-label="Sumar"
             disabled={disabled || value >= max}
             onClick={() => set(value + step)}
-            className="flex w-10 shrink-0 items-center justify-center border-l border-border text-ink-2 hover:bg-surface-2 disabled:opacity-40"
+            className="flex w-11 shrink-0 items-center justify-center text-ink-2 transition-colors duration-300 hover:bg-surface-2 hover:text-ink disabled:opacity-35"
           >
             <Plus aria-hidden className="size-3.5" />
           </button>
