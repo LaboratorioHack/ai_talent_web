@@ -28,6 +28,7 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 19 | `feat/governance` | 18 | lista | 11 Auditoría: cifras, alertas de sesgo, atributos y decisiones |
 | 20 | `feat/people-first` | 19 | lista | Ranking por vacante con sus mejores personas, chat de entrevista, bandeja de entrevistas, `ScrollArea`, panel de lo que falta en la ingesta, navbar que se recoge en un icono |
 | 21 | `feat/pipeline` | 20 | lista | Tablero de pipeline para todas las vacantes con columnas de scroll propio, generador de candidatos en `shared/mocks`, arreglos del filtro del ranking y del foco del navbar |
+| 22 | `fix/short-pages` | 21 | lista | Encabezados sin sticky en pantallas de alto fijo, barras flotantes opacas y sin compactar en páginas cortas |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
