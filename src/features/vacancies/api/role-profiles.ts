@@ -45,3 +45,20 @@ export async function proposeRequirements(description: string): Promise<Requirem
     1200,
   );
 }
+
+/** Borrador vacío para una vacante nueva (cierre por defecto en 30 días lo fija el editor). */
+export function emptyRoleProfileDraft(): RoleProfileDraft {
+  return {
+    title: "",
+    description: "",
+    area: "",
+    closesAt: "",
+    openings: 1,
+    autoInterview: true,
+    ignoreSensitive: true,
+    requirements: [
+      { id: "new-1", description: "", type: "MANDATORY", weight: 50, equivalences: [] },
+      { id: "new-2", description: "", type: "NICE_TO_HAVE", weight: 50, equivalences: [] },
+    ],
+  };
+}
