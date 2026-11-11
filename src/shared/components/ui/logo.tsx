@@ -15,8 +15,9 @@ export interface LogoMarkProps {
  */
 export function LogoMark({ size = 26, inverse = false, className }: LogoMarkProps) {
   const page = inverse ? "#f5f1e8" : "var(--ink)";
-  const fold = inverse ? "#d9d2c3" : "#3b4842";
-  const line = inverse ? "#15201b" : "#ffffff";
+  // Sin inverse sigue al tema: hoja de tinta y líneas del color contrario (en oscuro se invierte sola).
+  const fold = inverse ? "#d9d2c3" : "color-mix(in oklab, var(--ink) 72%, var(--ink-inverse))";
+  const line = inverse ? "#15201b" : "var(--ink-inverse)";
   return (
     <svg viewBox="0 0 24 28" width={(size * 24) / 28} height={size} aria-hidden className={cn("shrink-0", className)}>
       <path d="M4 1h11.2L22 7.8V24a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3V4a3 3 0 0 1 3-3Z" fill={page} />
