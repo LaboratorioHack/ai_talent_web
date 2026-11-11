@@ -18,7 +18,7 @@ export function DoneStep() {
     data.sources[id] === "connected" ? "Conectada" : data.sources[id] === "later" ? "Pendiente de conectar" : SOURCES.find((s) => s.id === id)?.connect === "none" ? "Lista" : "Pendiente";
 
   const rows: { label: string; value: React.ReactNode }[] = [
-    { label: "Organización", value: `${data.organization.name} · ${data.organization.sector} · ${data.organization.size} personas` },
+    { label: "Organización", value: `${data.organization.name}, ${data.organization.sector.toLowerCase()}, ${data.organization.size} personas` },
     { label: "Equipo", value: data.invites.length ? `${data.invites.length} ${data.invites.length === 1 ? "invitación enviada" : "invitaciones enviadas"}` : "Solo tú por ahora" },
     {
       label: "Fuentes",
@@ -36,7 +36,7 @@ export function DoneStep() {
         "Ninguna todavía"
       ),
     },
-    { label: "Primera vacante", value: data.vacancy ? `${data.vacancy.title} · ${data.vacancy.requirements} requisitos` : "Sin crear" },
+    { label: "Primera vacante", value: data.vacancy ? `${data.vacancy.title}, con ${data.vacancy.requirements} requisitos` : "Sin crear" },
   ];
 
   return (

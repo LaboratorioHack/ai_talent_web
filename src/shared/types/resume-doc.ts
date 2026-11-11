@@ -25,7 +25,8 @@ export interface ResumeSection {
 export interface ResumeDoc {
   name: string;
   headline: string;
-  contact: string;
+  /** Correo, teléfono, ciudad: cada dato por separado. */
+  contact: string[];
   sections: ResumeSection[];
   /** Página de origen de cada nota, para citarla ("CV pág. 1"). */
   pages?: number;
