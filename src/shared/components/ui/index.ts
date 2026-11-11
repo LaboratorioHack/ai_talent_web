@@ -4,7 +4,7 @@ export { Calendar } from "./calendar";
 export { DateField } from "./date-field";
 export { EmptyState } from "./empty-state";
 export { Field } from "./field";
-export { Logo } from "./logo";
+export { Logo, LogoMark } from "./logo";
 export { Modal, type ModalProps } from "./modal";
 export { NumberField } from "./number-field";
 export { SearchField } from "./search-field";
