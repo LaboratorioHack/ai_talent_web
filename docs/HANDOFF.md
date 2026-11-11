@@ -29,6 +29,7 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 20 | `feat/people-first` | 19 | lista | Ranking por vacante con sus mejores personas, chat de entrevista, bandeja de entrevistas, `ScrollArea`, panel de lo que falta en la ingesta, navbar que se recoge en un icono |
 | 21 | `feat/pipeline` | 20 | lista | Tablero de pipeline para todas las vacantes con columnas de scroll propio, generador de candidatos en `shared/mocks`, arreglos del filtro del ranking y del foco del navbar |
 | 22 | `fix/short-pages` | 21 | lista | Encabezados sin sticky en pantallas de alto fijo, barras flotantes opacas y sin compactar en páginas cortas |
+| 23 | `feat/brand-mark` | 22 | lista | Logo nuevo (hoja con una línea resaltada) en la app, favicon `app/icon.svg`, icono de edificio en el selector de organización |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -110,6 +111,8 @@ Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1
 
 ## Landing (repo aparte `ai_talent_landing`)
 
+Rama `feat/two-sided` sobre `feat/landing`: la landing le habla a empresas y a personas que buscan empleo. Selector de rol en el hero, sección "Para los dos lados" en lugar de la criba que cerraba filas, vacantes abiertas con "Postularme", cierre con una acción por rol y el tamiz en 3D, tipografía Funnel y el logo nuevo. Los enlaces de candidato van a `/login?rol=candidato`; la app todavía no tiene ese flujo.
+
 Astro 7 + Tailwind v4, estática y en oscuro (tinta verde de la marca, resaltador ámbar; nada espacial). Repo git **local** (sin remoto todavía): `main` tiene el andamiaje y `feat/landing` todo lo demás. Hay que crear el repo en GitHub y empujar ambas ramas. Detalle en su `README.md`.
 
 - **Hero**: titular con palabra que rota bajo el resaltador y una hoja de vida que se revisa sola (resaltador, notas al margen con puntos, sello final); las demás hojas se abren en abanico con el scroll.
@@ -122,7 +125,6 @@ Astro 7 + Tailwind v4, estática y en oscuro (tinta verde de la marca, resaltado
 ## Pendiente
 
 - Conectar las `api/` de cada feature a los endpoints reales cuando existan (cada función indica su ruta en el comentario).
-- La landing sigue con Bricolage e Instrument; si se quiere la misma tipografía que la app, cambiar a Funnel Display y Funnel Sans.
 - Anon key de Supabase en `.env.local` (`NEXT_PUBLIC_SUPABASE_ANON_KEY`); hoy está vacía y la app corre en modo mock.
 - Proveedores OAuth en `supabase/config.toml` si se quieren los botones Google / Microsoft.
 - Tests: el CI corre `pnpm test --if-present` y aún no hay runner configurado.
