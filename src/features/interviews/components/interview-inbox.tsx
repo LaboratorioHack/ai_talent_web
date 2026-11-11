@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, Check, Clock, Minus, Radio, Send } from "lucide-react";
-import { Avatar, Button, ButtonLink, Logo, ScrollArea, useToast } from "@/shared/components/ui";
+import { Avatar, Button, ButtonLink, LogoMark, ScrollArea, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import type { Interview } from "@/shared/types/domain";
@@ -123,7 +123,7 @@ function Preview({ iv }: { iv: Interview }) {
           {recent.map((t) => (
             <div key={t.order} className="flex flex-col gap-2">
               <div className="flex items-end gap-2.5">
-                <Logo compact className="shrink-0 [&>span:first-child]:size-6 [&>span:first-child]:rounded-full" />
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-2 ring-1 ring-border"><LogoMark size={14} /></span>
                 <p className="max-w-[520px] rounded-2xl rounded-bl-md bg-surface px-3.5 py-2.5 text-[13.5px] ring-1 ring-border">{t.question}</p>
               </div>
               <div className="flex items-end justify-end gap-2.5">

@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Square, X } from "lucide-react";
-import { Button, Modal } from "@/shared/components/ui";
+import { Button, LogoMark, Modal } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 
-const DOTS = [1, 1, 1, 1, 1, 1, 0.35, 1, 0.35];
 
 export interface EvaluatingPanelProps {
   total: number;
@@ -45,10 +44,9 @@ export function EvaluatingPanel({ total, pace = 230, onDone, onCancelled }: Eval
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 py-24 text-center animate-rise">
-      <div key={wave} className="grid size-[84px] grid-cols-3 gap-[7px] rounded-[22px] bg-ink p-[18px] shadow-[0_20px_40px_-20px_rgba(21,32,27,0.6)]" aria-hidden>
-        {DOTS.map((o, d) => (
-          <span key={d} className="sieve-dot size-full rounded-full bg-amber" style={{ opacity: o, animationDelay: `${(Math.floor(d / 3) + (d % 3)) * 80}ms` }} />
-        ))}
+      <div className="relative flex size-[84px] items-center justify-center rounded-[24px] bg-ink shadow-[0_20px_40px_-20px_rgba(21,32,27,0.6)]" aria-hidden>
+        <span key={wave} className="absolute inset-0 rounded-[24px] ring-2 ring-amber/60 animate-[mark-pulse_1400ms_var(--ease-out-soft)_both]" />
+        <LogoMark size={46} inverse />
       </div>
       <div className="flex flex-col gap-2">
         <h2 className="font-head text-[28px] font-semibold tracking-[-0.02em]">{done >= total ? "Listo, ordenando el ranking" : `Evaluando ${total} hojas de vida`}</h2>

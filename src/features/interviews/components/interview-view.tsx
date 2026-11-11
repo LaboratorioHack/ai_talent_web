@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, CalendarPlus, Check, ChevronRight, Download, Minus, Radio, Send, X } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
-import { Avatar, Button, Logo, useToast } from "@/shared/components/ui";
+import { Avatar, Button, LogoMark, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import type { Interview, InterviewTurn } from "@/shared/types/domain";
@@ -160,7 +160,7 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
                     style={{ animation: `rise 520ms var(--ease-out-soft) ${Math.max(0, i - shown.length + 5) * 60}ms both` }}
                   >
                     <div className="flex items-end gap-3">
-                      <Logo compact className="mb-1 shrink-0 [&>span:first-child]:size-7 [&>span:first-child]:rounded-full" />
+                      <span className="mb-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-2 ring-1 ring-border"><LogoMark size={16} /></span>
                       <div className="flex max-w-[600px] flex-col gap-1 rounded-2xl rounded-bl-md bg-surface px-4 py-3 ring-1 ring-border">
                         <span className="text-[12px] font-medium text-blue">
                           Pregunta {t.order}, {t.topic}
