@@ -54,7 +54,7 @@ function VacancyCard({ v, index, today }: { v: JobOpening; index: number; today:
 
   return (
     <li className="animate-rise" style={{ animationDelay: `${index * 55}ms` }}>
-      <article className="card group relative flex h-full flex-col gap-6 p-6 transition-[transform,box-shadow] duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-1 hover:shadow-[0_24px_48px_-30px_rgba(21,32,27,0.5)]">
+      <article className="card group relative flex h-full flex-col gap-6 p-6 transition-[transform,translate,scale,rotate,box-shadow] duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-1 hover:shadow-[0_24px_48px_-30px_rgba(21,32,27,0.5)]">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-1.5">
             <span className="flex items-center gap-2 text-[12.5px] text-ink-3">
@@ -118,7 +118,7 @@ function VacancyCard({ v, index, today }: { v: JobOpening; index: number; today:
           ) : (
             <span className="text-ink-3">Sin fecha de cierre</span>
           )}
-          <span className="ml-auto flex items-center gap-1 text-ink-3 transition-[color,transform] duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5 group-hover:text-ink">
+          <span className="ml-auto flex items-center gap-1 text-ink-3 transition-[color,transform,translate,scale,rotate] duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5 group-hover:text-ink">
             {draft ? "Terminar perfil" : "Abrir pipeline"}
             <ArrowUpRight aria-hidden className="size-4" />
           </span>

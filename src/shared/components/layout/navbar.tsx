@@ -101,7 +101,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
               <span
                 ref={pill}
                 aria-hidden
-                className="absolute top-1 left-0 h-[calc(100%-8px)] rounded-full bg-surface opacity-0 shadow-[0_1px_2px_rgba(21,32,27,0.08),0_4px_12px_-6px_rgba(21,32,27,0.25)] ring-1 ring-border/60 transition-[transform,width,opacity] duration-500 ease-[var(--ease-spring)]"
+                className="absolute top-1 left-0 h-[calc(100%-8px)] rounded-full bg-surface opacity-0 shadow-[0_1px_2px_rgba(21,32,27,0.08),0_4px_12px_-6px_rgba(21,32,27,0.25)] ring-1 ring-border/60 transition-[transform,translate,scale,rotate,width,opacity] duration-500 ease-[var(--ease-spring)]"
               />
               {LINKS.map((link) => {
                 const active = link.href === activeHref;

@@ -275,7 +275,7 @@ export function Select({
                 <Check
                   aria-hidden
                   className={cn(
-                    "size-3.5 shrink-0 transition-[opacity,transform] duration-300 ease-[var(--ease-spring)]",
+                    "size-3.5 shrink-0 transition-[opacity,transform,translate,scale,rotate] duration-300 ease-[var(--ease-spring)]",
                     isSelected ? "scale-100 opacity-100" : "scale-50 opacity-0",
                   )}
                 />

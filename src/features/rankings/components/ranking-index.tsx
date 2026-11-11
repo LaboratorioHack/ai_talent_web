@@ -15,7 +15,7 @@ const TONE = { MEETS: "text-success", PARTIAL: "text-warning", DOES_NOT_MEET: "t
 function PersonCard({ p, place, delay }: { p: TopPerson; place: number; delay: number }) {
   return (
     <article
-      className="card group relative flex flex-col gap-4 p-5 transition-[transform,box-shadow] duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-1 hover:shadow-[0_24px_48px_-30px_rgba(21,32,27,0.5)] animate-rise"
+      className="card group relative flex flex-col gap-4 p-5 transition-[transform,translate,scale,rotate,box-shadow] duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-1 hover:shadow-[0_24px_48px_-30px_rgba(21,32,27,0.5)] animate-rise"
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex items-center gap-3.5">
