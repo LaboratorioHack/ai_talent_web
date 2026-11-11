@@ -14,7 +14,6 @@ export const routes = {
     applicationId ? `/rankings/${jobId}?candidate=${applicationId}` : `/rankings/${jobId}`,
   interviews: "/interviews",
   interview: (id: string) => `/interviews/${id}`,
-  integrations: "/integrations",
   governance: "/governance",
   design: "/design",
 } as const;

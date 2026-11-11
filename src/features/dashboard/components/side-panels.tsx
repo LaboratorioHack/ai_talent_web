@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileX, MessageSquareWarning, PlugZap, type LucideIcon } from "lucide-react";
+import { Copy, FileX, MessageSquareWarning, type LucideIcon } from "lucide-react";
 import { Avatar, ScoreRing } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import type { PendingItem } from "@/shared/types/domain";
@@ -30,7 +30,7 @@ export function TopProfiles({ profiles }: { profiles: DashboardData["topProfiles
 
 const pendingIcon: Record<PendingItem["kind"], { icon: LucideIcon; tone: string }> = {
   unreadable: { icon: FileX, tone: "text-danger" },
-  token: { icon: PlugZap, tone: "text-warning" },
+  duplicate: { icon: Copy, tone: "text-warning" },
   contrast: { icon: MessageSquareWarning, tone: "text-blue" },
 };
 

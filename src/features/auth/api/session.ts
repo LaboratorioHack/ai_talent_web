@@ -35,7 +35,7 @@ export async function getNavNotices(): Promise<NavNotice[]> {
   return delay(
     [
       { id: "n1", text: "3 hojas de vida ilegibles en Analista de Datos", when: "Hace 20 min", href: "/candidates?job=v-data", tone: "warning" },
-      { id: "n2", text: "El token de LinkedIn venció; vuelve a autorizar", when: "Hace 3 h", href: "/integrations", tone: "danger" },
+      { id: "n2", text: "2 hojas de vida duplicadas en Ingeniero Cloud Senior", when: "Hace 3 h", href: "/candidates?job=v-cloud", tone: "warning" },
       { id: "n3", text: "Daniela Osorio terminó la entrevista con 1 contraste", when: "Ayer 17:54", href: "/interviews/i-1", tone: "warning" },
       { id: "n4", text: "Ingeniero Cloud Senior: 84 hojas de vida evaluadas", when: "Ayer 09:42", href: "/rankings/v-cloud", tone: "success" },
     ],
