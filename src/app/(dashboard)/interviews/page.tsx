@@ -16,7 +16,7 @@ async function Interviews() {
 export default function InterviewsPage() {
   return (
     <div className="flex h-[calc(100dvh-var(--app-header,0px))] flex-col">
-      <PageTop title="Entrevistas" description="La IA pregunta por lo que falta validar y marca lo que no coincide con la hoja de vida." />
+      <PageTop sticky={false} title="Entrevistas" description="La IA pregunta por lo que falta validar y marca lo que no coincide con la hoja de vida." />
       <Suspense
         fallback={
           <div className="grid flex-1 grid-cols-[400px_1fr]" aria-busy>
