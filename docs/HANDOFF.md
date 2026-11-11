@@ -65,6 +65,22 @@ Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1
 
 **Hooks nuevos** en `shared/hooks`: `usePresence(open)` (montar mientras corre la salida) y `useDismiss(ref, open, onClose)` (clic fuera + Escape). `DateField` los usa también y ahora anima su salida. El `Modal` deja desbordar los popovers.
 
+## Landing (repo aparte `ai_talent_landing`)
+
+Astro 7 + Tailwind v4, estática. Repo git **local** recién creado (sin remoto todavía): `main` tiene el andamiaje y `feat/landing` todo lo demás. Hay que crear el repo en GitHub (`LaboratorioHack/ai_talent_landing`) y empujar ambas ramas. Detalle en su `README.md`.
+
+- Hero con **lector de hojas de vida** animado en bucle: un haz recorre el documento, tacha foto / edad / dirección, ilumina la línea que prueba cada requisito y el puntaje sube hasta 92. Sustituye a los candidatos con nombre y foto del diseño.
+- "Cómo evalúa" contado con scroll: el texto avanza y un escenario fijo cambia (formatos de archivo → requisitos → ranking).
+- Gobierno de IA con chips que se tachan al aparecer y contadores; marquesina de integraciones; precios; barra de progreso de lectura.
+- `pnpm dev` → `http://localhost:4321`. `PUBLIC_APP_URL` apunta a la app Next.
+
+## Pendiente
+
+- Pantallas de Santiago sobre este stack: 05 tablero, 06 perfil (reusar `RoleProfileEditor`), 07 ingesta, 08 ranking, 09 entrevista, 10 integraciones, 11 auditoría.
+- Anon key de Supabase en `.env.local` (`NEXT_PUBLIC_SUPABASE_ANON_KEY`); hoy está vacía y la app corre en modo mock.
+- Proveedores OAuth en `supabase/config.toml` si se quieren los botones Google / Microsoft.
+- Tests: el CI corre `pnpm test --if-present` y aún no hay runner configurado.
+
 ## Convenciones
 
 - Commits atómicos, en inglés, ≤ 70 caracteres, tipo `feat: …` / `fix: …` / `chore: …`, sin paréntesis ni coautoría.
