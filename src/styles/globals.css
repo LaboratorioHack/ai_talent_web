@@ -74,9 +74,9 @@
   --color-panel: var(--panel);
   --color-panel-2: var(--panel-2);
 
-  --font-head: var(--font-bricolage), "Bricolage Grotesque", sans-serif;
-  --font-sans: var(--font-instrument), "Instrument Sans", sans-serif;
-  --font-mono: var(--font-jetbrains), "JetBrains Mono", monospace;
+  --font-head: var(--font-display), "Funnel Display", sans-serif;
+  --font-sans: var(--font-text), "Funnel Sans", sans-serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", monospace;
 
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -579,3 +579,4 @@
     transition-duration: 0.01ms !important;
   }
 }
+

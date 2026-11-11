@@ -1,24 +1,25 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { Funnel_Display, Funnel_Sans, IBM_Plex_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import { ToastProvider } from "@/shared/components/ui/toast";
 
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
+/* Funnel Display para títulos y Funnel Sans para el texto: misma familia, sobria y poco vista. */
+const display = Funnel_Display({
+  variable: "--font-display",
   subsets: ["latin"],
-  weight: ["500", "600"],
+  weight: ["500", "600", "700"],
 });
 
-const instrument = Instrument_Sans({
-  variable: "--font-instrument",
+const text = Funnel_Sans({
+  variable: "--font-text",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
 });
 
-const jetbrains = JetBrains_Mono({
-  variable: "--font-jetbrains",
+const mono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
   subsets: ["latin"],
-  weight: ["400", "600"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -30,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
-      className={`${bricolage.variable} ${instrument.variable} ${jetbrains.variable} h-full`}
+      className={`${display.variable} ${text.variable} ${mono.variable} h-full`}
     >
       <body className="flex min-h-full flex-col">
         <ToastProvider>{children}</ToastProvider>
