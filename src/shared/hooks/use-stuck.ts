@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * ¿Ya se pegó el encabezado sticky? Observa un centinela de 1px colocado justo
- * antes del encabezado. Descuenta la barra fija de la página (--app-header),
- * porque el encabezado se pega debajo de ella y no en el borde de la ventana.
+ * ¿Ya se pegó el encabezado sticky? Mide el scroll contra la posición de un
+ * centinela colocado justo antes del encabezado, descontando la barra fija
+ * (--app-header). Tiene histéresis: se encoge pasados 24px y vuelve a su
+ * tamaño al regresar al tope, sin parpadeos en el límite.
  */
 export function useStuck<T extends HTMLElement = HTMLDivElement>() {
   const sentinel = useRef<T>(null);
@@ -15,11 +16,21 @@ export function useStuck<T extends HTMLElement = HTMLDivElement>() {
     const el = sentinel.current;
     if (!el) return;
     const offset = parseFloat(getComputedStyle(el).getPropertyValue("--app-header")) || 0;
-    const io = new IntersectionObserver(([entry]) => setStuck(!entry.isIntersecting && entry.boundingClientRect.top < offset + 1), {
-      rootMargin: `-${offset}px 0px 0px 0px`,
-    });
-    io.observe(el);
-    return () => io.disconnect();
+    let raf = 0;
+    const check = () => {
+      raf = 0;
+      const top = el.getBoundingClientRect().top - offset;
+      setStuck((was) => (was ? top < -4 : top < -24));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(check);
+    };
+    raf = requestAnimationFrame(check);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   return { sentinel, stuck };
