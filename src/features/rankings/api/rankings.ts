@@ -5,7 +5,7 @@ import { apiFetch } from "@/shared/lib/api-client";
 import { delay, mockApplications, mockResumeDocs, mockVacancies } from "@/shared/mocks";
 import type { Fulfillment, JobOpening, RequirementResult } from "@/shared/types/domain";
 import type { ResumeDoc, ResumeLine } from "@/shared/types/resume-doc";
-import type { RankedCandidate, RankingData, RankingSummary, RankRequirement } from "../types/ranking";
+import type { RankedCandidate, RankingData, RankingSummary, RankRequirement, TopPerson } from "../types/ranking";
 
 /* ------------------------------------------------------------------ */
 /* Mock: candidatos coherentes con las cifras de cada vacante.         */
@@ -228,4 +228,30 @@ export async function listRankings(): Promise<RankingSummary[]> {
         };
       }),
   );
+}
+
+/** Las personas con mejor ajuste en todas las vacantes abiertas. Con backend: GET /rankings/top. */
+export async function listTopPeople(): Promise<TopPerson[]> {
+  if (!env.useMocks) return apiFetch<TopPerson[]>("/rankings/top");
+  const people: TopPerson[] = [];
+  for (const v of mockVacancies.filter((x) => x.status === "OPEN" && x.stats.received)) {
+    const reqs = requirementsOf(v);
+    const short = (id: string) => reqs.find((r) => r.id === id)?.description ?? "";
+    for (const c of candidatesOf(v, reqs).slice(0, 6)) {
+      const strong = [...c.results].filter((r) => r.evidence.length && r.result === "MEETS").sort((a, b) => b.score - a.score);
+      people.push({
+        id: c.id,
+        name: c.name,
+        score: c.score,
+        fulfillment: c.fulfillment,
+        confidence: c.confidence,
+        jobId: v.id,
+        jobTitle: v.title,
+        highlights: strong.slice(0, 2).map((r) => ({ requirement: short(r.requirementId), citation: r.evidence[0].citation })),
+        met: c.results.filter((r) => r.result === "MEETS").map((r) => short(r.requirementId)),
+        missing: c.results.filter((r) => r.result === "PARTIAL" || r.result === "DOES_NOT_MEET").map((r) => short(r.requirementId)),
+      });
+    }
+  }
+  return delay(people.sort((a, b) => b.score - a.score));
 }
