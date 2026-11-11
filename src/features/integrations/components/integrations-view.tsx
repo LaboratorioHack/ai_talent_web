@@ -116,7 +116,7 @@ export function IntegrationsView({ data }: { data: IntegrationsData }) {
         }
       />
 
-      <div className="grid flex-1 grid-cols-[1fr_400px]">
+      <div className="mt-4 grid flex-1 grid-cols-[1fr_400px] border-t border-border">
         <div className="flex min-w-0 flex-col gap-10 px-12 pt-8 pb-14">
           <ul className="grid grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3">
             {items.map((item, i) => {
@@ -183,7 +183,7 @@ export function IntegrationsView({ data }: { data: IntegrationsData }) {
           </section>
         </div>
 
-        <aside className="sticky top-[calc(var(--app-header,0px)+56px)] flex max-h-[calc(100dvh-var(--app-header,0px)-56px)] flex-col gap-5 self-start overflow-y-auto border-l border-border bg-surface px-8 pt-8 pb-10">
+        <aside className="sticky top-[calc(var(--app-header,0px)+76px)] flex max-h-[calc(100dvh-var(--app-header,0px)-76px)] flex-col gap-5 self-start overflow-y-auto border-l border-border bg-surface px-8 pt-8 pb-10">
           <header className="flex items-center justify-between gap-3">
             <h2 className="font-head text-[21px] font-semibold">Registro</h2>
             <Segmented aria-label="Qué mostrar" size="sm" value={logFilter} onChange={setLogFilter} items={[{ value: "all", label: "Todo" }, { value: "danger", label: "Avisos" }]} />

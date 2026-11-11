@@ -138,7 +138,7 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
         }
       />
 
-      <div className="grid min-h-0 flex-1 grid-cols-[1fr_440px]">
+      <div className="mt-4 grid min-h-0 flex-1 grid-cols-[1fr_440px] border-t border-border">
         <section className="flex min-h-0 min-w-0 flex-col">
           {status === "SCHEDULED" ? (
             <div className="m-auto flex flex-col items-center gap-4 px-12 text-center animate-rise">
