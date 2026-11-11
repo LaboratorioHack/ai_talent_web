@@ -23,4 +23,3 @@ export { TextArea } from "./text-area";
 export { Popover, type PopoverProps } from "./popover";
 export { Segmented, type SegmentedProps } from "./segmented";
 export { AnimatedNumber } from "./animated-number";
-export { DayClock } from "./day-clock";
