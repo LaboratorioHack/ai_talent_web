@@ -1,5 +1,8 @@
-import { useId, type ReactNode } from "react";
+"use client";
+
+import { useId, useState, type ReactNode } from "react";
 import { cn } from "@/shared/lib/cn";
+import { Collapse } from "./collapse";
 
 /**
  * Envoltorio común de los campos: etiqueta a la izquierda, tipo de entrada a la
@@ -21,21 +24,30 @@ export function Field({ label, kind, help, error, required, className, children 
   const id = useId();
   const helpId = `${id}-help`;
   const message = error ?? help;
+  // Se conserva el último texto para que pueda salir con transición.
+  const [shown, setShown] = useState({ message, error: Boolean(error) });
+  if (message && (message !== shown.message || Boolean(error) !== shown.error)) setShown({ message, error: Boolean(error) });
+  const open = Boolean(message || kind);
   return (
-    <div className={cn("flex min-w-0 flex-col gap-2", className)}>
-      <label htmlFor={id} className="truncate text-[13px] font-medium text-ink">
+    <div className={cn("flex min-w-0 flex-col", className)}>
+      <label htmlFor={id} className="mb-2 truncate text-[13px] font-medium text-ink">
         {label}
         {required ? <span className="text-danger"> *</span> : null}
       </label>
       {children({ id, describedBy: message ? helpId : undefined })}
-      {message || kind ? (
-        <div className="flex items-baseline justify-between gap-3">
-          <p id={helpId} className={cn("min-w-0 text-xs", error ? "text-danger" : "text-ink-3")} role={error ? "alert" : undefined}>
-            {message}
+      <Collapse open={open}>
+        <div className="flex items-baseline justify-between gap-3 pt-2">
+          <p
+            key={`${shown.error}-${shown.message}`}
+            id={helpId}
+            className={cn("min-w-0 text-xs animate-[fade-in_260ms_var(--ease-out-soft)_both]", message ? (error ? "text-danger" : "text-ink-3") : shown.error ? "text-danger" : "text-ink-3")}
+            role={error ? "alert" : undefined}
+          >
+            {message ?? shown.message}
           </p>
           {kind ? <span className="shrink-0 font-mono text-[10.5px] text-ink-3">{kind}</span> : null}
         </div>
-      ) : null}
+      </Collapse>
     </div>
   );
 }

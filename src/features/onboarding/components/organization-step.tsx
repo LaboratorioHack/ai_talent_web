@@ -108,7 +108,9 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
             className="min-w-[160px] flex-1 bg-transparent text-sm outline-none placeholder:text-ink-3"
           />
         </div>
-        <p className={cn("text-xs", emailError ? "text-danger" : "text-ink-3")}>{emailError ?? "Entrarán como reclutadores; puedes cambiar roles después"}</p>
+        <p key={emailError ?? "help"} className={cn("text-xs animate-[fade-in_260ms_var(--ease-out-soft)_both]", emailError ? "text-danger" : "text-ink-3")}>
+          {emailError ?? "Entrarán como reclutadores; puedes cambiar roles después"}
+        </p>
       </div>
     </StepFrame>
   );
