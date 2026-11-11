@@ -3,7 +3,7 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell } from "lucide-react";
+import { Bell, Briefcase, FileText, Home, LayoutGrid, ListOrdered, MessagesSquare, Plug, ShieldCheck, type LucideIcon } from "lucide-react";
 import { Logo, Popover } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
@@ -27,14 +27,14 @@ export interface NavbarProps {
   accountMenu?: ReactNode;
 }
 
-const LINKS: { href: string; label: string }[] = [
-  { href: routes.home, label: "Inicio" },
-  { href: routes.vacancies, label: "Vacantes" },
-  { href: routes.candidates, label: "Candidatos" },
-  { href: routes.rankings, label: "Ranking" },
-  { href: routes.interviews, label: "Entrevistas" },
-  { href: routes.integrations, label: "Integraciones" },
-  { href: routes.governance, label: "Gobierno" },
+const LINKS: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: routes.home, label: "Inicio", icon: Home },
+  { href: routes.vacancies, label: "Vacantes", icon: Briefcase },
+  { href: routes.candidates, label: "Candidatos", icon: FileText },
+  { href: routes.rankings, label: "Ranking", icon: ListOrdered },
+  { href: routes.interviews, label: "Entrevistas", icon: MessagesSquare },
+  { href: routes.integrations, label: "Integraciones", icon: Plug },
+  { href: routes.governance, label: "Gobierno", icon: ShieldCheck },
 ];
 
 const PAGES: SearchItem[] = LINKS.map((l) => ({ id: `page-${l.href}`, label: l.label, href: l.href, group: "Páginas" }));
@@ -53,7 +53,10 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
   const [searching, setSearching] = useState(false);
   const [seen, setSeen] = useState(false);
 
-  const activeHref = LINKS.find((l) => pathname === l.href || pathname.startsWith(`${l.href}/`))?.href;
+  const activeLink = LINKS.find((l) => pathname === l.href || pathname.startsWith(`${l.href}/`));
+  const activeHref = activeLink?.href;
+  const activeLabel = activeLink?.label;
+  const ActiveIcon = activeLink?.icon ?? LayoutGrid;
 
   // La píldora se mueve hasta el enlace activo; se escribe en el DOM para que la transición sea continua.
   useLayoutEffect(() => {
@@ -80,39 +83,68 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
           <OrgSwitcher user={user} />
         </div>
 
-        {/* Mientras se busca, las secciones se pliegan para dejarle sitio al buscador. */}
-        <div
-          aria-hidden={searching || undefined}
-          className={cn(
-            "grid transition-[grid-template-columns,opacity,filter] duration-[650ms] ease-[var(--ease-out-soft)]",
-            searching ? "pointer-events-none grid-cols-[0fr] opacity-0 blur-[3px]" : "grid-cols-[1fr] opacity-100",
-          )}
-        >
-          <nav aria-label="Principal" ref={nav} className="relative flex min-w-0 items-center gap-0.5 overflow-hidden rounded-full bg-surface-2 p-1 ring-1 ring-border">
-            <span
-              ref={pill}
-              aria-hidden
-              className="absolute top-1 left-0 h-[calc(100%-8px)] rounded-full bg-surface opacity-0 shadow-[0_1px_2px_rgba(21,32,27,0.08),0_4px_12px_-6px_rgba(21,32,27,0.25)] ring-1 ring-border/60 transition-[transform,width,opacity] duration-500 ease-[var(--ease-spring)]"
-            />
-            {LINKS.map((link) => {
-              const active = link.href === activeHref;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  data-href={link.href}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "relative z-10 flex h-10 items-center gap-1.5 rounded-full px-3.5 text-[14px] whitespace-nowrap transition-colors duration-300",
-                    active ? "font-medium text-ink" : "text-ink-2 hover:text-ink",
-                  )}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
+        {/*
+          Mientras se busca, la píldora de secciones se recoge en un solo botón
+          redondo con el icono de la sección actual; al salir de la búsqueda se
+          vuelve a abrir. Nada desaparece.
+        */}
+        <nav aria-label="Principal" ref={nav} className="relative flex min-w-0 items-center rounded-full bg-surface-2 p-1 ring-1 ring-border">
+          <div
+            className={cn(
+              "grid transition-[grid-template-columns,opacity,filter] duration-[650ms] ease-[var(--ease-out-soft)]",
+              searching ? "pointer-events-none grid-cols-[0fr] opacity-0 blur-[2px]" : "grid-cols-[1fr] opacity-100",
+            )}
+            aria-hidden={searching || undefined}
+          >
+            <div className="relative flex min-w-0 items-center gap-0.5 overflow-hidden">
+              <span
+                ref={pill}
+                aria-hidden
+                className="absolute top-0 left-0 h-full rounded-full bg-surface opacity-0 shadow-[0_1px_2px_rgba(21,32,27,0.08),0_4px_12px_-6px_rgba(21,32,27,0.25)] ring-1 ring-border/60 transition-[transform,width,opacity] duration-500 ease-[var(--ease-spring)]"
+              />
+              {LINKS.map((link) => {
+                const active = link.href === activeHref;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    data-href={link.href}
+                    tabIndex={searching ? -1 : undefined}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "relative z-10 flex h-10 items-center gap-1.5 rounded-full px-3.5 text-[14px] whitespace-nowrap transition-colors duration-300",
+                      active ? "font-medium text-ink" : "text-ink-2 hover:text-ink",
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+          <span
+            aria-hidden={!searching || undefined}
+            className={cn(
+              "grid transition-[grid-template-columns,opacity] duration-[650ms] ease-[var(--ease-out-soft)]",
+              searching ? "grid-cols-[1fr] opacity-100" : "pointer-events-none grid-cols-[0fr] opacity-0",
+            )}
+          >
+            <span className="min-w-0 overflow-hidden">
+              <button
+                type="button"
+                tabIndex={searching ? undefined : -1}
+                aria-label={`Volver a las secciones${activeLabel ? `, estás en ${activeLabel}` : ""}`}
+                title={activeLabel}
+                className={cn(
+                  "flex size-10 items-center justify-center rounded-full bg-surface text-ink shadow-[0_1px_2px_rgba(21,32,27,0.08),0_4px_12px_-6px_rgba(21,32,27,0.25)] ring-1 ring-border/60 transition-transform duration-500 ease-[var(--ease-spring)]",
+                  searching ? "scale-100 rotate-0" : "scale-50 -rotate-90",
+                )}
+              >
+                <ActiveIcon aria-hidden className="size-[18px]" />
+              </button>
+            </span>
+          </span>
+        </nav>
 
         <div className="flex items-center justify-end gap-2">
           <NavSearch items={[...PAGES, ...searchItems]} onOpenChange={setSearching} />
