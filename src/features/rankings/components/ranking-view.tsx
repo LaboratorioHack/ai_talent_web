@@ -125,7 +125,7 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
   return (
     <div className="flex flex-1 flex-col">
       {top}
-      <div className="grid flex-1 grid-cols-[400px_1fr]">
+      <div className="grid flex-1 grid-cols-[440px_1fr]">
         <aside className="sticky top-[calc(var(--app-header,0px)+56px)] h-[calc(100dvh-var(--app-header,0px)-56px)] self-start overflow-y-auto overscroll-contain border-r border-border bg-bg px-6 pt-6 pb-10">
           <RankingList candidates={data.candidates} selectedId={selectedId} onSelect={select} discarded={discarded} dimmed={evaluating > 0} />
         </aside>
