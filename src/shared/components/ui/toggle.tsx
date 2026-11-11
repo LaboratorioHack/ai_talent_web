@@ -26,7 +26,7 @@ export function Toggle({ checked, onChange, label, description, disabled, classN
         onClick={() => onChange(!checked)}
         className={cn(
           "relative mt-px h-[22px] w-10 shrink-0 rounded-full p-0.5 transition-colors duration-300",
-          checked ? "bg-amber" : "bg-border-strong",
+          checked ? "bg-ink" : "bg-border-strong",
         )}
       >
         <span

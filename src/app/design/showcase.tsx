@@ -71,7 +71,7 @@ export function DesignShowcase() {
       >
         <div className="flex items-center gap-8">
           <Logo />
-          <span className="rounded-md bg-ink px-3 py-2">
+          <span className="rounded-md bg-panel px-3 py-2">
             <Logo inverse />
           </span>
           <Logo compact />

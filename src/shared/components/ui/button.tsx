@@ -21,11 +21,11 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  ink: "bg-amber text-ink-inverse shadow-[0_8px_24px_-12px_rgba(242,169,59,0.6)] hover:bg-amber-2 hover:shadow-[0_14px_32px_-14px_rgba(242,169,59,0.8)]",
+  ink: "bg-ink text-ink-inverse hover:bg-panel-2 hover:shadow-[0_8px_20px_-10px_rgba(21,32,27,0.55)]",
   outline: "border border-border-strong bg-surface text-ink hover:border-ink-3 hover:bg-surface-2",
   text: "text-ink-2 hover:bg-surface-2 hover:text-ink",
   danger: "border border-danger text-danger hover:bg-danger-soft",
-  blue: "bg-blue text-ink-inverse hover:brightness-105 hover:shadow-[0_6px_18px_-8px_rgba(134,174,252,0.6)]",
+  blue: "bg-blue text-ink-inverse hover:brightness-95 hover:shadow-[0_6px_18px_-8px_rgba(31,91,209,0.6)]",
 };
 
 const baseClasses =
