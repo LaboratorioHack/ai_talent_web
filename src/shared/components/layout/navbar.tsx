@@ -96,11 +96,11 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
             )}
             aria-hidden={searching || undefined}
           >
-            <div className="relative flex min-w-0 items-center gap-0.5 overflow-hidden">
+            <div className="relative -m-1 flex min-w-0 items-center gap-0.5 overflow-hidden p-1">
               <span
                 ref={pill}
                 aria-hidden
-                className="absolute top-0 left-0 h-full rounded-full bg-surface opacity-0 shadow-[0_1px_2px_rgba(21,32,27,0.08),0_4px_12px_-6px_rgba(21,32,27,0.25)] ring-1 ring-border/60 transition-[transform,width,opacity] duration-500 ease-[var(--ease-spring)]"
+                className="absolute top-1 left-0 h-[calc(100%-8px)] rounded-full bg-surface opacity-0 shadow-[0_1px_2px_rgba(21,32,27,0.08),0_4px_12px_-6px_rgba(21,32,27,0.25)] ring-1 ring-border/60 transition-[transform,width,opacity] duration-500 ease-[var(--ease-spring)]"
               />
               {LINKS.map((link) => {
                 const active = link.href === activeHref;
@@ -129,7 +129,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
               searching ? "grid-cols-[1fr] opacity-100" : "pointer-events-none grid-cols-[0fr] opacity-0",
             )}
           >
-            <span className="min-w-0 overflow-hidden">
+            <span className="-m-1 min-w-0 overflow-hidden p-1">
               <button
                 type="button"
                 tabIndex={searching ? undefined : -1}
