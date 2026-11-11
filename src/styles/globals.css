@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* La documentación no debe generar clases: sus ejemplos de código romperían el CSS. */
+@source not "../../docs";
+
 /*
  * Tokens de Criba (diseño en pen.dev, frame "Criba · Componentes").
  * Bricolage Grotesque en títulos y cifras; Instrument Sans en el cuerpo;
@@ -13,8 +16,8 @@
   --border: #e1e6df;
   --border-strong: #cbd3ca;
 
-  /* Curvas de movimiento como variables reales: las usan clases arbitrarias
-     (animate-[...], ease-[var(...)]) que @theme inline no publica. */
+  /* Curvas de movimiento como variables reales: las clases con valores
+     arbitrarios las leen con var() y @theme inline no las publica. */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
