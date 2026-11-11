@@ -7,10 +7,11 @@
  * verde, ámbar y rojo solo para resultados.
  */
 :root {
-  --bg: #f3f5f1;
+  --bg: #f6f7f4;
   --surface: #ffffff;
-  --surface-2: #e6ebe4;
-  --border: #d5dcd4;
+  --surface-2: #eef1ec;
+  --border: #e1e6df;
+  --border-strong: #cbd3ca;
   --ink: #15201b;
   --ink-2: #4f5b55;
   --ink-3: #8a948e;
@@ -35,6 +36,7 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
@@ -139,6 +141,45 @@
   /* Aparición escalonada: el padre pone `stagger`, cada hijo `animate-rise` y `--i`. */
   .stagger > * {
     animation-delay: calc(var(--stagger-step, 60ms) * var(--i, 0));
+  }
+
+  /* Tarjeta de contenido: superficie blanca, línea suave y sombra mínima. */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgb(21 32 27 / 0.04);
+  }
+
+  /* Campo de formulario: misma caja para texto, selector, fecha y número. */
+  .field-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgb(21 32 27 / 0.05);
+    transition:
+      border-color 300ms var(--ease-out-soft),
+      box-shadow 300ms var(--ease-out-soft);
+  }
+  .field-box:hover {
+    border-color: var(--border-strong);
+  }
+  .field-box:focus-within,
+  .field-box[data-open="true"] {
+    border-color: var(--ink-3);
+    box-shadow:
+      0 1px 2px rgb(21 32 27 / 0.05),
+      0 0 0 4px rgb(21 32 27 / 0.06);
+  }
+  .field-box[aria-invalid="true"],
+  .field-box.is-invalid {
+    border-color: var(--danger);
+  }
+  .field-box.is-invalid:focus-within {
+    box-shadow: 0 0 0 4px rgb(200 55 45 / 0.12);
+  }
+  .field-box.is-valid {
+    border-color: var(--success);
   }
 
   /* Barras que crecen desde la izquierda (puntajes, embudos, pesos). */
