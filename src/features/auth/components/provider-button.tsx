@@ -46,7 +46,7 @@ export function ProviderButton({ provider, loading, disabled, onClick }: Provide
       className={cn(
         "flex h-11 w-full items-center justify-center gap-2.5 rounded-md border border-border bg-surface text-[13.5px] font-medium text-ink",
         "transition-[border-color,background-color,transform,box-shadow] duration-300 ease-[var(--ease-out-soft)]",
-        "hover:-translate-y-px hover:border-ink hover:shadow-[0_8px_20px_-12px_rgba(21,32,27,0.4)] active:translate-y-0 disabled:opacity-50",
+        "hover:-translate-y-px hover:border-border-strong hover:bg-surface-2 hover:shadow-[0_12px_24px_-14px_rgba(0,0,0,0.8)] active:translate-y-0 disabled:opacity-50",
       )}
     >
       {loading ? <Loader2 aria-hidden className="size-4 animate-spin" /> : icon}

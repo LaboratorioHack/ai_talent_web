@@ -16,18 +16,18 @@ export function Logo({ compact = false, inverse = false, className }: LogoProps)
     <span className={cn("inline-flex items-center gap-[9px]", className)} aria-label="Criba">
       <span
         aria-hidden
-        className={cn("grid size-[26px] grid-cols-3 gap-[3px] rounded-[7px] px-[5px] py-1.5", inverse ? "bg-surface" : "bg-ink")}
+        className={cn("grid size-[26px] grid-cols-3 gap-[3px] rounded-[7px] px-[5px] py-1.5", inverse ? "bg-ink" : "bg-amber")}
       >
         {dots.map((opacity, i) => (
           <span
             key={i}
-            className={cn("size-[3px] rounded-full", inverse ? "bg-ink" : "bg-surface")}
+            className={cn("size-[3px] rounded-full", inverse ? "bg-bg" : "bg-ink-inverse")}
             style={{ opacity }}
           />
         ))}
       </span>
       {compact ? null : (
-        <span className={cn("text-lg font-semibold", inverse ? "text-ink-inverse" : "text-ink")}>Criba</span>
+        <span className={cn("font-head text-lg font-semibold tracking-tight", inverse ? "text-ink-inverse" : "text-ink")}>Criba</span>
       )}
     </span>
   );

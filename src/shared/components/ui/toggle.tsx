@@ -26,13 +26,13 @@ export function Toggle({ checked, onChange, label, description, disabled, classN
         onClick={() => onChange(!checked)}
         className={cn(
           "relative mt-px h-[22px] w-10 shrink-0 rounded-full p-0.5 transition-colors duration-300",
-          checked ? "bg-ink" : "bg-border",
+          checked ? "bg-amber" : "bg-border-strong",
         )}
       >
         <span
           aria-hidden
           className={cn(
-            "block size-[18px] rounded-full bg-surface shadow-sm transition-transform duration-300 ease-[var(--ease-spring)]",
+            "block size-[18px] rounded-full bg-white shadow-sm transition-transform duration-300 ease-[var(--ease-spring)]",
             checked ? "translate-x-[18px]" : "translate-x-0",
           )}
         />

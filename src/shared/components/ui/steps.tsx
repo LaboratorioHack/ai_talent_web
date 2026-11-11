@@ -21,8 +21,8 @@ export function Steps({ steps, current, className }: StepsProps) {
               <span
                 className={cn(
                   "flex size-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold",
-                  state === "current" && "bg-amber text-ink",
-                  state === "done" && "bg-ink text-ink-inverse",
+                  state === "current" && "bg-amber text-ink-inverse",
+                  state === "done" && "bg-success text-ink-inverse",
                   state === "todo" && "border border-border text-ink-3",
                 )}
               >
