@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button, SelectField, TextField } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
-import { cn } from "@/shared/lib/cn";
 import { useOnboarding } from "../state/onboarding-store";
 import { StepFrame } from "./step-frame";
 
@@ -17,36 +16,16 @@ export interface OrganizationStepProps {
   detectedName: string;
 }
 
-/** Pantalla 02 · Onboarding · Paso 2 Organización. */
+/**
+ * Pantalla 02 · Onboarding · Paso 2 Organización: nombre, sector y tamaño.
+ * Invitar al equipo queda fuera del MVP (un reclutador, una compañía).
+ */
 export function OrganizationStep({ detectedName }: OrganizationStepProps) {
   const router = useRouter();
   const { data, update } = useOnboarding();
   const [name, setName] = useState(data.organization.name || detectedName);
   const [sector, setSector] = useState(data.organization.sector);
   const [size, setSize] = useState(data.organization.size);
-  const [emails, setEmails] = useState<string[]>(data.invites);
-  const [draft, setDraft] = useState("");
-  const [emailError, setEmailError] = useState<string | undefined>();
-
-  function addEmail() {
-    const value = draft.trim().toLowerCase();
-    if (!value) return;
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      setEmailError("Escribe un correo válido");
-      return;
-    }
-    if (!emails.includes(value)) setEmails((e) => [...e, value]);
-    setDraft("");
-    setEmailError(undefined);
-  }
-
-  function onKey(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" || e.key === "," || e.key === " ") {
-      e.preventDefault();
-      addEmail();
-    }
-    if (e.key === "Backspace" && !draft && emails.length) setEmails((list) => list.slice(0, -1));
-  }
 
   return (
     <StepFrame
@@ -59,7 +38,7 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
             Atrás
           </Button>
           <Button disabled={!name.trim()} onClick={() => {
-              update({ organization: { name: name.trim(), sector, size }, invites: emails });
+              update({ organization: { name: name.trim(), sector, size } });
               router.push(routes.onboarding(3));
             }}>
             Continuar
@@ -71,46 +50,6 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
       <div className="grid grid-cols-2 gap-4">
         <SelectField label="Sector" value={sector} onChange={setSector} options={SECTORS.map((s) => ({ value: s, label: s }))} />
         <SelectField label="Tamaño" value={size} onChange={setSize} options={SIZES.map((s) => ({ value: s, label: s }))} />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-baseline justify-between">
-          <label htmlFor="invite" className="text-sm font-medium">
-            Invita a tu equipo
-          </label>
-          <span className="text-[11px] text-ink-3">Opcional</span>
-        </div>
-        <div
-          className={cn(
-            "field-box flex min-h-11 flex-wrap items-center gap-2 px-3 py-2",
-            emailError && "is-invalid",
-          )}
-        >
-          {emails.map((email) => (
-            <span key={email} className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 py-1 pr-1.5 pl-2 text-xs animate-pop-in">
-              {email}
-              <button type="button" aria-label={`Quitar ${email}`} onClick={() => setEmails((l) => l.filter((e) => e !== email))} className="text-ink-3 transition-colors hover:text-danger">
-                <X aria-hidden className="size-[11px]" />
-              </button>
-            </span>
-          ))}
-          <input
-            id="invite"
-            type="email"
-            value={draft}
-            onChange={(e) => {
-              setDraft(e.target.value);
-              setEmailError(undefined);
-            }}
-            onKeyDown={onKey}
-            onBlur={addEmail}
-            placeholder={emails.length ? "" : "añadir correo…"}
-            className="min-w-[160px] flex-1 bg-transparent text-sm outline-none placeholder:text-ink-3"
-          />
-        </div>
-        <p key={emailError ?? "help"} className={cn("text-xs animate-[fade-in_260ms_var(--ease-out-soft)_both]", emailError ? "text-danger" : "text-ink-3")}>
-          {emailError ?? "Entrarán como reclutadores; puedes cambiar roles después"}
-        </p>
       </div>
     </StepFrame>
   );

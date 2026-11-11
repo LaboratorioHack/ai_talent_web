@@ -19,7 +19,7 @@ export function StepFrame({ step, title, description, children, footer, width = 
   return (
     <div className={cn("stagger flex flex-1 flex-col items-center gap-8 px-4 pt-8 pb-10 sm:gap-10 sm:px-6 sm:pt-16 sm:pb-16 [&>*]:animate-rise", className)}>
       <div className="flex max-w-full flex-col gap-3" style={{ width, "--i": 0 } as React.CSSProperties}>
-        <p className="eyebrow">Paso {step} de 4</p>
+        <p className="eyebrow">Paso {step} de 3</p>
         <h1 className="font-head text-[26px] leading-[1.1] font-semibold tracking-[-0.01em] sm:text-[34px]">{title}</h1>
         <p className="text-[15px] text-ink-2">{description}</p>
       </div>

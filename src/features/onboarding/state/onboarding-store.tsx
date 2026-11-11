@@ -7,12 +7,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
  * Se guarda en sessionStorage para sobrevivir a una recarga; cuando exista el
  * backend, cada paso lo enviará a la API y esto quedará como caché local.
  */
-export type SourceState = "selected" | "connected" | "later";
-
 export interface OnboardingData {
   organization: { name: string; sector: string; size: string };
-  invites: string[];
-  sources: Record<string, SourceState>;
   vacancy: { title: string; requirements: number } | null;
 }
 
@@ -21,15 +17,12 @@ const DONE_KEY = "criba.onboarded";
 
 const initial: OnboardingData = {
   organization: { name: "Bancolombia Digital", sector: "Banca y finanzas", size: "1.001–5.000" },
-  invites: [],
-  sources: { upload: "selected", greenhouse: "selected" },
   vacancy: null,
 };
 
 interface Ctx {
   data: OnboardingData;
   update: (patch: Partial<OnboardingData>) => void;
-  setSource: (id: string, state: SourceState | null) => void;
   finish: () => void;
 }
 
@@ -66,16 +59,6 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   }, [data, hydrated]);
 
   const update = useCallback((patch: Partial<OnboardingData>) => setData((d) => ({ ...d, ...patch })), []);
-  const setSource = useCallback(
-    (id: string, state: SourceState | null) =>
-      setData((d) => {
-        const sources = { ...d.sources };
-        if (state === null) delete sources[id];
-        else sources[id] = state;
-        return { ...d, sources };
-      }),
-    [],
-  );
   const finish = useCallback(() => {
     try {
       localStorage.setItem(DONE_KEY, "1");
@@ -84,7 +67,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const value = useMemo(() => ({ data, update, setSource, finish }), [data, update, setSource, finish]);
+  const value = useMemo(() => ({ data, update, finish }), [data, update, finish]);
   return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;
 }
 

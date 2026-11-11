@@ -9,7 +9,7 @@ import { createVacancy } from "@/features/vacancies/api/role-profiles";
 import { useOnboarding } from "../state/onboarding-store";
 
 /**
- * Pantalla 04 · Onboarding · Paso 4 Primera vacante.
+ * Pantalla 04 · Onboarding · Paso 3 Primera vacante.
  * Compone el editor de la feature `vacancies`; vive en `onboarding` porque la
  * navegación y los textos son los del flujo de alta.
  */
@@ -25,5 +25,5 @@ export function FirstVacancyStep({ initial }: { initial: RoleProfileDraft }) {
     router.push(routes.onboardingDone);
   }
 
-  return <RoleProfileEditor initial={initial} eyebrow="Paso 4 de 4" onSave={finish} onEvaluate={finish} saveLabel="Guardar borrador" evaluateLabel="Crear vacante" />;
+  return <RoleProfileEditor initial={initial} eyebrow="Paso 3 de 3" onSave={finish} onEvaluate={finish} saveLabel="Guardar borrador" evaluateLabel="Crear vacante" />;
 }
