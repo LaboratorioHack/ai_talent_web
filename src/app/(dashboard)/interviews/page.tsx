@@ -3,25 +3,36 @@ import { Suspense } from "react";
 import { PageTop } from "@/shared/components/layout";
 import { Skeleton } from "@/shared/components/ui";
 import { listInterviews } from "@/features/interviews/api/interviews";
-import { InterviewList } from "@/features/interviews/components/interview-list";
+import { InterviewInbox } from "@/features/interviews/components/interview-inbox";
 
 export const metadata: Metadata = { title: "Entrevistas" };
 
 async function Interviews() {
   const interviews = await listInterviews();
-  return <InterviewList interviews={interviews} />;
+  return <InterviewInbox interviews={interviews} />;
 }
 
-/** Lista de entrevistas con IA. */
+/** Entrevistas con IA como bandeja de conversaciones. */
 export default function InterviewsPage() {
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex h-[calc(100dvh-var(--app-header,0px))] flex-col">
       <PageTop title="Entrevistas" description="La IA pregunta por lo que falta validar y marca lo que no coincide con la hoja de vida." />
-      <div className="flex flex-col px-12 pt-7 pb-14">
-        <Suspense fallback={<Skeleton className="h-[420px] rounded-2xl" />}>
-          <Interviews />
-        </Suspense>
-      </div>
+      <Suspense
+        fallback={
+          <div className="grid flex-1 grid-cols-[400px_1fr]" aria-busy>
+            <div className="flex flex-col gap-3 border-r border-border p-5">
+              {Array.from({ length: 5 }, (_, i) => (
+                <Skeleton key={i} className="h-[76px] rounded-2xl" />
+              ))}
+            </div>
+            <div className="bg-surface p-12">
+              <Skeleton className="h-[420px] rounded-2xl" />
+            </div>
+          </div>
+        }
+      >
+        <Interviews />
+      </Suspense>
     </div>
   );
 }
