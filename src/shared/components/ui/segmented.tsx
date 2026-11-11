@@ -50,8 +50,8 @@ export function Segmented<T extends string>({ items, value, onChange, size = "md
             onClick={() => onChange(item.value)}
             className={cn(
               "relative z-10 flex items-center justify-center gap-2 rounded-full whitespace-nowrap transition-colors duration-300",
-              fill && "flex-1",
-              size === "sm" ? (fill ? "h-8 px-1.5 text-[12.5px]" : "h-8 px-3 text-[13px]") : "h-9 px-4 text-[13.5px]",
+              fill && "min-w-0 flex-1 gap-1.5",
+              size === "sm" ? (fill ? "h-8 px-1 text-[12.5px]" : "h-8 px-3 text-[13px]") : "h-9 px-4 text-[13.5px]",
               active ? "font-medium text-ink" : "text-ink-2 hover:text-ink",
             )}
           >
