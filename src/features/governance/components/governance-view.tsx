@@ -9,7 +9,8 @@ import type { AuditDecision } from "@/shared/types/domain";
 import type { BiasAlert, GovernanceData } from "../api/governance";
 
 type Period = "7d" | "30d" | "90d";
-const SCALE: Record<Period, number> = { "7d": 0.27, "30d": 1, "90d": 2.8 };
+// Todas las vacantes abrieron en el último mes: 30 y 90 días muestran lo mismo.
+const SCALE: Record<Period, number> = { "7d": 0.3, "30d": 1, "90d": 1 };
 const PERIOD_TEXT: Record<Period, string> = { "7d": "Últimos 7 días", "30d": "Últimos 30 días", "90d": "Últimos 90 días" };
 
 const DAY: Record<string, string> = { Hoy: "Hoy", Ayer: "Ayer", Lun: "Lunes", Mar: "Martes", "Mié": "Miércoles", Jue: "Jueves", Vie: "Viernes", "Sáb": "Sábado", Dom: "Domingo" };
@@ -63,7 +64,9 @@ export function GovernanceView({ data }: { data: GovernanceData }) {
     { value: Math.round(s.resumesEvaluated * k), label: "hojas de vida evaluadas", tone: "text-ink" },
     { value: s.scoresWithEvidence, label: "% de puntajes con evidencia", tone: "text-ink" },
     { value: Math.round(s.humanDecisions * k), label: "decisiones tomadas por personas", tone: "text-ink" },
-    { value: openAlerts.length, label: "alertas de sesgo por revisar", tone: openAlerts.length ? "text-warning" : "text-ink-3" },
+    openAlerts.length
+      ? { value: openAlerts.length, label: "alertas de sesgo por revisar", tone: "text-warning" }
+      : { value: Math.round(s.aiErrorsFlagged * k), label: "errores de la IA marcados por personas", tone: "text-ink" },
   ];
 
   return (

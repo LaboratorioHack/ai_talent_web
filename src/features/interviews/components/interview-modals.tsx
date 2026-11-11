@@ -19,7 +19,7 @@ export function ScheduleModal({ name, open, onClose, onScheduled }: { name: stri
   const [date, setDate] = useState<Date | null>(null);
   const [hour, setHour] = useState("10:00");
   const [duration, setDuration] = useState("45");
-  const [guests, setGuests] = useState("carlos.p@bancolombia.com");
+  const [guests, setGuests] = useState("carlos.p@cordillera.co");
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
   const min = today ? new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1) : undefined;

@@ -2,7 +2,7 @@ import "server-only";
 
 import { env } from "@/config/env";
 import { apiFetch } from "@/shared/lib/api-client";
-import { delay, mockAttributes, mockAuditStats, mockDecisions } from "@/shared/mocks";
+import { delay, mockAttributes, mockAuditStats, mockDecisions, mockUser, mockVacancies } from "@/shared/mocks";
 import type { AuditDecision } from "@/shared/types/domain";
 
 export interface BiasAlert {
@@ -14,7 +14,7 @@ export interface BiasAlert {
 
 export interface GovernanceData {
   organization: string;
-  stats: typeof mockAuditStats;
+  stats: typeof mockAuditStats & { aiErrorsFlagged: number };
   attributes: typeof mockAttributes;
   decisions: AuditDecision[];
   alerts: BiasAlert[];
@@ -40,13 +40,16 @@ const MORE: AuditDecision[] = [
 export async function getGovernance(): Promise<GovernanceData> {
   if (!env.useMocks) return apiFetch<GovernanceData>("/governance/audit");
   return delay({
-    organization: "Bancolombia Digital",
-    stats: mockAuditStats,
+    organization: mockUser.company.name,
+    stats: {
+      ...mockAuditStats,
+      resumesEvaluated: mockVacancies.reduce((n, v) => n + v.stats.meets + v.stats.partial + v.stats.doesNotMeet, 0),
+      humanDecisions: [...mockDecisions, ...MORE].filter((d) => d.who !== "Sistema").length,
+      aiErrorsFlagged: [...mockDecisions, ...MORE].filter((d) => /falso positivo|Corrigió/.test(d.action)).length,
+    },
     attributes: mockAttributes,
     decisions: [...mockDecisions, ...MORE],
-    alerts: [
-      { id: "b1", vacancy: "Analista de Datos", text: "Diferencia de 9 puntos entre egresados de universidades públicas y privadas", detail: "La diferencia viene del requisito de certificación. Revisa si esa certificación es indispensable o si hay equivalencias." },
-      { id: "b2", vacancy: "Desarrollador Backend Jr", text: "Pocas hojas de vida con más de 10 años de experiencia pasan el filtro", detail: "El perfil pide máximo 3 años. Si no es intencional, quita el límite: la experiencia de más no debería restar." },
-    ],
+    // Las alertas de sesgo solo salen de un cálculo real del backend; el mock no inventa ninguna.
+    alerts: [],
   });
 }

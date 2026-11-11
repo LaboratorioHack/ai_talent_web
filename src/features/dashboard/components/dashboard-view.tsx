@@ -9,7 +9,6 @@ import type { DashboardData, Period, PeriodStats } from "../api/dashboard";
 import { FunnelChart } from "./funnel-chart";
 import { KpiCard } from "./kpi-card";
 import { PendingList, TopProfiles } from "./side-panels";
-import { TrendChart } from "./trend-chart";
 import { VacancyBars } from "./vacancy-bars";
 
 const PERIODS: { value: Period; label: string }[] = [
@@ -42,7 +41,7 @@ const ZERO: PeriodStats = { received: 0, read: 0, meets: 0, partial: 0, doesNotM
 
 /**
  * Pantalla 04 · Inicio · Panel. Los filtros (período y vacante) recalculan
- * cifras, embudo, tendencia y barras al instante y con transición.
+ * cifras, embudo y barras al instante y con transición.
  */
 export function DashboardView({ data }: { data: DashboardData }) {
   const [period, setPeriod] = useState<Period>("30d");
@@ -54,10 +53,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
       const s = v.byPeriod[period];
       return Object.fromEntries(Object.keys(acc).map((k) => [k, acc[k as keyof PeriodStats] + s[k as keyof PeriodStats]])) as unknown as PeriodStats;
     }, ZERO);
-    const orgTotal = data.vacancies.reduce((n, v) => n + v.byPeriod[period].received, 0) || 1;
-    const share = totals.received / orgTotal;
-    const daily = data.daily[period].map((p) => ({ ...p, received: Math.round(p.received * share), evaluated: Math.round(p.evaluated * share) }));
-    return { scope, totals, daily };
+    return { scope, totals };
   }, [data, period, vacancy]);
 
   const t = view.totals;
@@ -95,10 +91,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
 
       <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
         <div className="flex min-w-0 flex-col gap-6">
-          <Panel title="Hojas de vida por día" subtitle="Cuántas llegaron y cuántas evaluó Criba" action={{ label: "Subir hojas de vida", href: routes.candidates }}>
-            <TrendChart key={`${period}-${vacancy}`} points={view.daily} />
-          </Panel>
-          <Panel title="Embudo de selección" subtitle="De todas las que llegan, cuántas avanzan en cada paso" action={{ label: "Ver vacantes", href: routes.vacancies }}>
+          <Panel title="Embudo de selección" subtitle="De todas las que llegan, cuántas avanzan en cada paso" action={{ label: "Subir hojas de vida", href: routes.candidates }}>
             <FunnelChart steps={funnel} />
           </Panel>
           <Panel title="Resultado por vacante" subtitle="Cómo quedaron las evaluadas de cada vacante" action={{ label: "Ir al ranking", href: routes.rankings }}>

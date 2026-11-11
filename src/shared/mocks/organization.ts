@@ -3,9 +3,9 @@ import type { CurrentUser, PendingItem } from "@/shared/types/domain";
 export const mockUser: CurrentUser = {
   id: "u-ana",
   name: "Ana Martínez",
-  email: "ana.m@bancolombia.com",
+  email: "ana.m@cordillera.co",
   role: "ADMIN",
-  company: { id: "c-bd", name: "Bancolombia Digital" },
+  company: { id: "c-bd", name: "Cordillera Financiera" },
 };
 
 export const mockPending: PendingItem[] = [
