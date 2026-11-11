@@ -30,7 +30,7 @@ export function OrgSwitcher({ user }: { user: CurrentUser }) {
         <span aria-hidden className="flex size-7 shrink-0 items-center justify-center rounded-full bg-amber/20 text-[#b26d06]">
           <Building2 className="size-4" />
         </span>
-        <span className="max-w-[200px] truncate">{current.company.name}</span>
+        <span className="max-w-[130px] truncate min-[1680px]:max-w-[200px]">{current.company.name}</span>
         <ChevronDown aria-hidden className="size-4 text-ink-3" />
       </button>
 
