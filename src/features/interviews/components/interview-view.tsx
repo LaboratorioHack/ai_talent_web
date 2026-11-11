@@ -148,6 +148,9 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
               <Button variant="outline" icon={<Send />} onClick={() => toast({ title: "Invitación reenviada", description: `${first} recibe un recordatorio por correo.` })}>
                 Reenviar invitación
               </Button>
+              <Link href={routes.candidateInterview(iv.id)} target="_blank" className="text-[13.5px] text-blue underline-offset-4 hover:underline">
+                Ver lo que recibe {first}
+              </Link>
             </div>
           ) : (
             <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-smooth px-4 sm:px-6 lg:px-12">
