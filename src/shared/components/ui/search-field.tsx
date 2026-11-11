@@ -41,7 +41,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(functi
       data-expanded={width !== null}
       style={width !== null ? { width, flexShrink: 0 } : undefined}
       className={cn(
-        "field-box flex h-10 items-center gap-2 px-3 text-[13.5px] transition-[width,box-shadow,border-color] duration-500 ease-[var(--ease-spring)]",
+        "field-box flex h-10 items-center gap-2 px-3 text-[13.5px]",
         "data-[expanded=true]:shadow-[0_12px_30px_-18px_rgba(21,32,27,0.45)]",
         containerClassName,
       )}
