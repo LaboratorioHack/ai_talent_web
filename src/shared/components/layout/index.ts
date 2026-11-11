@@ -1,5 +1,5 @@
 export { Navbar, type NavNotice } from "./navbar";
-export { CommandPalette, type SearchItem } from "./command-palette";
+export { NavSearch, type SearchItem } from "./nav-search";
 export { PageTop } from "./page-top";
 export { NavbarSkeleton } from "./navbar-skeleton";
 export { OrgSwitcher } from "./org-switcher";
