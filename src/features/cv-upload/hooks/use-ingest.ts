@@ -106,8 +106,15 @@ export function useIngest(initial: IngestFile[]) {
     return () => setFiles((list) => [...list.slice(0, index), file, ...list.slice(index)]);
   }, []);
 
+  /** Quita varios archivos a la vez (p. ej. todas las duplicadas) y devuelve cómo deshacerlo. */
+  const removeMany = useCallback((ids: string[]) => {
+    const before = filesRef.current;
+    setFiles((list) => list.filter((f) => !ids.includes(f.id)));
+    return () => setFiles(before);
+  }, []);
+
   /** "Pedir original": el archivo pasa a esperar una versión nueva. */
   const requestOriginal = useCallback((id: string) => patch(id, { detail: "Pedimos el original al candidato por correo" }), [patch]);
 
-  return { files, add, read, remove, requestOriginal };
+  return { files, add, read, remove, removeMany, requestOriginal };
 }
