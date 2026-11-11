@@ -9,6 +9,8 @@ export interface SegmentedProps<T extends string> {
   onChange: (value: T) => void;
   "aria-label": string;
   size?: "sm" | "md";
+  /** Ocupa todo el ancho y reparte las opciones por igual. */
+  fill?: boolean;
   className?: string;
 }
 
@@ -16,7 +18,7 @@ export interface SegmentedProps<T extends string> {
  * Control segmentado para filtros cortos (período, estado). Una píldora blanca
  * se desliza hasta la opción activa.
  */
-export function Segmented<T extends string>({ items, value, onChange, size = "md", className, ...rest }: SegmentedProps<T>) {
+export function Segmented<T extends string>({ items, value, onChange, size = "md", fill = false, className, ...rest }: SegmentedProps<T>) {
   const root = useRef<HTMLDivElement>(null);
   const pill = useRef<HTMLSpanElement>(null);
 
@@ -30,7 +32,7 @@ export function Segmented<T extends string>({ items, value, onChange, size = "md
   }, [value, items]);
 
   return (
-    <div ref={root} role="radiogroup" aria-label={rest["aria-label"]} className={cn("relative inline-flex items-center rounded-full bg-surface-2 p-1 ring-1 ring-border", className)}>
+    <div ref={root} role="radiogroup" aria-label={rest["aria-label"]} className={cn("relative items-center rounded-full", fill ? "flex w-full" : "inline-flex", "bg-surface-2 p-1 ring-1 ring-border", className)}>
       <span
         ref={pill}
         aria-hidden
@@ -47,8 +49,9 @@ export function Segmented<T extends string>({ items, value, onChange, size = "md
             data-value={item.value}
             onClick={() => onChange(item.value)}
             className={cn(
-              "relative z-10 flex items-center gap-1.5 rounded-full whitespace-nowrap transition-colors duration-300",
-              size === "sm" ? "h-8 px-3 text-[13px]" : "h-9 px-4 text-[13.5px]",
+              "relative z-10 flex items-center justify-center gap-1.5 rounded-full whitespace-nowrap transition-colors duration-300",
+              fill && "flex-1",
+              size === "sm" ? (fill ? "h-8 px-1.5 text-[12.5px]" : "h-8 px-3 text-[13px]") : "h-9 px-4 text-[13.5px]",
               active ? "font-medium text-ink" : "text-ink-2 hover:text-ink",
             )}
           >
