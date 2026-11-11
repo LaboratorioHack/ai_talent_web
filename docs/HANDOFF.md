@@ -27,6 +27,7 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 18 | `feat/integrations` | 17 | lista | 10 Integraciones con estados, permisos de la IA, registro en vivo y modales de conexión |
 | 19 | `feat/governance` | 18 | lista | 11 Auditoría: cifras, alertas de sesgo, atributos y decisiones |
 | 20 | `feat/people-first` | 19 | lista | Ranking por vacante con sus mejores personas, chat de entrevista, bandeja de entrevistas, `ScrollArea`, panel de lo que falta en la ingesta, navbar que se recoge en un icono |
+| 21 | `feat/pipeline` | 20 | lista | Tablero de pipeline para todas las vacantes con columnas de scroll propio, generador de candidatos en `shared/mocks`, arreglos del filtro del ranking y del foco del navbar |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -103,6 +104,7 @@ Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1
 - **09 Entrevistas** (`features/interviews`): bandeja (en vivo, para decidir, esperando) con vista previa; la entrevista es un chat centrado que abre al final y recibe respuestas en vivo simuladas. Programar con el equipo, descargar transcripción (.txt) y descartar.
 - **10 Integraciones** (`features/integrations`): logos oficiales, estados (conectado, error, sin conectar, pausado), sincronizar, reautorizar, conectar con clave, añadir del catálogo, permisos de la IA y registro que crece con cada acción.
 - **11 Gobierno** (`features/governance`): cifras por período, alertas de sesgo con revisión, atributos agrupados y decisiones como línea de tiempo por día con filtro por persona, ambos con `ScrollArea`. Exporta CSV.
+- **05 Tablero**: `getPipeline` arma las tarjetas con el mismo generador del ranking (`mockCandidatesOf` en `shared/mocks/candidates.ts`), así cifras, nombres y puntajes coinciden entre pantallas.
 - **Servidor de desarrollo**: si los estilos no cambian, borrar `.next/dev` y `.next/cache` y reiniciar `pnpm dev`; Turbopack a veces sirve CSS viejo.
 
 ## Landing (repo aparte `ai_talent_landing`)
