@@ -61,13 +61,15 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
     }
   }
 
+  const mandatory = draft.requirements.filter((r) => r.type === "MANDATORY").length;
+
   return (
-    <div className="flex flex-1">
-      <section className="flex min-w-0 flex-1 flex-col gap-7 px-12 pt-9 pb-8" aria-labelledby={headingId}>
-        <header className="flex items-start justify-between gap-6">
-          <div className="flex flex-col gap-1.5">
+    <div className="flex flex-1 items-start">
+      <section className="flex min-w-0 flex-1 flex-col gap-6 px-10 pt-10 pb-12 xl:px-14" aria-labelledby={headingId}>
+        <header className="flex flex-wrap items-end justify-between gap-6 pb-2">
+          <div className="flex min-w-0 flex-col gap-2">
             <p className="eyebrow">{eyebrow}</p>
-            <h1 id={headingId} className="font-head text-[34px] leading-tight font-semibold">
+            <h1 id={headingId} className="truncate font-head text-[34px] leading-tight font-semibold tracking-[-0.01em]">
               {draft.title || "Nueva vacante"}
             </h1>
           </div>
@@ -83,16 +85,25 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
           </div>
         </header>
 
-        <div className="grid grid-cols-[1fr_220px_220px_160px] gap-5">
-          <TextField label="Nombre de la vacante" value={draft.title} maxLength={80} onChange={(e) => patch({ title: e.target.value })} error={errors.title} help="Máximo 80 caracteres" />
-          <SelectField label="Área" value={draft.area} placeholder="Elige" onChange={(area) => patch({ area })} error={errors.area} options={mockAreas.map((a) => ({ value: a, label: a }))} />
-          <DateField label="Cierre de postulaciones" value={fromISODate(draft.closesAt)} minDate={today ?? undefined} onChange={(d) => patch({ closesAt: toISODate(d) })} error={errors.closesAt} help="Solo fechas futuras" />
-          <NumberField label="Número de vacantes" value={draft.openings} min={1} max={50} onChange={(n) => patch({ openings: n })} />
-        </div>
+        <section className="card p-7" aria-label="Datos de la vacante">
+          <h2 className="mb-6 text-[15px] font-semibold">Datos de la vacante</h2>
+          <div className="grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-2">
+            <TextField label="Nombre de la vacante" value={draft.title} maxLength={80} onChange={(e) => patch({ title: e.target.value })} error={errors.title} kind={`${draft.title.length} / 80`} />
+            <SelectField label="Área" value={draft.area} placeholder="Elige un área" onChange={(area) => patch({ area })} error={errors.area} options={mockAreas.map((a) => ({ value: a, label: a }))} />
+            <DateField label="Cierre de postulaciones" value={fromISODate(draft.closesAt)} minDate={today ?? undefined} onChange={(d) => patch({ closesAt: toISODate(d) })} error={errors.closesAt} help="Solo fechas futuras" />
+            <NumberField label="Número de vacantes" value={draft.openings} min={1} max={50} onChange={(n) => patch({ openings: n })} help="Personas a contratar" />
+          </div>
+        </section>
 
-        <div className="flex flex-col">
-          <div className="flex items-center gap-4 border-b border-border pb-2.5 font-mono text-[10.5px] text-ink-3 uppercase">
-            <span className="flex-1">Requisito</span>
+        <section className="card overflow-hidden" aria-label="Requisitos">
+          <header className="flex items-baseline justify-between gap-4 px-7 pt-6 pb-4">
+            <h2 className="text-[15px] font-semibold">Requisitos</h2>
+            <span className="font-mono text-[11px] text-ink-3">
+              {draft.requirements.length} en total · {mandatory} obligatorios
+            </span>
+          </header>
+          <div className="flex items-center gap-4 border-y border-border bg-bg/60 px-7 py-2.5 font-mono text-[10.5px] tracking-wide text-ink-3 uppercase">
+            <span className="flex-1 pl-6">Requisito</span>
             <span className="w-[150px]">Tipo</span>
             <span className="w-24">Peso</span>
             <span className="w-[230px]">Equivalencias</span>
@@ -109,23 +120,22 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
               />
             ))}
           </div>
-          {errors.requirements ? <p className="pt-3 text-xs text-danger">{errors.requirements}</p> : null}
-          <div className="flex items-center gap-3 py-3.5">
+          {errors.requirements ? <p className="px-7 pt-3 text-xs text-danger">{errors.requirements}</p> : null}
+          <div className="flex flex-wrap items-center gap-3 border-t border-border px-7 py-4">
             <button
               type="button"
               onClick={() => setDraft((d) => ({ ...d, requirements: [...d.requirements, emptyRequirement()] }))}
-              className="inline-flex items-center gap-2 text-[13.5px] font-medium text-blue transition-colors hover:text-ink"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-dashed border-border-strong px-3.5 text-[13px] font-medium text-ink transition-colors duration-300 hover:border-ink hover:bg-surface-2"
             >
               <Plus aria-hidden className="size-3.5" />
               Añadir requisito
             </button>
-            <span className="text-sm text-ink-3">o</span>
-            <button type="button" className="inline-flex items-center gap-2 text-sm text-ink-3 transition-colors hover:text-ink" title="Disponible cuando el AI Engine exponga el endpoint">
+            <button type="button" className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-[13px] text-ink-3 transition-colors duration-300 hover:bg-surface-2 hover:text-ink" title="Disponible cuando el AI Engine exponga el endpoint">
               <Sparkles aria-hidden className="size-3.5" />
-              pegar la descripción del cargo y dejar que Criba los proponga
+              Proponer requisitos desde la descripción del cargo
             </button>
           </div>
-        </div>
+        </section>
       </section>
 
       <ScoringSidebar requirements={draft.requirements} autoInterview={draft.autoInterview} onAutoInterviewChange={(v) => patch({ autoInterview: v })} />

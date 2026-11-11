@@ -20,9 +20,9 @@ const TYPE_OPTIONS = [
 ];
 
 const typeTone: Record<RequirementDraft["type"], string> = {
-  MANDATORY: "bg-ink text-ink-inverse",
-  NICE_TO_HAVE: "bg-surface-2 text-ink",
-  DISQUALIFYING: "bg-danger-soft text-danger",
+  MANDATORY: "border border-ink/15 bg-ink/[0.05] text-ink hover:bg-ink/[0.08]",
+  NICE_TO_HAVE: "border border-border bg-surface text-ink-2 hover:border-border-strong",
+  DISQUALIFYING: "border border-danger/20 bg-danger-soft/70 text-danger hover:bg-danger-soft",
 };
 
 /** Fila de la tabla de requisitos: nombre, tipo, peso, equivalencias. */
@@ -47,7 +47,7 @@ export function RequirementRow({ requirement, onChange, onRemove, index }: Requi
 
   return (
     <div
-      className="group flex items-center gap-4 border-b border-border py-3.5 animate-rise"
+      className="group flex items-center gap-4 border-b border-border px-7 py-3 transition-colors duration-300 animate-rise last:border-b-0 hover:bg-bg/60"
       style={{ "--i": index } as React.CSSProperties}
     >
       <div className="flex min-w-0 flex-1 items-center gap-2.5">
@@ -71,10 +71,10 @@ export function RequirementRow({ requirement, onChange, onRemove, index }: Requi
           const type = v as RequirementDraft["type"];
           onChange({ ...requirement, type, weight: type === "DISQUALIFYING" ? null : (requirement.weight ?? 10) });
         }}
-        triggerClassName={cn("h-8 w-full rounded-md px-2.5 text-[12.5px] font-medium", typeTone[requirement.type])}
+        triggerClassName={cn("h-9 w-full rounded-lg px-3 text-[12.5px] font-medium", typeTone[requirement.type])}
       />
 
-      <div className={cn("flex h-8 w-24 shrink-0 items-center overflow-hidden rounded-md border border-border transition-opacity duration-300", disqualifying && "pointer-events-none opacity-35")}>
+      <div className={cn("field-box flex h-9 w-24 shrink-0 items-center overflow-hidden transition-opacity duration-300", disqualifying && "pointer-events-none opacity-35")}>
         <button type="button" aria-label="Restar peso" onClick={() => setWeight((requirement.weight ?? 0) - 5)} className="flex h-full w-7 items-center justify-center text-ink-2 hover:bg-surface-2">
           <Minus aria-hidden className="size-3" />
         </button>
