@@ -19,7 +19,7 @@ export default function VacancyProfilePage({ params }: PageProps<"/vacancies/[id
   return (
     <Suspense
       fallback={
-        <div className="flex flex-col gap-6 px-12 pt-10" aria-busy>
+        <div className="flex flex-col gap-6 px-4 sm:px-6 lg:px-12 pt-10" aria-busy>
           <Skeleton className="h-10 w-96" />
           <Skeleton className="h-[320px] rounded-2xl" />
           <Skeleton className="h-[420px] rounded-2xl" />

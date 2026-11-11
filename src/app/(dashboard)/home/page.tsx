@@ -33,7 +33,7 @@ export default function HomePage() {
           </>
         }
       />
-      <div className="flex flex-col gap-5 px-12 pt-7 pb-14">
+      <div className="flex flex-col gap-5 px-4 sm:px-6 lg:px-12 pt-7 pb-14">
         <Suspense fallback={<DashboardSkeleton />}>
           <Dashboard />
         </Suspense>

@@ -37,7 +37,7 @@ export default function VacanciesPage() {
           </ButtonLink>
         }
       />
-      <div className="flex flex-col px-12 pt-7 pb-14">
+      <div className="flex flex-col px-4 sm:px-6 lg:px-12 pt-7 pb-14">
         <Suspense fallback={<VacanciesSkeleton />}>
           <Vacancies />
         </Suspense>

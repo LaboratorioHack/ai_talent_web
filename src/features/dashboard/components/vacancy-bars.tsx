@@ -48,7 +48,7 @@ export function VacancyBars({ rows }: { rows: VacancyBarRow[] }) {
           const closes = fromISODate(r.closesAt);
           const evaluated = r.meets + r.partial + r.doesNotMeet;
           return (
-            <li key={r.id} className="grid grid-cols-[190px_1fr_110px] items-center gap-5 animate-rise" style={{ animationDelay: `${i * 60}ms` }}>
+            <li key={r.id} className="grid grid-cols-1 items-center gap-2 animate-rise sm:grid-cols-[190px_1fr_110px] sm:gap-5" style={{ animationDelay: `${i * 60}ms` }}>
               <Link href={routes.ranking(r.id)} className="truncate text-[13.5px] font-medium text-ink transition-colors hover:text-blue">
                 {r.title}
               </Link>
@@ -95,7 +95,7 @@ export function VacancyBars({ rows }: { rows: VacancyBarRow[] }) {
                   })}
                 </span>
               )}
-              <span className="flex flex-col items-end text-right">
+              <span className="flex items-baseline gap-2 sm:flex-col sm:items-end sm:gap-0 sm:text-right">
                 <span className="text-[13px] font-medium text-ink tabular-nums">{r.received} recibidas</span>
                 <span className="text-[11.5px] text-ink-3">{closes ? `Cierra el ${formatShortDate(closes)}` : ""}</span>
               </span>

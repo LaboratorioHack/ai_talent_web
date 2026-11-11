@@ -156,9 +156,9 @@ export function VacancyList({ vacancies }: { vacancies: JobOpening[] }) {
             { value: "CLOSED", label: "Cerradas", count: count("CLOSED") },
           ]}
         />
-        <div className="flex items-center gap-2">
-          <Select aria-label="Ordenar" options={SORTS} value={sort} onChange={(v) => setSort(v as Sort)} className="w-[210px]" triggerClassName="field-box h-10 w-full px-3.5 text-[13.5px] text-ink" />
-          <SearchField placeholder="Buscar vacante" containerClassName="w-[260px]" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+          <Select aria-label="Ordenar" options={SORTS} value={sort} onChange={(v) => setSort(v as Sort)} className="w-[46%] sm:w-[210px]" triggerClassName="field-box h-10 w-full px-3.5 text-[13.5px] text-ink" />
+          <SearchField placeholder="Buscar vacante" containerClassName="min-w-0 flex-1 sm:w-[260px] sm:flex-none" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
       </div>
 

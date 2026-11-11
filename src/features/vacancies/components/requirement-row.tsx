@@ -47,10 +47,10 @@ export function RequirementRow({ requirement, onChange, onRemove, index }: Requi
 
   return (
     <div
-      className="group relative flex items-center gap-4 border-b border-border px-7 py-3 transition-colors duration-300 animate-rise last:border-b-0 hover:bg-bg/60 has-[[aria-expanded=true]]:z-30"
+      className="group relative flex flex-wrap items-center gap-x-4 gap-y-2.5 border-b border-border px-4 py-3 sm:px-7 md:flex-nowrap transition-colors duration-300 animate-rise last:border-b-0 hover:bg-bg/60 has-[[aria-expanded=true]]:z-30"
       style={{ "--i": index } as React.CSSProperties}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-2.5">
+      <div className="flex min-w-0 flex-1 basis-full items-center gap-2.5 md:basis-auto">
         <GripVertical aria-hidden className="size-3.5 shrink-0 cursor-grab text-ink-3" />
         <input
           value={requirement.description}
@@ -84,7 +84,7 @@ export function RequirementRow({ requirement, onChange, onRemove, index }: Requi
         </button>
       </div>
 
-      <div className="flex w-[230px] shrink-0 flex-wrap items-center gap-1.5">
+      <div className="flex w-full shrink-0 flex-wrap items-center gap-1.5 md:w-[230px]">
         {requirement.equivalences.map((eq, i) => (
           <button
             key={`${eq.label}-${i}`}
