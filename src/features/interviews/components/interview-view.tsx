@@ -97,7 +97,7 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-var(--app-header,0px))] flex-col">
+    <div className="flex flex-1 flex-col lg:h-[calc(100dvh-var(--app-header,0px))] lg:flex-none">
       <PageTop
         sticky={false}
         eyebrow={
@@ -138,10 +138,10 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
         }
       />
 
-      <div className="mt-4 grid min-h-0 flex-1 grid-cols-[1fr_440px] border-t border-border">
-        <section className="flex min-h-0 min-w-0 flex-col">
+      <div className="mt-4 grid min-h-0 flex-1 grid-cols-1 border-t border-border lg:grid-cols-[1fr_440px]">
+        <section className="flex min-h-0 min-w-0 flex-col max-lg:h-[62vh]">
           {status === "SCHEDULED" ? (
-            <div className="m-auto flex flex-col items-center gap-4 px-12 text-center animate-rise">
+            <div className="m-auto flex flex-col items-center gap-4 px-4 sm:px-6 lg:px-12 text-center animate-rise">
               <Avatar name={iv.candidate.name} size={64} />
               <h2 className="font-head text-[24px] font-semibold">{first} todavía no empieza la entrevista</h2>
               <p className="max-w-[420px] text-[14px] text-ink-2">Le enviamos el enlace con {iv.totalQuestions} preguntas sobre lo que falta validar. Te avisamos cuando termine.</p>
@@ -150,7 +150,7 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
               </Button>
             </div>
           ) : (
-            <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-smooth px-12">
+            <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-smooth px-4 sm:px-6 lg:px-12">
               <ol ref={list} className="mx-auto flex min-h-full w-full max-w-[780px] flex-col justify-end gap-6 pt-10 pb-10">
                 {shown.map((t, i) => (
                   <li
@@ -199,7 +199,7 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
           )}
         </section>
 
-        <aside className="flex min-h-0 flex-col border-l border-border bg-surface">
+        <aside className="flex min-h-0 flex-col border-border bg-surface max-lg:border-t lg:border-l">
           <div className="flex flex-1 flex-col gap-8 overflow-y-auto px-8 pt-7 pb-10">
             <section className="flex flex-col gap-3">
               <header className="flex items-baseline justify-between">

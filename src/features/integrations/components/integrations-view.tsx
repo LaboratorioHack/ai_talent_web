@@ -116,8 +116,8 @@ export function IntegrationsView({ data }: { data: IntegrationsData }) {
         }
       />
 
-      <div className="mt-4 grid flex-1 grid-cols-[1fr_400px] border-t border-border">
-        <div className="flex min-w-0 flex-col gap-10 px-12 pt-8 pb-14">
+      <div className="mt-4 grid flex-1 grid-cols-1 border-t border-border lg:grid-cols-[1fr_400px]">
+        <div className="flex min-w-0 flex-col gap-10 px-4 pt-6 pb-10 sm:px-6 sm:pt-8 lg:px-12 lg:pb-14">
           <ul className="grid grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3">
             {items.map((item, i) => {
               const s = STATE[item.state];
@@ -183,7 +183,7 @@ export function IntegrationsView({ data }: { data: IntegrationsData }) {
           </section>
         </div>
 
-        <aside className="sticky top-[calc(var(--app-header,0px)+76px)] flex max-h-[calc(100dvh-var(--app-header,0px)-76px)] flex-col gap-5 self-start overflow-y-auto border-l border-border bg-surface px-8 pt-8 pb-10">
+        <aside className="flex flex-col gap-5 border-border bg-surface px-4 pt-6 pb-10 max-lg:border-t sm:px-8 lg:sticky lg:top-[calc(var(--app-header,0px)+76px)] lg:max-h-[calc(100dvh-var(--app-header,0px)-76px)] lg:self-start lg:overflow-y-auto lg:border-l lg:pt-8">
           <header className="flex items-center justify-between gap-3">
             <h2 className="font-head text-[21px] font-semibold">Registro</h2>
             <Segmented aria-label="Qué mostrar" size="sm" value={logFilter} onChange={setLogFilter} items={[{ value: "all", label: "Todo" }, { value: "danger", label: "Avisos" }]} />

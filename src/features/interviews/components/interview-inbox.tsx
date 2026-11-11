@@ -67,7 +67,7 @@ function Preview({ iv }: { iv: Interview }) {
 
   return (
     <article key={iv.id} className="stagger flex flex-col gap-7 [&>*]:animate-rise">
-      <header className="flex items-center gap-5" style={{ "--i": 0 } as React.CSSProperties}>
+      <header className="flex flex-wrap items-center gap-4 sm:flex-nowrap sm:gap-5" style={{ "--i": 0 } as React.CSSProperties}>
         <Avatar name={iv.candidate.name} size={64} />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <h2 className="truncate font-head text-[28px] leading-tight font-semibold tracking-[-0.02em]">{iv.candidate.name}</h2>
@@ -76,11 +76,11 @@ function Preview({ iv }: { iv: Interview }) {
           </p>
         </div>
         {iv.status !== "SCHEDULED" ? (
-          <ButtonLink href={routes.interview(iv.id)} iconRight={<ArrowRight />}>
+          <ButtonLink href={routes.interview(iv.id)} iconRight={<ArrowRight />} className="max-sm:w-full">
             {iv.status === "IN_PROGRESS" ? "Seguir en vivo" : "Abrir entrevista"}
           </ButtonLink>
         ) : (
-          <Button variant="outline" icon={<Send />} onClick={() => toast({ title: "Invitación reenviada", description: `${first} recibe un recordatorio por correo.` })}>
+          <Button variant="outline" icon={<Send />} className="max-sm:w-full" onClick={() => toast({ title: "Invitación reenviada", description: `${first} recibe un recordatorio por correo.` })}>
             Reenviar invitación
           </Button>
         )}
@@ -151,7 +151,7 @@ function Preview({ iv }: { iv: Interview }) {
       {iv.contrasts.length ? (
         <section className="flex flex-col gap-2" style={{ "--i": 4 } as React.CSSProperties}>
           <span className="text-[13px] font-medium">Contraste con la hoja de vida</span>
-          <ul className="grid grid-cols-2 gap-2">
+          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {iv.contrasts.map((c) => {
               const Icon = VERDICT_ICON[c.verdict];
               return (
@@ -184,8 +184,8 @@ export function InterviewInbox({ interviews }: { interviews: Interview[] }) {
   const groups = useMemo(() => GROUPS.map((g) => ({ ...g, list: interviews.filter((i) => i.status === g.status) })).filter((g) => g.list.length), [interviews]);
 
   return (
-    <div className="mt-4 grid min-h-0 flex-1 grid-cols-[400px_1fr] border-t border-border">
-      <ScrollArea aria-label="Entrevistas" className="border-r border-border bg-bg" viewportClassName="px-5 pt-5 pb-10">
+    <div className="mt-4 grid min-h-0 flex-1 grid-cols-1 border-t border-border lg:grid-cols-[400px_1fr]">
+      <ScrollArea aria-label="Entrevistas" className="border-border bg-bg max-lg:max-h-[46vh] max-lg:border-b lg:border-r" viewportClassName="px-3 pt-4 pb-6 sm:px-5 lg:pt-5 lg:pb-10">
         {groups.map((g, gi) => (
           <section key={g.status} className="flex flex-col gap-1 pb-4">
             <header className="flex items-baseline justify-between px-3 pt-2 pb-1.5">
@@ -204,7 +204,7 @@ export function InterviewInbox({ interviews }: { interviews: Interview[] }) {
           <ArrowRight aria-hidden className="size-3.5" />
         </Link>
       </ScrollArea>
-      <ScrollArea aria-label="Vista previa" className="bg-surface" viewportClassName="px-12 pt-9 pb-14">
+      <ScrollArea aria-label="Vista previa" className="bg-surface" viewportClassName="px-4 pt-6 pb-14 sm:px-6 lg:px-12 lg:pt-9">
         {current ? <Preview iv={current} /> : null}
       </ScrollArea>
     </div>
