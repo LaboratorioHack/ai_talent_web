@@ -17,7 +17,7 @@ export default function RankingsPage() {
   return (
     <div className="flex flex-1 flex-col">
       <PageTop title="Ranking" description="Las personas que mejor encajan en cada vacante, con la prueba de por qué." />
-      <div className="flex flex-col px-12 pt-7 pb-14">
+      <div className="flex flex-col px-4 sm:px-6 lg:px-12 pt-7 pb-14">
         <Suspense
           fallback={
             <div className="flex flex-col gap-8" aria-busy>

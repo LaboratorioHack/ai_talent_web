@@ -27,7 +27,7 @@ export interface EvidenceTableProps {
 export function EvidenceTable({ requirements, results, onOpenResume, onAiError, onEquivalences }: EvidenceTableProps) {
   return (
     <div className="flex flex-col">
-      <div className="grid grid-cols-[28px_minmax(0,1.1fr)_minmax(0,1.5fr)_150px_52px_36px] gap-4 border-b border-border pb-2.5 text-[12px] text-ink-3">
+      <div className="hidden grid-cols-[28px_minmax(0,1.1fr)_minmax(0,1.5fr)_150px_52px_36px] gap-4 border-b border-border pb-2.5 text-[12px] text-ink-3 md:grid">
         <span />
         <span>Requisito</span>
         <span>Evidencia en la hoja de vida</span>
@@ -44,7 +44,7 @@ export function EvidenceTable({ requirements, results, onOpenResume, onAiError, 
         return (
           <div
             key={req.id}
-            className="group grid grid-cols-[28px_minmax(0,1.1fr)_minmax(0,1.5fr)_150px_52px_36px] items-center gap-4 border-b border-border py-3.5 transition-colors duration-300 last:border-0 hover:bg-surface-2/50 animate-[option-in_380ms_var(--ease-out-soft)_both]"
+            className="group grid grid-cols-[28px_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2 md:grid-cols-[28px_minmax(0,1.1fr)_minmax(0,1.5fr)_150px_52px_36px] md:items-center md:gap-4 max-md:[&>*:nth-child(3)]:col-span-2 max-md:[&>*:nth-child(3)]:col-start-2 max-md:[&>*:nth-child(4)]:col-span-2 max-md:[&>*:nth-child(4)]:col-start-2 max-md:[&>*:nth-child(5)]:col-start-3 max-md:[&>*:nth-child(5)]:row-start-1 max-md:[&>*:nth-child(6)]:hidden border-b border-border py-3.5 transition-colors duration-300 last:border-0 hover:bg-surface-2/50 animate-[option-in_380ms_var(--ease-out-soft)_both]"
             style={{ animationDelay: `${i * 45}ms` }}
           >
             <span className={cn("flex size-7 items-center justify-center rounded-full", disq ? "bg-surface-2 text-ink-3" : r.tone)}>

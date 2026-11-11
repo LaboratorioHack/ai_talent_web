@@ -92,7 +92,7 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
       description={evaluated ? `${evaluated} evaluadas, ordenadas por ajuste al perfil` : "Sin evaluaciones todavía"}
       actions={
         <>
-          <Select aria-label="Vacante" options={data.jobs} value={data.job.id} onChange={(id) => router.push(routes.ranking(id))} className="w-[280px]" />
+          <Select aria-label="Vacante" options={data.jobs} value={data.job.id} onChange={(id) => router.push(routes.ranking(id))} className="w-full sm:w-[280px]" />
           <ButtonLink href={`${routes.candidates}?job=${data.job.id}`} variant="outline" icon={<Upload />}>
             Subir hojas de vida
           </ButtonLink>
@@ -105,7 +105,7 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
     return (
       <div className="flex flex-1 flex-col">
         {top}
-        <div className="flex flex-1 flex-col px-12 py-16">
+        <div className="flex flex-1 flex-col px-4 sm:px-6 lg:px-12 py-16">
           <EmptyState
             title="Todavía no hay candidatos"
             description="Sube hojas de vida o conecta tu ATS para empezar. Criba las evalúa con el perfil de esta vacante."
@@ -125,11 +125,11 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
   return (
     <div className="flex flex-1 flex-col">
       {top}
-      <div className="mt-4 grid flex-1 grid-cols-[440px_1fr] border-t border-border">
-        <aside className="sticky top-[calc(var(--app-header,0px)+76px)] h-[calc(100dvh-var(--app-header,0px)-76px)] self-start overflow-y-auto overscroll-contain border-r border-border bg-bg px-6 pt-6 pb-10">
+      <div className="mt-4 grid flex-1 grid-cols-1 border-t border-border lg:grid-cols-[440px_1fr]">
+        <aside className="max-h-[48vh] overflow-y-auto overscroll-contain border-b border-border bg-bg px-3 pt-4 pb-6 sm:px-6 lg:sticky lg:top-[calc(var(--app-header,0px)+76px)] lg:h-[calc(100dvh-var(--app-header,0px)-76px)] lg:max-h-none lg:self-start lg:border-r lg:border-b-0 lg:pt-6 lg:pb-10">
           <RankingList candidates={data.candidates} selectedId={selectedId} onSelect={select} discarded={discarded} dimmed={evaluating > 0} />
         </aside>
-        <section className="flex min-w-0 flex-col bg-surface px-12 pt-8 pb-14">
+        <section className="flex min-w-0 flex-col bg-surface px-4 pt-6 pb-14 sm:px-6 sm:pt-8 lg:px-12">
           {evaluating > 0 ? (
             <EvaluatingPanel
               total={evaluating}

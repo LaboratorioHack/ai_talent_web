@@ -38,10 +38,10 @@ export function CandidateFocus({ candidate: c, requirements, profileVersion, dis
 
   return (
     <article key={c.id} className="stagger flex flex-col gap-7 [&>*]:animate-rise">
-      <header className="flex items-start gap-5" style={{ "--i": 0 } as React.CSSProperties}>
+      <header className="flex flex-wrap items-start gap-4 sm:flex-nowrap sm:gap-5" style={{ "--i": 0 } as React.CSSProperties}>
         <Avatar name={c.name} size={68} />
         <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <h2 className="truncate font-head text-[32px] leading-none font-semibold tracking-[-0.02em]">{c.name}</h2>
+          <h2 className="truncate font-head text-[24px] leading-none font-semibold tracking-[-0.02em] sm:text-[32px]">{c.name}</h2>
           <div className="flex flex-wrap items-center gap-2">
             <StatusChip status={discarded ? "discarded" : CHIP[c.fulfillment]}>
               {discarded ? "Descartado" : `${c.fulfillment === "MEETS" ? "Cumple" : c.fulfillment === "PARTIAL" ? "Cumple parcialmente" : "No cumple"}, ${c.mandatoryMet} de ${c.mandatoryTotal} obligatorios`}
@@ -52,7 +52,7 @@ export function CandidateFocus({ candidate: c, requirements, profileVersion, dis
             {c.sourceLabel}, evaluada el {evaluatedAt(c.evaluatedAt)} con el perfil versión {profileVersion}
           </p>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-1.5">
+        <div className="flex shrink-0 flex-col items-start gap-1.5 max-sm:w-full max-sm:flex-row max-sm:items-baseline max-sm:gap-3 sm:items-end">
           <span className={cn("font-head text-[64px] leading-[0.85] font-semibold tracking-[-0.04em] tabular-nums", discarded ? "text-ink-3" : TONE[c.fulfillment])}>
             <AnimatedNumber value={c.score} duration={700} />
           </span>
@@ -78,7 +78,7 @@ export function CandidateFocus({ candidate: c, requirements, profileVersion, dis
           </Button>
         </div>
       ) : (
-        <div className="flex items-center gap-2" style={{ "--i": 1 } as React.CSSProperties}>
+        <div className="flex flex-wrap items-center gap-2" style={{ "--i": 1 } as React.CSSProperties}>
           <Button icon={<CalendarPlus />} onClick={onInvite} disabled={Boolean(invited)}>
             {invited ? "Invitación enviada" : "Invitar a entrevista"}
           </Button>
