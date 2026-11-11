@@ -67,7 +67,7 @@ export function DesignShowcase() {
     <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-14 px-16 py-14">
       <Section
         title="Criba"
-        description="Bricolage Grotesque en títulos y cifras; Instrument Sans en el cuerpo; JetBrains Mono para datos verificables. Ámbar como único acento de interfaz; verde, ámbar y rojo solo para resultados."
+        description="Funnel Display en títulos y cifras; Funnel Sans en el cuerpo; IBM Plex Mono para datos verificables. Ámbar como único acento de interfaz; verde, ámbar y rojo solo para resultados."
       >
         <div className="flex items-center gap-8">
           <Logo />
