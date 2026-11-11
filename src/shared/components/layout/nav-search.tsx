@@ -107,7 +107,7 @@ export function NavSearch({ items, onOpenChange }: NavSearchProps) {
         title={open ? undefined : "Buscar (Ctrl K)"}
         className={cn(
           "flex h-11 items-center gap-2.5 rounded-full border bg-surface pr-2 pl-4 text-[14px] transition-[width,border-color,box-shadow] duration-[650ms] ease-[var(--ease-out-soft)]",
-          open ? "w-[min(560px,44vw)] border-border-strong shadow-[0_0_0_4px_rgba(242,169,59,0.16),0_16px_36px_-20px_rgba(21,32,27,0.45)]" : "w-11 cursor-pointer border-border pl-[12px] shadow-[0_1px_2px_rgba(21,32,27,0.04)] hover:border-border-strong min-[1680px]:w-[300px] min-[1680px]:cursor-text min-[1680px]:pl-4",
+          open ? "w-[min(560px,44vw)] max-md:fixed max-md:inset-x-3 max-md:top-3 max-md:z-50 max-md:w-auto border-border-strong shadow-[0_0_0_4px_rgba(242,169,59,0.16),0_16px_36px_-20px_rgba(21,32,27,0.45)]" : "w-11 cursor-pointer border-border pl-[12px] shadow-[0_1px_2px_rgba(21,32,27,0.04)] hover:border-border-strong min-[1680px]:w-[300px] min-[1680px]:cursor-text min-[1680px]:pl-4",
         )}
       >
         <Search aria-hidden className={cn("size-[18px] shrink-0 transition-colors duration-300", open ? "text-ink" : "text-ink-3")} />
@@ -136,7 +136,7 @@ export function NavSearch({ items, onOpenChange }: NavSearchProps) {
           id="nav-search-results"
           role="listbox"
           data-state={state}
-          className="absolute top-[calc(100%+10px)] right-0 z-50 max-h-[420px] w-full overflow-y-auto rounded-2xl border border-border bg-surface p-2 shadow-[0_30px_60px_-30px_rgba(21,32,27,0.55)] origin-top data-[state=open]:animate-[menu-in_260ms_var(--ease-out-soft)_both] data-[state=closed]:animate-[menu-out_160ms_var(--ease-in-out-soft)_both]"
+          className="absolute top-[calc(100%+10px)] right-0 z-50 max-h-[420px] w-full max-md:fixed max-md:inset-x-3 max-md:top-[68px] max-md:w-auto overflow-y-auto rounded-2xl border border-border bg-surface p-2 shadow-[0_30px_60px_-30px_rgba(21,32,27,0.55)] origin-top data-[state=open]:animate-[menu-in_260ms_var(--ease-out-soft)_both] data-[state=closed]:animate-[menu-out_160ms_var(--ease-in-out-soft)_both]"
         >
           {results.length === 0 ? <li className="px-3 py-8 text-center text-sm text-ink-3">Nada coincide con “{query}”.</li> : null}
           {results.map((item, i) => {

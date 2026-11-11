@@ -38,25 +38,25 @@ export function PageTop({ eyebrow, title, description, actions, children, sticky
     <>
       <div ref={sentinel} aria-hidden className="h-0" />
       {/* Tarjeta flotante: separada de los bordes, con esquinas redondeadas. */}
-      <div data-stuck={stuck} className={cn("group/top z-30 px-6 pt-4", sticky && "sticky top-[var(--app-header,0px)]", className)}>
+      <div data-stuck={stuck} className={cn("group/top z-30 px-3 pt-3 sm:px-6 sm:pt-4", sticky && "sticky top-[var(--app-header,0px)]", className)}>
         <div className="rounded-2xl border border-border bg-surface shadow-[0_1px_2px_rgba(21,32,27,0.04)] transition-shadow duration-500 group-data-[stuck=true]/top:shadow-[0_18px_40px_-22px_rgba(21,32,27,0.45)]">
-          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 px-7 pt-5 pb-5 transition-[padding] duration-500 ease-[var(--ease-out-soft)] group-data-[stuck=true]/top:items-center group-data-[stuck=true]/top:pt-3 group-data-[stuck=true]/top:pb-3">
+          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 px-4 pt-4 pb-4 sm:px-7 sm:pt-5 sm:pb-5 transition-[padding] duration-500 ease-[var(--ease-out-soft)] group-data-[stuck=true]/top:items-center group-data-[stuck=true]/top:pt-3 group-data-[stuck=true]/top:pb-3">
             <div className="flex min-w-0 flex-col">
               {eyebrow ? (
                 <Collapsible>
                   <div className="pb-1 text-[13px] text-ink-3">{eyebrow}</div>
                 </Collapsible>
               ) : null}
-              <h1 className="truncate font-head text-[30px] leading-tight font-semibold tracking-[-0.015em] transition-[font-size] duration-500 ease-[var(--ease-out-soft)] group-data-[stuck=true]/top:text-[20px]">{title}</h1>
+              <h1 className="truncate font-head text-[24px] leading-tight sm:text-[30px] font-semibold tracking-[-0.015em] transition-[font-size] duration-500 ease-[var(--ease-out-soft)] group-data-[stuck=true]/top:text-[20px]">{title}</h1>
               {description ? (
                 <Collapsible>
                   <div className="pt-1 text-[14px] text-ink-2">{description}</div>
                 </Collapsible>
               ) : null}
             </div>
-            {actions ? <div className="flex shrink-0 items-center gap-2 transition-transform duration-500 group-data-[stuck=true]/top:origin-right group-data-[stuck=true]/top:scale-[0.94]">{actions}</div> : null}
+            {actions ? <div className="flex max-w-full shrink-0 flex-wrap items-center gap-2 max-sm:group-data-[stuck=true]/top:hidden transition-transform duration-500 group-data-[stuck=true]/top:origin-right group-data-[stuck=true]/top:scale-[0.94]">{actions}</div> : null}
           </div>
-          {children ? <div className="px-7">{children}</div> : null}
+          {children ? <div className="px-4 sm:px-7">{children}</div> : null}
         </div>
       </div>
     </>

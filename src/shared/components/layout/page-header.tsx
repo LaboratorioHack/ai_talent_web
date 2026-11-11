@@ -32,5 +32,5 @@ export function PageHeader({ eyebrow, title, description, actions, children, siz
 
 /** Contenedor estándar de una pantalla del panel: 36px arriba, 48px a los lados. */
 export function PageBody({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("flex flex-1 flex-col gap-7 px-12 pt-9 pb-8", className)}>{children}</div>;
+  return <div className={cn("flex flex-1 flex-col gap-7 px-4 sm:px-6 lg:px-12 pt-9 pb-8", className)}>{children}</div>;
 }

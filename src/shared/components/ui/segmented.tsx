@@ -32,7 +32,7 @@ export function Segmented<T extends string>({ items, value, onChange, size = "md
   }, [value, items]);
 
   return (
-    <div ref={root} role="radiogroup" aria-label={rest["aria-label"]} className={cn("relative items-center rounded-full", fill ? "flex w-full" : "inline-flex", "bg-surface-2 p-1 ring-1 ring-border", className)}>
+    <div ref={root} role="radiogroup" aria-label={rest["aria-label"]} className={cn("relative items-center rounded-full", fill ? "flex w-full" : "inline-flex", "max-w-full overflow-x-auto bg-surface-2 p-1 ring-1 ring-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", className)}>
       <span
         ref={pill}
         aria-hidden

@@ -52,6 +52,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
   const nav = useRef<HTMLDivElement>(null);
   const pill = useRef<HTMLSpanElement>(null);
   const [searching, setSearching] = useState(false);
+  const [menu, setMenu] = useState(false);
   const [seen, setSeen] = useState(false);
 
   const activeLink = LINKS.find((l) => pathname === l.href || pathname.startsWith(`${l.href}/`));
@@ -75,13 +76,15 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-bg/80 backdrop-blur-xl backdrop-saturate-150">
-      <div className="flex h-[68px] items-center justify-between gap-4 px-6 min-[1680px]:gap-6 min-[1680px]:px-8">
+      <div className="flex h-16 items-center justify-between gap-2 px-3 sm:gap-4 sm:px-6 lg:h-[68px] min-[1680px]:gap-6 min-[1680px]:px-8">
         <div className="flex min-w-0 items-center gap-4">
           <Link href={routes.home} aria-label="Inicio" className="shrink-0 rounded-lg transition-opacity hover:opacity-80">
-            <Logo size="lg" />
+            <Logo size="lg" className="max-sm:[&>span:last-child]:hidden" />
           </Link>
-          <span aria-hidden className="h-6 w-px bg-border-strong" />
-          <OrgSwitcher user={user} />
+          <span aria-hidden className="hidden h-6 w-px bg-border-strong md:block" />
+          <span className="hidden md:block">
+            <OrgSwitcher user={user} />
+          </span>
         </div>
 
         {/*
@@ -89,7 +92,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
           redondo con el icono de la sección actual; al salir de la búsqueda se
           vuelve a abrir. Nada desaparece.
         */}
-        <nav aria-label="Principal" ref={nav} className="relative flex min-w-0 items-center rounded-full bg-surface-2 p-1 ring-1 ring-border">
+        <nav aria-label="Principal" ref={nav} className="relative hidden min-w-0 items-center rounded-full bg-surface-2 p-1 ring-1 ring-border lg:flex">
           <div
             className={cn(
               "grid transition-[grid-template-columns,opacity,filter] duration-[650ms] ease-[var(--ease-out-soft)]",
@@ -147,7 +150,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
           </span>
         </nav>
 
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-1 sm:gap-2">
           <NavSearch items={[...PAGES, ...searchItems]} onOpenChange={setSearching} />
           <ThemeToggle />
 
@@ -187,6 +190,53 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
           </Popover>
 
           {accountMenu}
+
+          {/* Celular y tablet: secciones y organización en un menú propio. */}
+          <button
+            type="button"
+            onClick={() => setMenu((o) => !o)}
+            aria-expanded={menu}
+            aria-controls="mobile-menu"
+            aria-label={menu ? "Cerrar menú" : "Abrir menú"}
+            className="flex size-10 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface-2 lg:hidden"
+          >
+            <svg viewBox="0 0 20 20" className="size-5" aria-hidden>
+              <path d="M3 6.5h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className={cn("origin-center transition-transform duration-500 ease-[var(--ease-out-soft)] [transform-box:fill-box]", menu && "translate-y-[3.5px] rotate-45")} />
+              <path d="M3 13.5h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className={cn("origin-center transition-transform duration-500 ease-[var(--ease-out-soft)] [transform-box:fill-box]", menu && "-translate-y-[3.5px] -rotate-45")} />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="mobile-menu"
+        className={cn(
+          "grid border-t border-border/60 transition-[grid-template-rows,opacity] duration-500 ease-[var(--ease-out-soft)] lg:hidden",
+          menu ? "grid-rows-[1fr] opacity-100" : "pointer-events-none grid-rows-[0fr] border-transparent opacity-0",
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <nav aria-label="Secciones" className="flex flex-col gap-1 px-3 pt-3 pb-4 sm:px-6">
+            <div className="mb-2 md:hidden">
+              <OrgSwitcher user={user} />
+            </div>
+            {LINKS.map((link) => {
+              const active = link.href === activeHref;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  tabIndex={menu ? undefined : -1}
+                  onClick={() => setMenu(false)}
+                  aria-current={active ? "page" : undefined}
+                  className={cn("flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] transition-colors", active ? "bg-surface font-medium text-ink ring-1 ring-border" : "text-ink-2 hover:bg-surface-2 hover:text-ink")}
+                >
+                  <link.icon aria-hidden className="size-[18px]" />
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
       </div>
 
