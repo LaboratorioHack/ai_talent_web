@@ -9,6 +9,7 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 |---|------|------|--------|----------|
 | 1 | `feat/design-system` | `develop` | lista | Tokens, fuentes, kit de UI compartido, `/design` |
 | 2 | `feat/app-shell` | 1 | lista | Movimiento, tipos de dominio, mocks, navbar, layout del panel, rutas y 404 |
+| 3 | `feat/auth-onboarding` | 2 | lista | Supabase Auth, login, onboarding 2–4, editor de perfil de cargo |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -42,6 +43,18 @@ Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1
 **Shell**: `Navbar` (fila de contexto + pestañas, activa por `usePathname`), `OrgSwitcher` (modal "Cambiar de organización"), `PageHeader` / `PageBody`, `NavbarSkeleton`. El layout de `(dashboard)` streamea la barra bajo `Suspense` porque Cache Components exige envolver datos no cacheados. Rutas en [src/shared/constants/routes.ts](../src/shared/constants/routes.ts): `/home`, `/vacancies`, `/candidates`, `/rankings`, `/interviews`, `/integrations`, `/governance`. `/` redirige a `/home`. Cada ruta tiene por ahora cabecera + estado vacío con su siguiente paso.
 
 **Para Santiago**: las pantallas 05 (tablero), 06 (perfil de cargo), 07 (ingesta) y 08 (ranking) tienen todo listo para montarse: mocks, tipos, `StatusChip`, `Avatar`, `PageHeader`. La `api/` de cada feature debe mirar `env.useMocks` como hace `features/auth/api/session.ts`.
+
+## 3 · `feat/auth-onboarding`
+
+**Supabase Auth** (solo Auth en el navegador, con anon key): clientes en [src/shared/lib/supabase](../src/shared/lib/supabase) (`client.ts` navegador, `server.ts` con cookies). `src/proxy.ts` (el "middleware" de Next 16) refresca la sesión y manda a `/login?next=…` si no hay usuario; `/auth/callback` cierra el OAuth y los enlaces de invitación. Si faltan `NEXT_PUBLIC_SUPABASE_URL` / `ANON_KEY`, todo corre en modo mock y el login siempre entra. El backend tiene `enable_signup = false` (solo invitación), correo + contraseña y ningún proveedor OAuth habilitado: los botones Google / Microsoft están cableados a `signInWithOAuth` y muestran un toast si el proveedor no existe. Para activarlos: habilitar `[auth.external.google]` / `azure` en `supabase/config.toml` y registrar `http://localhost:3000/auth/callback` como redirect.
+
+**Login** (`/login`, pantalla 01): `features/auth` con `loginSchema` (zod), `LoginForm` (react-hook-form), `ProviderButton`, `organizationFromEmail()` detecta la empresa por el dominio. El panel oscuro (`EvidencePanel`) ya no muestra candidatos con nombre y foto: muestra el ranking **anonimizado** (nombre tachado, foto omitida) con barras que crecen, que es exactamente lo que el modelo ve.
+
+**Onboarding** (`/onboarding/2|3|4`, pantallas 02–04): `features/onboarding` con `StepFrame`, `OrganizationStep` (chips de correos para invitar), `SourcesStep` (tarjetas seleccionables; el copy de "Subir archivos" habla de formatos, no de un límite de 100) y `FirstVacancyStep`, que compone el editor de la feature `vacancies`.
+
+**Editor de perfil de cargo** (`features/vacancies/components/RoleProfileEditor`): sirve igual para la pantalla 06 (`/vacancies/[id]/profile`). Tabla de requisitos con tipo (obligatorio / deseable / descalificante), peso con stepper, equivalencias como chips (`GCP 80` → `GCP ≈ 80 %`), lateral "Cómo se puntúa" con suma de pesos en vivo y umbrales. Validación con `roleProfileDraftSchema`. "Pegar la descripción del cargo" queda como botón inerte hasta que el AI Engine exponga el endpoint.
+
+**Cache Components, dos reglas que ya nos mordieron**: no usar `new Date()` en el render de un Client Component (hook `useToday()` en `shared/hooks`), y no leer `params` / `searchParams` fuera de `Suspense` (por eso los pasos son rutas estáticas `2/`, `3/`, `4/`).
 
 ## Convenciones
 
