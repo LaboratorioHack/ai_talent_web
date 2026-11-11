@@ -41,7 +41,8 @@ export function SourcesStep() {
       step={3}
       title="¿De dónde llegan las hojas de vida?"
       description="Elige una o varias. Puedes cambiarlo después en Integraciones."
-      width={760}
+      width={780}
+      bare
       footer={
         <>
           <Button variant="text" icon={<ArrowLeft />} onClick={() => router.push(routes.onboarding(2))}>

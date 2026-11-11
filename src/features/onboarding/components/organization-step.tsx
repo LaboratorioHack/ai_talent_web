@@ -65,7 +65,7 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
       <TextField label="Nombre de la organización" value={name} onChange={(e) => setName(e.target.value)} validated={name === detectedName} />
       <div className="grid grid-cols-2 gap-4">
         <SelectField label="Sector" value={sector} onChange={setSector} options={SECTORS.map((s) => ({ value: s, label: s }))} />
-        <SelectField label="Tamaño" kind="Personas" value={size} onChange={setSize} options={SIZES.map((s) => ({ value: s, label: s }))} />
+        <SelectField label="Tamaño" value={size} onChange={setSize} options={SIZES.map((s) => ({ value: s, label: s }))} />
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -73,12 +73,12 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
           <label htmlFor="invite" className="text-sm font-medium">
             Invita a tu equipo
           </label>
-          <span className="text-[11px] text-ink-3">Opcional · correos</span>
+          <span className="text-[11px] text-ink-3">Opcional</span>
         </div>
         <div
           className={cn(
-            "flex min-h-10 flex-wrap items-center gap-2 rounded-md border bg-surface px-2.5 py-2 transition-colors focus-within:border-ink",
-            emailError ? "border-danger" : "border-border",
+            "field-box flex min-h-11 flex-wrap items-center gap-2 px-3 py-2",
+            emailError && "is-invalid",
           )}
         >
           {emails.map((email) => (
@@ -103,7 +103,7 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
             className="min-w-[160px] flex-1 bg-transparent text-sm outline-none placeholder:text-ink-3"
           />
         </div>
-        <p className={cn("text-xs", emailError ? "text-danger" : "text-ink-2")}>{emailError ?? "Entrarán como reclutadores; puedes cambiar roles después"}</p>
+        <p className={cn("text-xs", emailError ? "text-danger" : "text-ink-3")}>{emailError ?? "Entrarán como reclutadores; puedes cambiar roles después"}</p>
       </div>
     </StepFrame>
   );
