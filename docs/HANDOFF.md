@@ -11,6 +11,7 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 2 | `feat/app-shell` | 1 | lista | Movimiento, tipos de dominio, mocks, navbar, layout del panel, rutas y 404 |
 | 3 | `feat/auth-onboarding` | 2 | lista | Supabase Auth, login, onboarding 2–4, editor de perfil de cargo |
 | 4 | `feat/custom-select` | 3 | lista | Desplegable propio animado; reemplaza todos los `<select>` nativos |
+| 5 | `feat/ui-polish` | 4 | lista | Campos y tarjetas unificados, editor con aire, título fijo, toasts con salida y pila |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -65,13 +66,25 @@ Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1
 
 **Hooks nuevos** en `shared/hooks`: `usePresence(open)` (montar mientras corre la salida) y `useDismiss(ref, open, onClose)` (clic fuera + Escape). `DateField` los usa también y ahora anima su salida. El `Modal` deja desbordar los popovers.
 
+## 5 · `feat/ui-polish`
+
+- **Bug de animaciones**: las curvas `--ease-*` solo vivían en `@theme inline`, que Tailwind no publica como variables. Toda clase `animate-[... var(--ease-…)]` o `ease-[var(...)]` quedaba con duración 0 y todo parecía instantáneo. Ahora también están en `:root`. Regla: si una variable se usa con `var()` a mano, debe existir en `:root`.
+- **Campos**: clase `.field-box` (borde suave, sombra mínima, anillo de foco de 4px, estados `is-invalid` / `is-valid`) para texto, selector, fecha, número y buscador. La etiqueta va sola arriba; ayuda y formato abajo en una línea (se acabó "Número de / vacantes" partido). Sin rótulos "Texto libre / Elegir de lista".
+- **Fondo y tarjetas**: fondo `#f6f7f4` menos beige, líneas `#e1e6df`, clase `.card` para agrupar.
+- **Editor de perfil**: datos en tarjeta 2×2, requisitos en tarjeta con cabecera y conteo, chips de tipo sobrios, título pegajoso que al bajar se vuelve barra flotante con subtítulo (área · cierre · requisitos), lateral fijo con su propio scroll. `useStuck()` en `shared/hooks`.
+- **Onboarding**: pregunta, formulario (en tarjeta) y pie alineados en la misma columna; `StepFrame bare` para contenido que ya son tarjetas.
+- **Toasts**: entran y salen animados; al salir su fila se cierra para que la pila se deslice; máximo 3 visibles; pasar el ratón pausa el tiempo; barra fina de tiempo restante.
+- **Select dentro de filas animadas**: la fila con el menú abierto sube de capa (`has-[[aria-expanded=true]]:z-30`), si no las filas siguientes lo tapaban.
+
 ## Landing (repo aparte `ai_talent_landing`)
 
-Astro 7 + Tailwind v4, estática. Repo git **local** recién creado (sin remoto todavía): `main` tiene el andamiaje y `feat/landing` todo lo demás. Hay que crear el repo en GitHub (`LaboratorioHack/ai_talent_landing`) y empujar ambas ramas. Detalle en su `README.md`.
+Astro 7 + Tailwind v4, estática y en oscuro (tinta verde de la marca, resaltador ámbar; nada espacial). Repo git **local** (sin remoto todavía): `main` tiene el andamiaje y `feat/landing` todo lo demás. Hay que crear el repo en GitHub y empujar ambas ramas. Detalle en su `README.md`.
 
-- Hero con **lector de hojas de vida** animado en bucle: un haz recorre el documento, tacha foto / edad / dirección, ilumina la línea que prueba cada requisito y el puntaje sube hasta 92. Sustituye a los candidatos con nombre y foto del diseño.
-- "Cómo evalúa" contado con scroll: el texto avanza y un escenario fijo cambia (formatos de archivo → requisitos → ranking).
-- Gobierno de IA con chips que se tachan al aparecer y contadores; marquesina de integraciones; precios; barra de progreso de lectura.
+- **Hero**: titular con palabra que rota bajo el resaltador y una hoja de vida que se revisa sola (resaltador, notas al margen con puntos, sello final); las demás hojas se abren en abanico con el scroll.
+- **Fuentes**: sección fija; al bajar se enciende cada plataforma (LinkedIn, Computrabajo, elempleo, Indeed, Greenhouse, Drive, Gmail) y suelta una hoja que cae en la bandeja de Criba.
+- **La criba** (idea central): lista de postulantes que pasa tres filtros con el scroll; se ilumina la columna evaluada y las filas que no pasan se cierran.
+- **Cómo evalúa** (tres demos vivas), **Gobierno de IA** (franja breve) y **cierre** con un tamiz en perspectiva que gira en reposo y criba granos.
+- Sin precios ni "50 hojas gratis": no venían de ningún requisito.
 - `pnpm dev` → `http://localhost:4321`. `PUBLIC_APP_URL` apunta a la app Next.
 
 ## Pendiente
