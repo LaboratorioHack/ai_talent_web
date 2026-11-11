@@ -28,6 +28,11 @@ export function formatMonthYear(date: Date): string {
   return `${month[0].toUpperCase()}${month.slice(1)} ${date.getFullYear()}`;
 }
 
+/** "30 de noviembre", para frases. */
+export function formatLongDate(date: Date): string {
+  return `${date.getDate()} de ${MONTHS_ES[date.getMonth()]}`;
+}
+
 /** "30 nov" */
 export function formatShortDate(date: Date): string {
   return `${String(date.getDate()).padStart(2, "0")} ${MONTHS_ES[date.getMonth()].slice(0, 3)}`;
