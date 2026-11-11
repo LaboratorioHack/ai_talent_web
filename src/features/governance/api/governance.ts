@@ -26,6 +26,14 @@ const MORE: AuditDecision[] = [
   { when: "Dom", action: "Aprobó equivalencia GCP al 80 %", who: "Ana M.", subject: "Cloud Senior", status: "unevaluated" },
   { when: "Vie", action: "Marcó finalista", who: "Carlos P.", subject: "Daniela Osorio", status: "meets" },
   { when: "Vie", action: "Pidió el original de 3 hojas de vida", who: "Ana M.", subject: "Analista de Datos", status: "unevaluated" },
+  { when: "Vie", action: "Invitó a entrevista", who: "Ana M.", subject: "Andrés Pardo", status: "partial" },
+  { when: "Jue", action: "Descartó por no cumplir un obligatorio", who: "Carlos P.", subject: "Ricardo Méndez", status: "does_not_meet" },
+  { when: "Jue", action: "Corrigió una cita de la IA", who: "Ana M.", subject: "Mariana López", status: "partial" },
+  { when: "Jue", action: "Re-evaluó 40 por cambio de perfil", who: "Sistema", subject: "Backend Jr", status: "unevaluated" },
+  { when: "Mié", action: "Marcó finalista", who: "Carlos P.", subject: "Diana Restrepo", status: "meets" },
+  { when: "Mié", action: "Invitó a entrevista", who: "Carlos P.", subject: "Valentina Cruz", status: "meets" },
+  { when: "Mié", action: "Descartó, retiró su postulación", who: "Ana M.", subject: "Tomás Herrera", status: "does_not_meet" },
+  { when: "Mar", action: "Cambió el peso de Kubernetes de 15 a 20", who: "Ana M.", subject: "Cloud Senior", status: "unevaluated" },
 ];
 
 /** Auditoría de la IA de la organización. Con backend: GET /governance/audit. */
