@@ -580,3 +580,16 @@
   }
 }
 
+/* Entrada de cada pantalla del panel (app/(dashboard)/template.tsx). Termina sin transform. */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}

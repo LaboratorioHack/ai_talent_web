@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight, Pencil, Upload } from "lucide-react";
+import { PageTop } from "@/shared/components/layout";
 import { ButtonLink, Skeleton } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { getPipeline, getVacancy } from "@/features/vacancies/api/vacancies";
@@ -18,19 +19,19 @@ async function Board({ params }: { params: Promise<{ id: string }> }) {
   const evaluations = vacancy.stats.meets + vacancy.stats.partial + vacancy.stats.doesNotMeet;
   return (
     <>
-      <div className="border-b border-border bg-surface">
-        <div className="flex flex-wrap items-end justify-between gap-6 px-12 pt-7 pb-6">
-          <div className="flex flex-col gap-1.5">
-            <nav aria-label="Ruta" className="flex items-center gap-1.5 text-[13px] text-ink-3">
-              <Link href={routes.vacancies} className="transition-colors hover:text-ink">
-                Vacantes
-              </Link>
-              <ChevronRight aria-hidden className="size-3.5" />
-              <span className="text-ink-2">{vacancy.title}</span>
-            </nav>
-            <h1 className="font-head text-[30px] leading-tight font-semibold tracking-[-0.01em]">{vacancy.title}</h1>
-          </div>
-          <div className="flex items-center gap-2">
+      <PageTop
+        eyebrow={
+          <nav aria-label="Ruta" className="flex items-center gap-1.5">
+            <Link href={routes.vacancies} className="transition-colors hover:text-ink">
+              Vacantes
+            </Link>
+            <ChevronRight aria-hidden className="size-3.5" />
+            <span className="text-ink-2">Pipeline</span>
+          </nav>
+        }
+        title={vacancy.title}
+        actions={
+          <>
             <DeleteVacancy id={vacancy.id} title={vacancy.title} evaluations={evaluations} />
             <ButtonLink href={routes.vacancyEdit(vacancy.id)} variant="outline" icon={<Pencil />}>
               Editar perfil
@@ -38,9 +39,9 @@ async function Board({ params }: { params: Promise<{ id: string }> }) {
             <ButtonLink href={`${routes.candidates}?job=${vacancy.id}`} icon={<Upload />}>
               Subir hojas de vida
             </ButtonLink>
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
       <div className="flex flex-1 flex-col px-10 pt-6 pb-10">
         <PipelineBoard jobId={vacancy.id} applications={applications} />
       </div>
