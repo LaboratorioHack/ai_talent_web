@@ -30,7 +30,7 @@ export function Tabs<T extends string>({ items, value, onChange, className, ...r
             aria-selected={active}
             onClick={() => onChange(item.value)}
             className={cn(
-              "-mb-px px-3 py-2.5 text-sm whitespace-nowrap transition-colors",
+              "-mb-px px-3 py-2.5 text-sm whitespace-nowrap transition-colors duration-300",
               active ? "border-b-2 border-ink font-semibold text-ink" : "text-ink-2 hover:text-ink",
             )}
           >

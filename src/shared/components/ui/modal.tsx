@@ -47,7 +47,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
       }}
       className={cn(
         "m-auto w-[calc(100vw-2rem)] rounded-xl bg-surface p-0 text-ink shadow-xl backdrop:bg-panel/60",
-        "open:animate-[pop-in_160ms_ease-out]",
+        "open:animate-pop-in backdrop:animate-fade-in",
         size === "sm" ? "max-w-[360px]" : "max-w-[440px]",
       )}
     >

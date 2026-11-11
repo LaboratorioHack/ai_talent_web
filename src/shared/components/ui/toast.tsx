@@ -67,7 +67,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={t.id}
             role="status"
-            className="pointer-events-auto flex items-start gap-3 rounded-lg bg-panel px-4 py-3 text-ink-inverse shadow-lg animate-[toast-in_180ms_ease-out]"
+            className="pointer-events-auto flex items-start gap-3 rounded-lg bg-panel px-4 py-3 text-ink-inverse shadow-lg animate-toast-in"
           >
             <span className="mt-px shrink-0">{toneIcon[t.tone ?? "success"]}</span>
             <div className="flex min-w-0 flex-1 flex-col gap-1">
