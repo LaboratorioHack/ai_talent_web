@@ -94,7 +94,7 @@ export function RequirementRow({ requirement, onChange, onRemove, index }: Requi
             className="rounded-full bg-blue-soft px-2 py-[3px] font-mono text-[10.5px] text-blue transition-colors hover:bg-danger-soft hover:text-danger"
           >
             {eq.label}
-            {eq.percent < 100 ? ` ≈ ${eq.percent} %` : ""}
+            {eq.percent < 100 ? ` ${eq.percent} %` : ""}
           </button>
         ))}
         {adding ? (

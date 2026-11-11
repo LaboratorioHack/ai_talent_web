@@ -24,7 +24,7 @@ export const mockAttributes = [
 export const mockDecisions: AuditDecision[] = [
   { when: "Hoy 10:02", action: "Invitó a entrevista", who: "Ana M.", subject: "Daniela Osorio", status: "meets" },
   { when: "Hoy 09:48", action: "Descartó · no cumple obligatorio", who: "Ana M.", subject: "Julián Rivas", status: "does_not_meet" },
-  { when: "Ayer", action: "Cambió peso Inglés 15 → 10", who: "Carlos P.", subject: "Cloud Senior", status: "unevaluated" },
+  { when: "Ayer", action: "Cambió el peso de Inglés de 15 a 10", who: "Carlos P.", subject: "Cloud Senior", status: "unevaluated" },
   { when: "Ayer", action: "Marcó falso positivo de IA", who: "Ana M.", subject: "Camila Torres", status: "partial" },
   { when: "Lun", action: "Re-evaluó 84 por cambio de pesos", who: "Sistema", subject: "Cloud Senior", status: "unevaluated" },
 ];
