@@ -88,10 +88,10 @@ export function GovernanceView({ data }: { data: GovernanceData }) {
         }
       />
 
-      <div className="flex flex-col gap-8 px-12 pt-8 pb-14">
-        <div className="grid grid-cols-5 overflow-hidden rounded-2xl border border-border bg-surface animate-rise">
+      <div className="flex flex-col gap-6 px-4 pt-6 pb-10 sm:gap-8 sm:px-6 sm:pt-8 lg:px-12 lg:pb-14">
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border animate-rise sm:grid-cols-3 lg:grid-cols-5">
           {stats.map((st) => (
-            <div key={st.label} className="flex flex-col gap-2 border-r border-border px-6 py-5 last:border-0">
+            <div key={st.label} className="flex flex-col gap-2 bg-surface px-5 py-5 last:col-span-2 sm:px-6 lg:last:col-span-1">
               <AnimatedNumber value={st.value} className={cn("font-head text-[34px] leading-none font-semibold tracking-[-0.02em] tabular-nums", st.tone)} />
               <span className="text-[13px] text-ink-2">{st.label}</span>
             </div>
@@ -137,7 +137,7 @@ export function GovernanceView({ data }: { data: GovernanceData }) {
                       </h3>
                       <span className="text-[12px] text-ink-3">{g.hint}</span>
                     </div>
-                    <ul className={cn("grid gap-2", g.used ? "grid-cols-1" : "grid-cols-2")}>
+                    <ul className={cn("grid gap-2", g.used ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2")}>
                       {items.map((a, i) => (
                         <li
                           key={a.label}

@@ -16,7 +16,7 @@ export default function IntegrationsPage() {
   return (
     <Suspense
       fallback={
-        <div className="grid grid-cols-3 gap-4 px-12 pt-8" aria-busy>
+        <div className="grid grid-cols-1 gap-4 px-4 pt-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 lg:px-12" aria-busy>
           {Array.from({ length: 6 }, (_, i) => (
             <Skeleton key={i} className="h-[180px] rounded-2xl" />
           ))}
