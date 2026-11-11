@@ -47,7 +47,7 @@ export function RequirementRow({ requirement, onChange, onRemove, index }: Requi
 
   return (
     <div
-      className="group flex items-center gap-4 border-b border-border px-7 py-3 transition-colors duration-300 animate-rise last:border-b-0 hover:bg-bg/60"
+      className="group relative flex items-center gap-4 border-b border-border px-7 py-3 transition-colors duration-300 animate-rise last:border-b-0 hover:bg-bg/60 has-[[aria-expanded=true]]:z-30"
       style={{ "--i": index } as React.CSSProperties}
     >
       <div className="flex min-w-0 flex-1 items-center gap-2.5">
