@@ -159,7 +159,7 @@ export function PipelineBoard({ jobId, cards }: { jobId: string; cards: Pipeline
                         setOver(null);
                       }}
                       className={cn(
-                        "group relative flex cursor-grab flex-col gap-2.5 rounded-xl bg-surface p-3.5 ring-1 ring-border transition-[opacity,transform,box-shadow] duration-300 ease-[var(--ease-out-soft)] active:cursor-grabbing animate-[option-in_340ms_var(--ease-out-soft)_both]",
+                        "group relative flex cursor-grab flex-col gap-2.5 rounded-xl bg-surface p-3.5 ring-1 ring-border transition-[opacity,transform,translate,scale,rotate,box-shadow] duration-300 ease-[var(--ease-out-soft)] active:cursor-grabbing animate-[option-in_340ms_var(--ease-out-soft)_both]",
                         "hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-20px_rgba(21,32,27,0.55)]",
                         dragging === c.id && "scale-[0.97] opacity-40",
                         landed === c.id && "animate-[pop-in_420ms_var(--ease-spring)]",

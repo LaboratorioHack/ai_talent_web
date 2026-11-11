@@ -87,7 +87,7 @@ export function LoginShowcase() {
             >
               <span
                 className={cn(
-                  "flex size-14 items-center justify-center rounded-2xl bg-white p-2.5 transition-[box-shadow,transform] duration-500 ease-[var(--ease-spring)] animate-[float_6s_ease-in-out_infinite]",
+                  "flex size-14 items-center justify-center rounded-2xl bg-white p-2.5 transition-[box-shadow,transform,translate,scale,rotate] duration-500 ease-[var(--ease-spring)] animate-[float_6s_ease-in-out_infinite]",
                   k === i ? "scale-110 shadow-[0_0_0_4px_rgba(242,169,59,0.45),0_18px_40px_-14px_rgba(0,0,0,0.9)]" : "shadow-[0_14px_30px_-14px_rgba(0,0,0,0.9)]",
                 )}
                 style={{ animationDelay: `${k * -1.4}s` }}

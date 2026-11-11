@@ -217,7 +217,7 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
                     onClick={() => jump(t.order)}
                     aria-label={`Pregunta ${t.order}${t.verdict === "conflict" ? ", contradice la hoja de vida" : t.answer ? ", coincide" : ""}`}
                     className={cn(
-                      "flex aspect-square items-center justify-center rounded-lg text-[13px] font-medium tabular-nums transition-[background-color,color,transform] duration-500 ease-[var(--ease-spring)] enabled:hover:-translate-y-0.5",
+                      "flex aspect-square items-center justify-center rounded-lg text-[13px] font-medium tabular-nums transition-[background-color,color,transform,translate,scale,rotate] duration-500 ease-[var(--ease-spring)] enabled:hover:-translate-y-0.5",
                       t.verdict === "conflict" ? "bg-warning-soft text-warning" : t.answer ? "bg-success-soft text-success" : t.order === current ? "bg-ink text-ink-inverse" : "text-ink-3 ring-1 ring-border",
                     )}
                   >

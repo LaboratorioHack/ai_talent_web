@@ -45,7 +45,7 @@ export function ProviderButton({ provider, loading, disabled, onClick }: Provide
       aria-busy={loading || undefined}
       className={cn(
         "flex h-11 w-full items-center justify-center gap-2.5 rounded-md border border-border bg-surface text-[13.5px] font-medium text-ink",
-        "transition-[border-color,background-color,transform,box-shadow] duration-300 ease-[var(--ease-out-soft)]",
+        "transition-[border-color,background-color,transform,translate,scale,rotate,box-shadow] duration-300 ease-[var(--ease-out-soft)]",
         "hover:-translate-y-px hover:border-ink-3 hover:shadow-[0_10px_22px_-14px_rgba(21,32,27,0.45)] active:translate-y-0 disabled:opacity-50",
       )}
     >

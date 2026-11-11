@@ -26,7 +26,7 @@ export function Steps({ steps, current, onStepClick, className }: StepsProps) {
           <>
             <span
               className={cn(
-                "flex size-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-[background-color,color,box-shadow,transform] duration-500 ease-[var(--ease-spring)]",
+                "flex size-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-[background-color,color,box-shadow,transform,translate,scale,rotate] duration-500 ease-[var(--ease-spring)]",
                 state === "current" && "scale-105 bg-amber text-ink shadow-[0_0_0_4px_rgba(242,169,59,0.22)]",
                 state === "done" && "bg-ink text-ink-inverse",
                 state === "todo" && "border border-border-strong text-ink-3",

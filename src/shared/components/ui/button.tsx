@@ -30,7 +30,7 @@ const variantClasses: Record<ButtonVariant, string> = {
 
 const baseClasses =
   "inline-flex shrink-0 items-center justify-center rounded-md font-medium whitespace-nowrap " +
-  "transition-[background-color,color,box-shadow,transform,opacity] duration-300 ease-[var(--ease-out-soft)] " +
+  "transition-[background-color,color,box-shadow,transform,translate,scale,rotate,opacity] duration-300 ease-[var(--ease-out-soft)] " +
   "hover:-translate-y-px active:translate-y-0 active:scale-[0.985] active:duration-100";
 
 /** Clases del botón para usarlas en enlaces u otros elementos. */

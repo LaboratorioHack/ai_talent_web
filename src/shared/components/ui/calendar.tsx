@@ -68,7 +68,7 @@ export function Calendar({ value, onChange, minDate, maxDate, note = "Las fechas
                   disabled={disabled}
                   onClick={() => onChange(day)}
                   className={cn(
-                    "size-8 rounded-full text-[12.5px] transition-[background-color,color,transform] duration-200 hover:scale-105 active:scale-95",
+                    "size-8 rounded-full text-[12.5px] transition-[background-color,color,transform,translate,scale,rotate] duration-200 hover:scale-105 active:scale-95",
                     selected ? "bg-ink font-semibold text-ink-inverse" : "hover:bg-surface-2",
                     disabled && "text-ink-3 hover:bg-transparent",
                     !selected && !disabled && isToday && "font-semibold underline underline-offset-4",

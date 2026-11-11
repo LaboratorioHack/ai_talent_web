@@ -40,7 +40,7 @@ export function FunnelChart({ steps }: FunnelChartProps) {
                 <span className={cn("font-head text-[22px] leading-none font-semibold tabular-nums transition-opacity duration-300", dim && "opacity-40")}>{s.value.toLocaleString("es-CO")}</span>
                 <span
                   key={`${s.label}-${s.value}`}
-                  className={cn("grow-y block w-full max-w-[84px] rounded-t-[6px] rounded-b-[2px] bg-ink transition-[opacity,transform] duration-300", dim && "opacity-25", hover === i && "scale-x-[1.04]")}
+                  className={cn("grow-y block w-full max-w-[84px] rounded-t-[6px] rounded-b-[2px] bg-ink transition-[opacity,transform,translate,scale,rotate] duration-300", dim && "opacity-25", hover === i && "scale-x-[1.04]")}
                   style={{ height: h, opacity: dim ? undefined : 1 - i * 0.13, animationDelay: `${120 + i * 80}ms` }}
                 />
                 {hover === i ? (

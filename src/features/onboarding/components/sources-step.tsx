@@ -71,7 +71,7 @@ export function SourcesStep() {
               onClick={() => toggle(source.id)}
               style={{ "--i": i } as React.CSSProperties}
               className={cn(
-                "flex items-center gap-3.5 rounded-xl border bg-surface p-4 text-left transition-[border-color,transform,box-shadow] duration-300 ease-[var(--ease-out-soft)]",
+                "flex items-center gap-3.5 rounded-xl border bg-surface p-4 text-left transition-[border-color,transform,translate,scale,rotate,box-shadow] duration-300 ease-[var(--ease-out-soft)]",
                 "hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-20px_rgba(21,32,27,0.5)]",
                 on ? "border-ink" : "border-border",
                 i === 0 && "sm:col-span-2",
@@ -87,7 +87,7 @@ export function SourcesStep() {
               <span
                 aria-hidden
                 className={cn(
-                  "flex size-[22px] shrink-0 items-center justify-center rounded-full border transition-[background-color,border-color,transform] duration-300 ease-[var(--ease-spring)]",
+                  "flex size-[22px] shrink-0 items-center justify-center rounded-full border transition-[background-color,border-color,transform,translate,scale,rotate] duration-300 ease-[var(--ease-spring)]",
                   on ? "scale-100 border-ink bg-ink text-ink-inverse" : "scale-90 border-border-strong",
                 )}
               >
