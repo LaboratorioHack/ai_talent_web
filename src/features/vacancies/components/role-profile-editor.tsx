@@ -6,7 +6,7 @@ import { Button, DateField, NumberField, SelectField, TextField } from "@/shared
 import { useStuck } from "@/shared/hooks/use-stuck";
 import { useToday } from "@/shared/hooks/use-today";
 import { cn } from "@/shared/lib/cn";
-import { fromISODate, toISODate } from "@/shared/lib/dates";
+import { formatShortDate, fromISODate, toISODate } from "@/shared/lib/dates";
 import { mockAreas } from "@/shared/mocks";
 import { roleProfileDraftSchema, type RequirementDraft, type RoleProfileDraft } from "../schemas/role-profile";
 import { RequirementRow } from "./requirement-row";
@@ -65,6 +65,8 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
   }
 
   const mandatory = draft.requirements.filter((r) => r.type === "MANDATORY").length;
+  const closesDate = fromISODate(draft.closesAt);
+  const closesLabel = closesDate ? formatShortDate(closesDate) : null;
 
   return (
     <div className="flex flex-1 items-start">
@@ -74,21 +76,31 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
         <header data-stuck={stuck} className={cn("sticky z-20 transition-[top] duration-500 ease-[var(--ease-out-soft)]", stuck ? "top-3" : "top-0")}>
           <div
             className={cn(
-              "flex flex-wrap items-end justify-between gap-6 rounded-2xl border",
+              "flex flex-wrap justify-between gap-6 rounded-2xl border",
               "transition-[background-color,border-color,box-shadow,padding,margin] duration-500 ease-[var(--ease-out-soft)]",
               stuck
-                ? "-mx-3 items-center border-border bg-surface/90 py-2.5 pr-2.5 pl-5 shadow-[0_18px_40px_-24px_rgba(21,32,27,0.45)] backdrop-blur-md"
-                : "mx-0 border-transparent px-0 py-2",
+                ? "-mx-3 items-center border-border bg-surface/90 py-3 pr-3 pl-5 shadow-[0_18px_40px_-24px_rgba(21,32,27,0.45)] backdrop-blur-md"
+                : "mx-0 items-end border-transparent px-0 py-2",
             )}
           >
-          <div className="flex min-w-0 flex-col gap-2">
+          <div className={cn("flex min-w-0 flex-col", stuck ? "gap-0.5" : "gap-2")}>
             <p className={cn("eyebrow overflow-hidden transition-[max-height,opacity] duration-500 ease-[var(--ease-out-soft)]", stuck ? "max-h-0 opacity-0" : "max-h-6 opacity-100")}>{eyebrow}</p>
             <h1
               id={headingId}
-              className={cn("truncate font-head leading-tight font-semibold tracking-[-0.01em] transition-[font-size] duration-500 ease-[var(--ease-out-soft)]", stuck ? "text-[20px]" : "text-[34px]")}
+              className={cn("truncate font-head leading-tight font-semibold tracking-[-0.01em] transition-[font-size] duration-500 ease-[var(--ease-out-soft)]", stuck ? "text-[18px]" : "text-[34px]")}
             >
               {draft.title || "Nueva vacante"}
             </h1>
+            {/* Subtítulo compacto: solo cuando la barra está pegada. */}
+            <p
+              aria-hidden={!stuck}
+              className={cn(
+                "overflow-hidden text-[12.5px] text-ink-3 transition-[max-height,opacity] duration-500 ease-[var(--ease-out-soft)]",
+                stuck ? "max-h-5 opacity-100" : "max-h-0 opacity-0",
+              )}
+            >
+              {[draft.area, closesLabel && `cierra ${closesLabel}`, `${draft.requirements.length} requisitos`].filter(Boolean).join(" · ")}
+            </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" loading={busy === "save"} disabled={busy !== null} onClick={() => run("save")}>
