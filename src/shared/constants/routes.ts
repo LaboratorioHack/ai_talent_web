@@ -3,6 +3,7 @@ export const routes = {
   home: "/home",
   login: "/login",
   onboarding: (step: 2 | 3 | 4) => `/onboarding/${step}` as const,
+  onboardingDone: "/onboarding/listo",
   vacancies: "/vacancies",
   vacancy: (id: string) => `/vacancies/${id}`,
   vacancyEdit: (id: string) => `/vacancies/${id}/profile`,
