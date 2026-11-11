@@ -2,7 +2,7 @@
 
 import { useId, useState, type ReactNode } from "react";
 import { ListPlus, Plus } from "lucide-react";
-import { Button, DateField, NumberField, SelectField, TextArea, TextField, useToast } from "@/shared/components/ui";
+import { Button, Collapse, DateField, NumberField, SelectField, TextArea, TextField, useToast } from "@/shared/components/ui";
 import { useStuck } from "@/shared/hooks/use-stuck";
 import { useToday } from "@/shared/hooks/use-today";
 import { cn } from "@/shared/lib/cn";
@@ -183,7 +183,9 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
               />
             ))}
           </div>
-          {errors.requirements ? <p className="px-7 pt-3 text-xs text-danger">{errors.requirements}</p> : null}
+          <Collapse open={Boolean(errors.requirements)}>
+            <p className="px-7 pt-3 text-xs text-danger">{errors.requirements}</p>
+          </Collapse>
           <div className="flex flex-wrap items-center gap-3 border-t border-border px-7 py-4">
             <button
               type="button"
