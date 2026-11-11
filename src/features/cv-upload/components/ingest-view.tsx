@@ -5,15 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Clock, Play, X } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
-import { AnimatedNumber, Button, EmptyState, SearchField, Segmented, Select, useToast } from "@/shared/components/ui";
+import { Button, EmptyState, SearchField, Segmented, Select, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
-import { cn } from "@/shared/lib/cn";
 import { useIngest } from "../hooks/use-ingest";
 import type { IngestData, IngestFile, IngestSource } from "../types/ingest";
 import { ConnectFolderModal } from "./connect-folder-modal";
 import { Dropzone } from "./dropzone";
 import { EvaluateModal } from "./evaluate-modal";
 import { FileRow } from "./file-row";
+import { ReadingSummary } from "./reading-summary";
 
 type Group = "busy" | "read" | "unreadable" | "duplicate" | "rejected";
 type View = "all" | "attention" | "read";
@@ -23,13 +23,7 @@ const groupOf = (f: IngestFile): Group =>
 
 const ORDER: Record<Group, number> = { busy: 0, unreadable: 1, rejected: 2, duplicate: 3, read: 4 };
 
-const COUNTERS: { group: Group; label: string; tone: string; hint: string }[] = [
-  { group: "read", label: "Leídas", tone: "text-success", hint: "Listas para evaluar" },
-  { group: "busy", label: "Leyendo", tone: "text-blue", hint: "Tardan unos segundos" },
-  { group: "unreadable", label: "Ilegibles", tone: "text-danger", hint: "Pide el original" },
-  { group: "duplicate", label: "Duplicadas", tone: "text-ink-2", hint: "Se cuentan una vez" },
-  { group: "rejected", label: "Rechazadas", tone: "text-danger", hint: "No son hojas de vida" },
-];
+const GROUP_LABEL: Record<Group, string> = { read: "leídas", busy: "leyendo", unreadable: "ilegibles", duplicate: "duplicadas", rejected: "rechazadas" };
 
 const SAMPLES = [
   { name: "andrea_gomez_cv.pdf", sizeKb: 212 },
@@ -129,29 +123,8 @@ export function IngestView({ data }: { data: IngestData }) {
         </div>
 
         {emptyJob ? null : (
-          <div className="grid grid-cols-5 overflow-hidden rounded-2xl border border-border bg-surface animate-rise [animation-delay:80ms]">
-            {COUNTERS.map((c) => {
-              const active = group === c.group;
-              return (
-                <button
-                  key={c.group}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => setGroup(active ? null : c.group)}
-                  className={cn(
-                    "relative flex items-center gap-4 border-r border-border px-6 py-5 text-left transition-colors duration-300 last:border-0 hover:bg-surface-2/60",
-                    active && "bg-surface-2",
-                  )}
-                >
-                  <AnimatedNumber value={counts[c.group]} className={cn("font-head text-[34px] leading-none font-semibold tabular-nums", counts[c.group] ? c.tone : "text-ink-3")} />
-                  <span className="flex flex-col gap-0.5">
-                    <span className="text-[14px] font-medium">{c.label}</span>
-                    <span className="text-[12px] text-ink-3">{c.hint}</span>
-                  </span>
-                  <span className={cn("absolute inset-x-6 bottom-0 h-[2px] origin-left rounded-full bg-ink transition-transform duration-500 ease-[var(--ease-out-soft)]", active ? "scale-x-100" : "scale-x-0")} />
-                </button>
-              );
-            })}
+          <div className="animate-rise [animation-delay:80ms]">
+            <ReadingSummary counts={counts} active={group} onPick={setGroup} />
           </div>
         )}
 
@@ -162,7 +135,7 @@ export function IngestView({ data }: { data: IngestData }) {
             className="mx-auto w-[520px] bg-surface animate-rise"
           />
         ) : (
-          <section className="card flex flex-col px-6 pt-5 pb-3 animate-rise [animation-delay:140ms]">
+          <section className="card flex min-h-[460px] flex-col px-6 pt-5 pb-3 animate-rise [animation-delay:140ms]">
             <div className="flex flex-wrap items-center justify-between gap-3 pb-3">
               <div className="flex items-center gap-3">
                 <Segmented
@@ -181,7 +154,7 @@ export function IngestView({ data }: { data: IngestData }) {
                 />
                 {group ? (
                   <button type="button" onClick={() => setGroup(null)} className="flex h-8 items-center gap-1.5 rounded-full bg-ink px-3 text-[12.5px] text-ink-inverse animate-[pop-in_300ms_var(--ease-spring)_both]">
-                    Solo {COUNTERS.find((c) => c.group === group)?.label.toLowerCase()}
+                    Solo {GROUP_LABEL[group]}
                     <X aria-hidden className="size-3.5" />
                   </button>
                 ) : null}
