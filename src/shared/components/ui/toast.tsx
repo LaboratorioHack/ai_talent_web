@@ -35,8 +35,8 @@ const MAX_VISIBLE = 3;
 const EXIT_MS = 320;
 
 const toneIcon: Record<ToastTone, ReactNode> = {
-  success: <CircleCheck aria-hidden className="size-[18px] text-[#8FD3A9]" />,
-  error: <CircleAlert aria-hidden className="size-[18px] text-[#F3A49A]" />,
+  success: <CircleCheck aria-hidden className="size-[18px] text-success" />,
+  error: <CircleAlert aria-hidden className="size-[18px] text-danger" />,
   progress: <Loader2 aria-hidden className="size-[18px] animate-spin text-amber" />,
 };
 
@@ -120,14 +120,14 @@ function ToastRow({ item, paused, onDismiss }: { item: ToastItem; paused: boolea
         <div
           role="status"
           className={cn(
-            "pointer-events-auto relative mt-3 flex items-start gap-3 overflow-hidden rounded-xl bg-panel px-4 py-3 text-ink-inverse shadow-[0_18px_40px_-18px_rgba(21,32,27,0.7)]",
+            "pointer-events-auto relative mt-3 flex items-start gap-3 overflow-hidden rounded-xl border border-border-strong bg-panel px-4 py-3 text-ink shadow-[0_18px_40px_-18px_rgba(0,0,0,0.85)]",
             item.leaving ? "animate-[toast-out_320ms_var(--ease-in-out-soft)_forwards]" : "animate-toast-in",
           )}
         >
           <span className="mt-px shrink-0">{toneIcon[item.tone ?? "success"]}</span>
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <p className="text-[13.5px] font-medium">{item.title}</p>
-            {item.description ? <p className="text-[12.5px] text-[#C9C9C4]">{item.description}</p> : null}
+            {item.description ? <p className="text-[12.5px] text-ink-2">{item.description}</p> : null}
           </div>
           {item.action ? (
             <button
@@ -145,7 +145,7 @@ function ToastRow({ item, paused, onDismiss }: { item: ToastItem; paused: boolea
               type="button"
               aria-label="Cerrar aviso"
               onClick={() => onDismiss(item.id)}
-              className="shrink-0 rounded-md p-0.5 text-ink-muted-dark transition-colors duration-300 hover:bg-white/10 hover:text-ink-inverse"
+              className="shrink-0 rounded-md p-0.5 text-ink-muted-dark transition-colors duration-300 hover:bg-white/10 hover:text-ink"
             >
               <X aria-hidden className="size-4" />
             </button>

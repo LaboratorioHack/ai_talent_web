@@ -73,8 +73,8 @@ export function SourcesStep() {
               style={{ "--i": i } as React.CSSProperties}
               className={cn(
                 "flex items-center gap-3.5 rounded-lg border p-[18px] text-left transition-[border-color,background-color,transform,box-shadow] duration-300 ease-[var(--ease-out-soft)]",
-                "hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-18px_rgba(21,32,27,0.45)]",
-                on ? "border-ink bg-surface" : "border-border bg-transparent",
+                "hover:-translate-y-0.5 hover:shadow-[0_18px_36px_-20px_rgba(0,0,0,0.8)]",
+                on ? "border-amber/60 bg-surface" : "border-border bg-transparent",
               )}
             >
               <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-surface-2">
@@ -88,7 +88,7 @@ export function SourcesStep() {
                 aria-hidden
                 className={cn(
                   "flex size-[22px] shrink-0 items-center justify-center rounded-full border transition-[background-color,border-color,transform] duration-300 ease-[var(--ease-spring)]",
-                  on ? "scale-100 border-ink bg-ink text-ink-inverse" : "scale-90 border-border",
+                  on ? "scale-100 border-amber bg-amber text-ink-inverse" : "scale-90 border-border-strong",
                 )}
               >
                 <Check className={cn("size-3 transition-opacity duration-200", on ? "opacity-100" : "opacity-0")} />
