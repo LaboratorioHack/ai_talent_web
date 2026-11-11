@@ -30,6 +30,8 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 21 | `feat/pipeline` | 20 | lista | Tablero de pipeline para todas las vacantes con columnas de scroll propio, generador de candidatos en `shared/mocks`, arreglos del filtro del ranking y del foco del navbar |
 | 22 | `fix/short-pages` | 21 | lista | Encabezados sin sticky en pantallas de alto fijo, barras flotantes opacas y sin compactar en páginas cortas |
 | 23 | `feat/brand-mark` | 22 | lista | Logo nuevo (hoja con una línea resaltada) en la app, favicon `app/icon.svg`, icono de edificio en el selector de organización |
+| 24 | `fix/smooth-errors` | 23 | lista | `Collapse` compartido; ayuda y errores de los campos entran y salen con transición de alto |
+| 25 | `feat/dark-mode` | 24 | lista | Modo oscuro con interruptor sol y luna en el navbar, sin parpadeo al cargar (`shared/lib/theme.ts`), cambio con View Transitions en círculo; navbar que cabe desde 1366 px |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
