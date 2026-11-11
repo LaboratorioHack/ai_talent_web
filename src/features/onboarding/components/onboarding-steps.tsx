@@ -1,15 +1,41 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Steps } from "@/shared/components/ui";
+import { routes } from "@/shared/constants/routes";
 
 export const ONBOARDING_STEPS = ["Cuenta", "Organización", "Fuentes", "Primera vacante"];
 
-/** Lee el paso actual de la URL: /onboarding/2 es el índice 1; /onboarding/listo marca los cuatro como hechos. */
-export function OnboardingSteps() {
+/** Índice del paso según la URL: /onboarding/2 es 1; /onboarding/listo marca los cuatro como hechos. */
+export function useOnboardingStep(): number {
   const pathname = usePathname();
   const last = pathname.split("/").pop();
   const step = Number(last);
-  const current = last === "listo" ? 4 : Number.isFinite(step) && step >= 1 && step <= 4 ? step - 1 : 1;
-  return <Steps steps={ONBOARDING_STEPS} current={current} />;
+  return last === "listo" ? 4 : Number.isFinite(step) && step >= 1 && step <= 4 ? step - 1 : 1;
+}
+
+/** Pasos del onboarding; los ya hechos llevan de vuelta a su pantalla (la cuenta no). */
+export function OnboardingSteps() {
+  const router = useRouter();
+  const current = useOnboardingStep();
+  return (
+    <Steps
+      steps={ONBOARDING_STEPS}
+      current={current}
+      onStepClick={(i) => {
+        if (i >= 1 && i <= 3) router.push(routes.onboarding((i + 1) as 2 | 3 | 4));
+      }}
+    />
+  );
+}
+
+/** Progreso fino a lo ancho de la barra superior. */
+export function OnboardingProgress() {
+  const current = useOnboardingStep();
+  const ratio = Math.min(1, (current + 1) / ONBOARDING_STEPS.length);
+  return (
+    <div aria-hidden className="absolute inset-x-0 bottom-0 h-[2px] bg-border">
+      <div className="h-full origin-left bg-amber transition-transform duration-700 ease-[var(--ease-out-soft)]" style={{ transform: `scaleX(${ratio})` }} />
+    </div>
+  );
 }
