@@ -70,7 +70,6 @@ export function LoginForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6" style={{ "--i": 3 } as React.CSSProperties}>
         <TextField
           label="Correo de empresa"
-          kind="Texto libre"
           type="email"
           autoComplete="email"
           placeholder="nombre@empresa.com"
@@ -81,7 +80,7 @@ export function LoginForm() {
         />
         <TextField
           label="Contraseña"
-          kind="Mínimo 8 caracteres"
+          help="Mínimo 8 caracteres"
           type={showPassword ? "text" : "password"}
           autoComplete="current-password"
           error={form.formState.errors.password?.message}
