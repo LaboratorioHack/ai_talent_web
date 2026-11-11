@@ -16,12 +16,12 @@ export function Logo({ compact = false, inverse = false, className }: LogoProps)
     <span className={cn("inline-flex items-center gap-[9px]", className)} aria-label="Criba">
       <span
         aria-hidden
-        className={cn("grid size-[26px] grid-cols-3 gap-[3px] rounded-[7px] px-[5px] py-1.5", inverse ? "bg-ink" : "bg-amber")}
+        className={cn("grid size-[26px] grid-cols-3 gap-[3px] rounded-[7px] px-[5px] py-1.5", inverse ? "bg-surface" : "bg-ink")}
       >
         {dots.map((opacity, i) => (
           <span
             key={i}
-            className={cn("size-[3px] rounded-full", inverse ? "bg-bg" : "bg-ink-inverse")}
+            className={cn("size-[3px] rounded-full", inverse ? "bg-ink" : "bg-surface")}
             style={{ opacity }}
           />
         ))}
