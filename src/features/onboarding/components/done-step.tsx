@@ -54,7 +54,7 @@ export function DoneStep() {
 
       <dl className="card w-[600px] max-w-full divide-y divide-border" style={{ "--i": 1 } as React.CSSProperties}>
         {rows.map((r) => (
-          <div key={r.label} className="grid grid-cols-[160px_1fr] gap-4 px-7 py-4 text-[13.5px]">
+          <div key={r.label} className="grid grid-cols-1 gap-1 px-5 py-4 text-[13.5px] sm:grid-cols-[160px_1fr] sm:gap-4 sm:px-7">
             <dt className="text-ink-3">{r.label}</dt>
             <dd className="text-ink">{r.value}</dd>
           </div>

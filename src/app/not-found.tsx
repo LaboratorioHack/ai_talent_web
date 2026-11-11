@@ -6,7 +6,7 @@ import { routes } from "@/shared/constants/routes";
 export default function NotFound() {
   return (
     <main className="flex flex-1 flex-col">
-      <header className="flex h-12 items-center border-b border-border bg-surface px-12">
+      <header className="flex h-12 items-center border-b border-border bg-surface px-4 sm:px-6 lg:px-12">
         <Link href={routes.home} aria-label="Inicio">
           <Logo />
         </Link>
