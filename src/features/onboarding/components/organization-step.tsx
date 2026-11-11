@@ -6,6 +6,7 @@ import { ArrowLeft, X } from "lucide-react";
 import { Button, SelectField, TextField } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
+import { useOnboarding } from "../state/onboarding-store";
 import { StepFrame } from "./step-frame";
 
 const SECTORS = ["Banca y finanzas", "Tecnología", "Retail", "Salud", "Educación", "Industria", "Otro"];
@@ -19,10 +20,11 @@ export interface OrganizationStepProps {
 /** Pantalla 02 · Onboarding · Paso 2 Organización. */
 export function OrganizationStep({ detectedName }: OrganizationStepProps) {
   const router = useRouter();
-  const [name, setName] = useState(detectedName);
-  const [sector, setSector] = useState("Banca y finanzas");
-  const [size, setSize] = useState("1.001–5.000");
-  const [emails, setEmails] = useState<string[]>([]);
+  const { data, update } = useOnboarding();
+  const [name, setName] = useState(data.organization.name || detectedName);
+  const [sector, setSector] = useState(data.organization.sector);
+  const [size, setSize] = useState(data.organization.size);
+  const [emails, setEmails] = useState<string[]>(data.invites);
   const [draft, setDraft] = useState("");
   const [emailError, setEmailError] = useState<string | undefined>();
 
@@ -56,7 +58,10 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
           <Button variant="text" icon={<ArrowLeft />} onClick={() => router.push(routes.login)}>
             Atrás
           </Button>
-          <Button disabled={!name.trim()} onClick={() => router.push(routes.onboarding(3))}>
+          <Button disabled={!name.trim()} onClick={() => {
+              update({ organization: { name: name.trim(), sector, size }, invites: emails });
+              router.push(routes.onboarding(3));
+            }}>
             Continuar
           </Button>
         </>

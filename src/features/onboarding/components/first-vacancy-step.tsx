@@ -6,6 +6,7 @@ import { routes } from "@/shared/constants/routes";
 import type { RoleProfileDraft } from "@/features/vacancies/schemas/role-profile";
 import { RoleProfileEditor } from "@/features/vacancies/components";
 import { createVacancy } from "@/features/vacancies/api/role-profiles";
+import { useOnboarding } from "../state/onboarding-store";
 
 /**
  * Pantalla 04 · Onboarding · Paso 4 Primera vacante.
@@ -15,18 +16,14 @@ import { createVacancy } from "@/features/vacancies/api/role-profiles";
 export function FirstVacancyStep({ initial }: { initial: RoleProfileDraft }) {
   const router = useRouter();
   const { toast } = useToast();
+  const { update } = useOnboarding();
 
-  async function save(draft: RoleProfileDraft) {
-    const { id } = await createVacancy(draft);
-    toast({ title: "Vacante guardada", description: "Puedes seguir editándola desde Vacantes." });
-    router.push(routes.vacancy(id));
+  async function finish(draft: RoleProfileDraft) {
+    await createVacancy(draft);
+    update({ vacancy: { title: draft.title, requirements: draft.requirements.length } });
+    toast({ title: "Vacante creada", description: draft.title });
+    router.push(routes.onboardingDone);
   }
 
-  async function evaluate(draft: RoleProfileDraft) {
-    const { id } = await createVacancy(draft);
-    toast({ tone: "progress", title: "Listo para evaluar", description: "Sube las hojas de vida y Criba empieza.", duration: 4000 });
-    router.push(`${routes.candidates}?job=${id}`);
-  }
-
-  return <RoleProfileEditor initial={initial} eyebrow="Paso 4 de 4 · Puedes pegar la descripción del cargo y Criba propone los requisitos" onSave={save} onEvaluate={evaluate} />;
+  return <RoleProfileEditor initial={initial} eyebrow="Paso 4 de 4" onSave={finish} onEvaluate={finish} saveLabel="Guardar borrador" evaluateLabel="Crear vacante" />;
 }
