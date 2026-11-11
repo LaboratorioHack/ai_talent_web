@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState, type ReactNode } from "react";
-import { Plus, Sparkles } from "lucide-react";
+import { ListPlus, Plus } from "lucide-react";
 import { Button, DateField, NumberField, SelectField, TextArea, TextField, useToast } from "@/shared/components/ui";
 import { useStuck } from "@/shared/hooks/use-stuck";
 import { useToday } from "@/shared/hooks/use-today";
@@ -136,7 +136,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
           </div>
         </header>
 
-        <section className="card p-7" aria-label="Datos de la vacante">
+        <section className="card p-7 animate-rise [animation-delay:80ms]" aria-label="Datos de la vacante">
           <h2 className="mb-6 text-[15px] font-semibold">Datos de la vacante</h2>
           <div className="grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-2">
             <TextField label="Nombre de la vacante" value={draft.title} maxLength={80} onChange={(e) => patch({ title: e.target.value })} error={errors.title} kind={`${draft.title.length} / 80`} />
@@ -158,14 +158,14 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
           </div>
         </section>
 
-        <section className="card overflow-hidden" aria-label="Requisitos">
+        <section className="card overflow-hidden animate-rise [animation-delay:180ms]" aria-label="Requisitos">
           <header className="flex items-baseline justify-between gap-4 px-7 pt-6 pb-4">
             <h2 className="text-[15px] font-semibold">Requisitos</h2>
-            <span className="font-mono text-[11px] text-ink-3">
+            <span className="text-[12.5px] text-ink-3">
               {draft.requirements.length} en total, {mandatory} obligatorios
             </span>
           </header>
-          <div className="flex items-center gap-4 border-y border-border bg-bg/60 px-7 py-2.5 font-mono text-[10.5px] tracking-wide text-ink-3 uppercase">
+          <div className="flex items-center gap-4 border-y border-border bg-bg/60 px-7 py-2.5 text-[12px] text-ink-3">
             <span className="flex-1 pl-6">Requisito</span>
             <span className="w-[150px]">Tipo</span>
             <span className="w-24">Peso</span>
@@ -193,7 +193,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
               <Plus aria-hidden className="size-3.5" />
               Añadir requisito
             </button>
-            <Button variant="text" size="sm" icon={<Sparkles />} loading={busy === "propose"} disabled={busy !== null && busy !== "propose"} onClick={propose}>
+            <Button variant="text" size="sm" icon={<ListPlus />} loading={busy === "propose"} disabled={busy !== null && busy !== "propose"} onClick={propose}>
               Proponer requisitos desde la descripción
             </Button>
           </div>
