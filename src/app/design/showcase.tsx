@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { useToday } from "@/shared/hooks/use-today";
 import { CalendarPlus, FileText, Plug, Trash2, Upload, X } from "lucide-react";
 import {
   Avatar,
@@ -54,6 +55,7 @@ function Section({ title, description, children }: { title: string; description:
 
 export function DesignShowcase() {
   const { toast } = useToast();
+  const today = useToday();
   const [tab, setTab] = useState<"all" | "meets" | "partial" | "no">("all");
   const [date, setDate] = useState<Date | null>(new Date(2026, 10, 30));
   const [count, setCount] = useState(2);
@@ -147,7 +149,7 @@ export function DesignShowcase() {
               { value: "product", label: "Producto" },
             ]}
           />
-          <DateField label="Cierre de postulaciones" value={date} onChange={setDate} minDate={new Date()} help="Solo fechas futuras" />
+          <DateField label="Cierre de postulaciones" value={date} onChange={setDate} minDate={today ?? undefined} help="Solo fechas futuras" />
           <NumberField label="Número de vacantes" value={count} onChange={setCount} min={1} max={50} />
         </div>
         <div className="grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -164,7 +166,7 @@ export function DesignShowcase() {
         description="Calendario para fechas, interruptor para opciones binarias, pasos para procesos largos, pestañas para vistas hermanas."
       >
         <div className="flex flex-wrap items-start gap-8">
-          <Calendar value={date} onChange={setDate} minDate={new Date()} />
+          <Calendar value={date} onChange={setDate} minDate={today ?? undefined} />
           <div className="flex flex-col gap-7">
             <Toggle checked={ignore} onChange={setIgnore} label="Ignorar foto y datos personales" />
             <Toggle checked={false} onChange={() => undefined} label="Entrevista IA automática" description="Se envía al cumplir el perfil" />
