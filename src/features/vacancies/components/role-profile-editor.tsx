@@ -3,7 +3,9 @@
 import { useId, useState, type ReactNode } from "react";
 import { Plus, Sparkles } from "lucide-react";
 import { Button, DateField, NumberField, SelectField, TextField } from "@/shared/components/ui";
+import { useStuck } from "@/shared/hooks/use-stuck";
 import { useToday } from "@/shared/hooks/use-today";
+import { cn } from "@/shared/lib/cn";
 import { fromISODate, toISODate } from "@/shared/lib/dates";
 import { mockAreas } from "@/shared/mocks";
 import { roleProfileDraftSchema, type RequirementDraft, type RoleProfileDraft } from "../schemas/role-profile";
@@ -33,6 +35,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<"save" | "evaluate" | null>(null);
   const headingId = useId();
+  const { sentinel, stuck } = useStuck();
   const today = useToday();
 
   const patch = (p: Partial<RoleProfileDraft>) => setDraft((d) => ({ ...d, ...p }));
@@ -66,10 +69,24 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
   return (
     <div className="flex flex-1 items-start">
       <section className="flex min-w-0 flex-1 flex-col gap-6 px-10 pt-10 pb-12 xl:px-14" aria-labelledby={headingId}>
-        <header className="flex flex-wrap items-end justify-between gap-6 pb-2">
+        <div ref={sentinel} aria-hidden className="-mb-6 h-px" />
+        {/* Al pegarse se vuelve una barra flotante, separada de los bordes. */}
+        <header data-stuck={stuck} className={cn("sticky z-20 transition-[top] duration-500 ease-[var(--ease-out-soft)]", stuck ? "top-3" : "top-0")}>
+          <div
+            className={cn(
+              "flex flex-wrap items-end justify-between gap-6 rounded-2xl border",
+              "transition-[background-color,border-color,box-shadow,padding,margin] duration-500 ease-[var(--ease-out-soft)]",
+              stuck
+                ? "-mx-3 items-center border-border bg-surface/90 py-2.5 pr-2.5 pl-5 shadow-[0_18px_40px_-24px_rgba(21,32,27,0.45)] backdrop-blur-md"
+                : "mx-0 border-transparent px-0 py-2",
+            )}
+          >
           <div className="flex min-w-0 flex-col gap-2">
-            <p className="eyebrow">{eyebrow}</p>
-            <h1 id={headingId} className="truncate font-head text-[34px] leading-tight font-semibold tracking-[-0.01em]">
+            <p className={cn("eyebrow overflow-hidden transition-[max-height,opacity] duration-500 ease-[var(--ease-out-soft)]", stuck ? "max-h-0 opacity-0" : "max-h-6 opacity-100")}>{eyebrow}</p>
+            <h1
+              id={headingId}
+              className={cn("truncate font-head leading-tight font-semibold tracking-[-0.01em] transition-[font-size] duration-500 ease-[var(--ease-out-soft)]", stuck ? "text-[20px]" : "text-[34px]")}
+            >
               {draft.title || "Nueva vacante"}
             </h1>
           </div>
@@ -82,6 +99,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
                 {evaluateLabel}
               </Button>
             ) : null}
+          </div>
           </div>
         </header>
 
