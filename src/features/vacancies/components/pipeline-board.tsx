@@ -81,7 +81,7 @@ export function PipelineBoard({ jobId, cards }: { jobId: string; cards: Pipeline
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4 px-8 pt-5 pb-6">
+    <div className="flex min-h-0 flex-1 flex-col gap-4 px-3 pt-4 pb-4 sm:px-8 sm:pt-5 sm:pb-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Segmented
@@ -95,12 +95,12 @@ export function PipelineBoard({ jobId, cards }: { jobId: string; cards: Pipeline
               { value: "partial", label: "Parciales", count: items.filter((c) => c.fulfillment === "PARTIAL").length },
             ]}
           />
-          <span className="text-[13px] text-ink-3">Arrastra una tarjeta para cambiarla de etapa.</span>
+          <span className="hidden text-[13px] text-ink-3 md:inline">Arrastra una tarjeta para cambiarla de etapa.</span>
         </div>
-        <SearchField placeholder="Buscar en esta vacante" containerClassName="w-[260px]" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <SearchField placeholder="Buscar en esta vacante" containerClassName="w-full sm:w-[260px]" value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-5 gap-3">
+      <div className="flex min-h-0 flex-1 snap-x snap-mandatory gap-3 overflow-x-auto pb-1 lg:grid lg:snap-none lg:grid-cols-5 lg:overflow-visible">
         {COLUMNS.map((col, ci) => {
           const list = visible.filter((c) => c.stage === col.stage).sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
           const isOver = over === col.stage;
@@ -118,7 +118,7 @@ export function PipelineBoard({ jobId, cards }: { jobId: string; cards: Pipeline
               }}
               onDrop={(e) => drop(col.stage, e)}
               className={cn(
-                "flex min-h-0 flex-col rounded-2xl ring-1 transition-[background-color,box-shadow] duration-300 animate-rise",
+                "flex min-h-0 w-[min(80vw,300px)] shrink-0 snap-start flex-col rounded-2xl ring-1 transition-[background-color,box-shadow] duration-300 animate-rise lg:w-auto",
                 isOver ? "bg-surface ring-2 ring-ink/70" : "bg-surface-2/60 ring-border",
               )}
               style={{ animationDelay: `${ci * 60}ms` }}

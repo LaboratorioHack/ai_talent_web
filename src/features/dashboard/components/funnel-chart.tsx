@@ -53,9 +53,9 @@ export function FunnelChart({ steps }: FunnelChartProps) {
                 ) : null}
               </button>
               {pass !== null ? (
-                <span className="flex w-14 self-center shrink-0 flex-col items-center gap-0.5 text-ink-3" aria-hidden>
+                <span className="flex w-4 shrink-0 flex-col items-center gap-0.5 self-center text-ink-3 sm:w-14" aria-hidden>
                   <ChevronRight className="size-3.5" />
-                  <span className="font-mono text-[11px]">{pass} %</span>
+                  <span className="hidden font-mono text-[11px] sm:inline">{pass} %</span>
                 </span>
               ) : null}
             </div>
@@ -65,8 +65,8 @@ export function FunnelChart({ steps }: FunnelChartProps) {
       <div className="flex">
         {steps.map((s, i) => (
           <div key={s.label} className="flex flex-1">
-            <span className={cn("flex-1 text-center text-[12.5px] transition-colors", hover === i ? "text-ink" : "text-ink-2")}>{s.label}</span>
-            {i < steps.length - 1 ? <span className="w-14 shrink-0" /> : null}
+            <span className={cn("flex-1 text-center text-[11px] leading-tight transition-colors sm:text-[12.5px]", hover === i ? "text-ink" : "text-ink-2")}>{s.label}</span>
+            {i < steps.length - 1 ? <span className="w-4 shrink-0 sm:w-14" /> : null}
           </div>
         ))}
       </div>

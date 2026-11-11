@@ -21,7 +21,7 @@ const PERIOD_TEXT: Record<Period, string> = { "7d": "los últimos 7 días", "30d
 
 function Panel({ title, subtitle, action, children, className }: { title: string; subtitle?: string; action?: { label: string; href: string }; children: ReactNode; className?: string }) {
   return (
-    <section className={`card flex flex-col gap-6 px-7 py-6 ${className ?? ""}`}>
+    <section className={`card flex min-w-0 flex-col gap-6 px-5 py-5 sm:px-7 sm:py-6 ${className ?? ""}`}>
       <header className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h2 className="font-head text-[19px] font-semibold tracking-[-0.01em]">{title}</h2>
@@ -75,9 +75,9 @@ export function DashboardView({ data }: { data: DashboardData }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3 animate-rise">
-        <div className="flex items-center gap-3">
+        <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
           <Segmented aria-label="Período" items={PERIODS} value={period} onChange={setPeriod} />
-          <Select aria-label="Vacante" options={vacancyOptions} value={vacancy} onChange={setVacancy} className="w-[280px]" triggerClassName="field-box h-11 w-full rounded-full px-4 text-[13.5px] text-ink" />
+          <Select aria-label="Vacante" options={vacancyOptions} value={vacancy} onChange={setVacancy} className="w-full sm:w-[280px]" triggerClassName="field-box h-11 w-full rounded-full px-4 text-[13.5px] text-ink" />
         </div>
         <p className="text-[13px] text-ink-3">
           Mostrando {PERIOD_TEXT[period]}

@@ -90,8 +90,8 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
   const closesLabel = closesDate ? formatShortDate(closesDate) : null;
 
   return (
-    <div className="flex flex-1 items-start">
-      <section className="flex min-w-0 flex-1 flex-col gap-6 px-10 pt-10 pb-12 xl:px-14" aria-labelledby={headingId}>
+    <div className="flex flex-1 flex-col items-stretch lg:flex-row lg:items-start">
+      <section className="flex min-w-0 flex-1 flex-col gap-6 px-4 pt-6 pb-10 sm:px-6 sm:pt-10 lg:px-10 lg:pb-12 xl:px-14" aria-labelledby={headingId}>
         <div ref={sentinel} aria-hidden className="-mb-6 h-px" />
         {/* Al pegarse se vuelve una barra flotante, separada de los bordes. */}
         <header data-stuck={stuck} className={cn("sticky z-20 transition-[top] duration-500 ease-[var(--ease-out-soft)]", stuck ? "top-[calc(var(--app-header,0px)+12px)]" : "top-[var(--app-header,0px)]")}>
@@ -108,7 +108,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
             <p className={cn("eyebrow overflow-hidden transition-[max-height,opacity] duration-500 ease-[var(--ease-out-soft)]", stuck ? "max-h-0 opacity-0" : "max-h-6 opacity-100")}>{eyebrow}</p>
             <h1
               id={headingId}
-              className={cn("truncate font-head leading-tight font-semibold tracking-[-0.01em] transition-[font-size] duration-500 ease-[var(--ease-out-soft)]", stuck ? "text-[18px]" : "text-[34px]")}
+              className={cn("truncate font-head leading-tight font-semibold tracking-[-0.01em] transition-[font-size] duration-500 ease-[var(--ease-out-soft)]", stuck ? "text-[18px]" : "text-[26px] sm:text-[34px]")}
             >
               {draft.title || "Nueva vacante"}
             </h1>
@@ -165,7 +165,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
               {draft.requirements.length} en total, {mandatory} obligatorios
             </span>
           </header>
-          <div className="flex items-center gap-4 border-y border-border bg-bg/60 px-7 py-2.5 text-[12px] text-ink-3">
+          <div className="hidden items-center gap-4 border-y border-border bg-bg/60 px-7 py-2.5 text-[12px] text-ink-3 md:flex">
             <span className="flex-1 pl-6">Requisito</span>
             <span className="w-[150px]">Tipo</span>
             <span className="w-24">Peso</span>
