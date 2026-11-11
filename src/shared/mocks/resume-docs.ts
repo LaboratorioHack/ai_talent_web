@@ -5,7 +5,7 @@ export const mockResumeDocs: Record<string, ResumeDoc> = {
   a1: {
     name: "Daniela Osorio Mejía",
     headline: "Ingeniera de plataforma cloud",
-    contact: "daniela.osorio@correo.com · +57 300 000 0000 · Medellín, Colombia",
+    contact: ["daniela.osorio@correo.com", "+57 300 000 0000", "Medellín, Colombia"],
     pages: 2,
     sections: [
       {
@@ -30,13 +30,13 @@ export const mockResumeDocs: Record<string, ResumeDoc> = {
       {
         title: "Certificaciones",
         lines: [
-          { kind: "text", text: "AWS Certified Solutions Architect – Professional (2024)", note: { requirement: "Cert. Azure · equivale 60 %", points: 9, partial: true } },
+          { kind: "text", text: "AWS Certified Solutions Architect – Professional (2024)", note: { requirement: "Cert. Azure, equivale 60 %", points: 9, partial: true } },
           { kind: "text", text: "Certified Kubernetes Administrator (2023)" },
         ],
       },
       {
         title: "Idiomas",
-        lines: [{ kind: "text", text: "Inglés C1 (IELTS 7.5) · Español nativo", note: { requirement: "Inglés B2+", points: 10 } }],
+        lines: [{ kind: "text", text: "Inglés C1 (IELTS 7.5), español nativo", note: { requirement: "Inglés B2+", points: 10 } }],
       },
     ],
   },

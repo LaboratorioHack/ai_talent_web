@@ -22,7 +22,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Criba", template: "%s · Criba" },
+  title: { default: "Criba", template: "%s | Criba" },
   description: "Ranking de candidatos con evidencia, no con palabras clave.",
 };
 

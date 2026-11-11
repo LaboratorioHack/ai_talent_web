@@ -43,7 +43,11 @@ export function ResumeSheet({ doc, annotated = false, score, reveal = false, com
           <div className="flex flex-col items-center text-center">
             <p className={cn("leading-tight font-bold tracking-wide", compact ? "text-[22px]" : "text-[26px]")}>{doc.name}</p>
             <p className="mt-1 text-[14px] text-ink-2 italic">{doc.headline}</p>
-            <p className="mt-2 text-[12px] text-ink-3">{doc.contact}</p>
+            <p className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-0.5 text-[12px] text-ink-3">
+              {doc.contact.map((c) => (
+                <span key={c}>{c}</span>
+              ))}
+            </p>
           </div>
           {annotated ? (
             <div className="hidden flex-col items-end gap-1 px-6 font-sans md:flex">

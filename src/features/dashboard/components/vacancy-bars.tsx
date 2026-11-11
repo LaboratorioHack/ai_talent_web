@@ -65,7 +65,7 @@ export function VacancyBars({ rows }: { rows: DashboardData["perVacancy"] }) {
             {s.label}
           </span>
         ))}
-        <span className="ml-auto text-ink-3">Cumplen / recibidas · cierre</span>
+        <span className="ml-auto text-ink-3">Cumplen de las recibidas y fecha de cierre</span>
       </figcaption>
     </figure>
   );

@@ -16,7 +16,7 @@ export default function LoginPage() {
           <Logo />
           <div className="flex flex-col gap-2">
             <ProgressSegments total={4} current={0} />
-            <p className="eyebrow">Paso 1 de 4 · Cuenta</p>
+            <p className="eyebrow">Paso 1 de 4</p>
           </div>
         </div>
 
@@ -25,7 +25,10 @@ export default function LoginPage() {
         </Suspense>
 
         <footer className="flex items-center justify-between text-xs text-ink-3">
-          <span>Privacidad · Términos</span>
+          <span className="flex gap-4">
+            <span>Privacidad</span>
+            <span>Términos</span>
+          </span>
           <span className="inline-flex items-center gap-1">
             Español
             <ChevronDown aria-hidden className="size-3" />

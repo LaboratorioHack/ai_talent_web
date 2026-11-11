@@ -13,7 +13,7 @@ async function Dashboard() {
   return (
     <>
       <p className="eyebrow -mt-2 mb-1 animate-fade-in">
-        {data.today} · {data.organization}
+        {data.today}, {data.organization}
       </p>
       <DashboardView data={data} />
     </>
