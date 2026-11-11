@@ -24,8 +24,8 @@ export function ScoringSidebar({ requirements, autoInterview, onAutoInterviewCha
   const ok = total === 100;
 
   return (
-    <aside className="flex w-[360px] shrink-0 flex-col gap-7 border-l border-border py-9 pr-12 pl-8">
-      <h2 className="font-head text-2xl font-semibold">Cómo se puntúa</h2>
+    <aside className="sticky top-0 flex min-h-[calc(100vh-60px)] w-[380px] shrink-0 flex-col gap-8 self-stretch border-l border-border px-9 pt-10 pb-12">
+      <h2 className="font-head text-[22px] font-semibold">Cómo se puntúa</h2>
 
       <div className="flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
@@ -57,17 +57,18 @@ export function ScoringSidebar({ requirements, autoInterview, onAutoInterviewCha
 
       <ul className="flex flex-col">
         {thresholds.map((t) => (
-          <li key={t.status} className="flex flex-col items-start gap-1.5 border-b border-border py-3.5">
+          <li key={t.status} className="flex items-center justify-between gap-3 border-b border-border py-3 last:border-b-0">
             <StatusChip status={t.status} size="sm" />
             <span className="text-xs text-ink-2">{t.rule}</span>
           </li>
         ))}
       </ul>
 
-      <div className="flex-1" />
-
-      <Toggle checked={autoInterview} onChange={onAutoInterviewChange} label="Entrevista IA automática" description="A quien cumpla el perfil se le envía el enlace" />
-      <Toggle checked onChange={() => undefined} disabled label="Ignorar foto y datos personales" description="Fijo por política · no se puede cambiar" className="opacity-60" />
+      <div className="flex flex-col gap-5 border-t border-border pt-7">
+        <p className="eyebrow">Opciones</p>
+        <Toggle checked={autoInterview} onChange={onAutoInterviewChange} label="Entrevista IA automática" description="A quien cumpla el perfil se le envía el enlace" />
+        <Toggle checked onChange={() => undefined} disabled label="Ignorar foto y datos personales" description="Fijo por política · no se puede cambiar" className="opacity-60" />
+      </div>
     </aside>
   );
 }
