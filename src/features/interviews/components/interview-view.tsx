@@ -9,7 +9,7 @@ import { Avatar, Button, Logo, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import type { Interview, InterviewTurn } from "@/shared/types/domain";
-import { RECOMMENDATION, STATUS, when } from "./interview-list";
+import { RECOMMENDATION, STATUS, when } from "./interview-meta";
 import { DiscardInterviewModal, ScheduleModal } from "./interview-modals";
 
 /** Lo que "responderá" en vivo la entrevista en curso del mock. */
