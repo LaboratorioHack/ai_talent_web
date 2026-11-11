@@ -1,59 +1,24 @@
 "use client";
 
-import { forwardRef, type SelectHTMLAttributes } from "react";
-import { ChevronDown } from "lucide-react";
-import { cn } from "@/shared/lib/cn";
-import { Field, inputBorderClass, inputBoxClass } from "./field";
+import { Field } from "./field";
+import { Select, type SelectProps } from "./select";
 
-export interface SelectOption {
-  value: string;
-  label: string;
-  disabled?: boolean;
-}
+export type { SelectOption } from "./select";
 
-export interface SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, "id"> {
+export interface SelectFieldProps extends Omit<SelectProps, "id" | "invalid" | "aria-describedby"> {
   label: string;
-  options: SelectOption[];
-  placeholder?: string;
   kind?: string;
   help?: string;
   error?: string;
+  required?: boolean;
   containerClassName?: string;
 }
 
-/** Selector nativo: no deja escribir, solo elegir de la lista. */
-export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(function SelectField(
-  { label, options, placeholder, kind = "Elegir de lista", help, error, containerClassName, className, required, disabled, ...rest },
-  ref,
-) {
+/** Selector con etiqueta: no deja escribir, solo elegir de la lista. */
+export function SelectField({ label, kind = "Elegir de lista", help, error, required, containerClassName, ...select }: SelectFieldProps) {
   return (
     <Field label={label} kind={kind} help={help} error={error} required={required} className={containerClassName}>
-      {({ id, describedBy }) => (
-        <div className={cn(inputBoxClass, inputBorderClass(Boolean(error)), "relative", disabled && "opacity-45")}>
-          <select
-            ref={ref}
-            id={id}
-            aria-describedby={describedBy}
-            aria-invalid={error ? true : undefined}
-            required={required}
-            disabled={disabled}
-            className={cn("h-full min-w-0 flex-1 appearance-none bg-transparent pr-6 outline-none", className)}
-            {...rest}
-          >
-            {placeholder ? (
-              <option value="" disabled>
-                {placeholder}
-              </option>
-            ) : null}
-            {options.map((o) => (
-              <option key={o.value} value={o.value} disabled={o.disabled}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown aria-hidden className="pointer-events-none absolute right-3 size-[15px] text-ink-3" />
-        </div>
-      )}
+      {({ id, describedBy }) => <Select id={id} aria-describedby={describedBy} invalid={Boolean(error)} {...select} />}
     </Field>
   );
-});
+}
