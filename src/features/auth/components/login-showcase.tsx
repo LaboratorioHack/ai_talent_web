@@ -1,180 +1,169 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Avatar } from "@/shared/components/ui";
+import { FileSearch, ListChecks, MessagesSquare } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 
 /**
- * Panel derecho del login (oscuro, como en el diseño): una mesa de revisión en
- * bucle. Entra una hoja de vida, se marcan sus evidencias con el requisito que
- * prueban, recibe su sello y sale hacia el ranking de la derecha, que se arma
- * ordenado por puntaje. Luego entra la siguiente.
+ * Panel derecho del login (oscuro, como en el diseño). Al centro, la criba;
+ * alrededor, las fuentes de donde llegan las hojas de vida. En cada turno una
+ * fuente se enciende, su hoja viaja por la línea hasta la criba, los puntos de
+ * la marca hacen una onda y abajo aparece el resultado. Debajo, qué ganas al entrar.
  */
-type Line = { text: string; req?: string; ok?: boolean };
-type Resume = { name: string; headline: string; lines: Line[]; verdict: "Cumple" | "Parcial" | "No cumple"; score: number };
+const STEP_MS = 3400;
+const SIZE = 420;
+const C = SIZE / 2;
+const R = 160;
 
-const RESUMES: Resume[] = [
-  {
-    name: "Julián Ríos Cárdenas",
-    headline: "SRE en banca",
-    lines: [
-      { text: "Operé clústeres de Kubernetes con 99,9 % de disponibilidad.", req: "Kubernetes", ok: true },
-      { text: "Pipelines en Azure DevOps para 25 servicios.", req: "Azure", ok: true },
-      { text: "Terraform para redes y bases de datos.", req: "IaC", ok: true },
-      { text: "Inglés B2, reuniones diarias con EE. UU.", req: "Inglés", ok: true },
-    ],
-    verdict: "Cumple",
-    score: 88,
-  },
-  {
-    name: "Mariana López Gil",
-    headline: "Ingeniera DevOps",
-    lines: [
-      { text: "Despliegues en AWS con CodePipeline.", req: "Azure (AWS 80 %)", ok: true },
-      { text: "Contenedores con Docker Compose, sin orquestador.", req: "Kubernetes", ok: false },
-      { text: "Infraestructura con CloudFormation.", req: "IaC", ok: true },
-      { text: "Inglés avanzado (C1).", req: "Inglés", ok: true },
-    ],
-    verdict: "Parcial",
-    score: 74,
-  },
-  {
-    name: "Daniela Osorio Mejía",
-    headline: "Ingeniera de plataforma cloud",
-    lines: [
-      { text: "Migré 40 microservicios a AKS con Azure DevOps.", req: "Azure", ok: true },
-      { text: "Operé clústeres AKS y GKE en producción.", req: "Kubernetes", ok: true },
-      { text: "Terraform y Bicep en 3 ambientes.", req: "IaC", ok: true },
-      { text: "Inglés C1 (IELTS 7.5).", req: "Inglés", ok: true },
-    ],
-    verdict: "Cumple",
-    score: 92,
-  },
+const SOURCES = [
+  { logo: "linkedin", name: "LinkedIn", angle: -140 },
+  { logo: "computrabajo", name: "Computrabajo", angle: -40 },
+  { logo: "gmail", name: "Gmail", angle: 40 },
+  { logo: "gdrive", name: "Google Drive", angle: 140 },
+].map((s) => {
+  const a = (s.angle * Math.PI) / 180;
+  return { ...s, x: Math.round(Math.cos(a) * R), y: Math.round(Math.sin(a) * R) };
+});
+
+const RESULTS = [
+  { name: "Julián Ríos", verdict: "Cumple", detail: "4 de 4 obligatorios", score: 88, tone: "success" },
+  { name: "Mariana López", verdict: "Parcial", detail: "falta Kubernetes", score: 74, tone: "warning" },
+  { name: "Ricardo Méndez", verdict: "No cumple", detail: "faltan 3 obligatorios", score: 41, tone: "danger" },
+  { name: "Daniela Osorio", verdict: "Cumple", detail: "4 de 4 obligatorios", score: 92, tone: "success" },
+] as const;
+
+const HIGHLIGHTS = [
+  { icon: FileSearch, title: "Lee cualquier formato", detail: "PDF, Word, fotos o escaneos, con la estructura que sea." },
+  { icon: ListChecks, title: "Puntaje con pruebas", detail: "Cada punto trae la línea del CV que lo respalda." },
+  { icon: MessagesSquare, title: "Entrevista con IA", detail: "Preguntas a la medida y contraste con lo que dice el CV." },
 ];
 
-/* Línea de tiempo de cada hoja, en ms desde que entra. */
-const T = { lines: [800, 1300, 1800, 2300], stamp: 3000, exit: 4400, next: 5200 };
-const HOLD = 2600;
+const DOTS = [1, 1, 1, 1, 1, 1, 0.35, 1, 0.35];
 
 export function LoginShowcase() {
-  const [idx, setIdx] = useState(0);
-  const [phase, setPhase] = useState(0); // 0 entra, 1-4 líneas, 5 sello, 6 sale
-  const [ranked, setRanked] = useState<Resume[]>([]);
-  const [round, setRound] = useState(0);
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- sin animación: estado final directo
-      setPhase(5);
-      setRanked([...RESUMES].sort((a, b) => b.score - a.score));
-      return;
-    }
-    const timers: number[] = [];
-    const at = (ms: number, fn: () => void) => timers.push(window.setTimeout(fn, ms));
-    setPhase(0);
-    T.lines.forEach((ms, i) => at(ms, () => setPhase(i + 1)));
-    at(T.stamp, () => setPhase(5));
-    at(T.exit, () => {
-      setPhase(6);
-      setRanked((r) => [...r, RESUMES[idx]].sort((a, b) => b.score - a.score));
-    });
-    at(T.next + (idx === RESUMES.length - 1 ? HOLD : 0), () => {
-      if (idx === RESUMES.length - 1) {
-        setRanked([]);
-        setRound((n) => n + 1);
-        setIdx(0);
-      } else setIdx(idx + 1);
-    });
-    return () => timers.forEach(clearTimeout);
-  }, [idx, round]);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = window.setInterval(() => setStep((s) => s + 1), STEP_MS);
+    return () => window.clearInterval(t);
+  }, []);
 
-  const cv = RESUMES[idx];
-  const tone = cv.verdict === "Cumple" ? "success" : cv.verdict === "Parcial" ? "warning" : "danger";
+  const i = step % SOURCES.length;
+  const source = SOURCES[i];
+  const result = RESULTS[i];
 
   return (
-    <aside className="dark-scope relative hidden flex-1 flex-col justify-center overflow-hidden bg-bg px-14 lg:flex">
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(237,242,238,0.05)_1px,transparent_1.5px)] bg-[length:28px_28px]" />
-      <div aria-hidden className="pointer-events-none absolute -right-40 -bottom-48 size-[640px] rounded-full bg-[radial-gradient(closest-side,rgba(242,169,59,0.12),transparent)]" />
+    <aside className="dark-scope relative hidden flex-1 flex-col items-center justify-center overflow-hidden bg-bg px-12 py-14 lg:flex">
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(237,242,238,0.05)_1px,transparent_1.5px)] bg-[length:28px_28px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
+      <div aria-hidden className="pointer-events-none absolute top-[38%] left-1/2 size-[560px] -translate-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(242,169,59,0.13),transparent)]" />
 
-      <div className="relative flex flex-col gap-10">
-        <div className="flex max-w-[560px] flex-col gap-3">
-          <h2 className="font-head text-[32px] leading-[1.1] font-semibold tracking-[-0.02em]">Lee cada hoja de vida como lo haría tu mejor reclutador.</h2>
-          <p className="text-[15px] text-ink-2">Marca la evidencia de cada requisito, explica el puntaje y ordena el ranking por ti.</p>
-        </div>
+      {/* Escena */}
+      <div className="relative shrink-0" style={{ width: SIZE, height: SIZE }} aria-hidden>
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="absolute inset-0">
+          {SOURCES.map((s, k) => (
+            <line
+              key={s.logo}
+              x1={C + s.x}
+              y1={C + s.y}
+              x2={C}
+              y2={C}
+              stroke={k === i ? "rgba(242,169,59,0.7)" : "rgba(237,242,238,0.14)"}
+              strokeWidth={k === i ? 1.5 : 1}
+              strokeDasharray="3 6"
+              className="flow-line transition-[stroke] duration-500"
+            />
+          ))}
+        </svg>
 
-        <div className="flex items-start gap-8">
-          {/* Mesa: la hoja actual, con el montón detrás */}
-          <div className="relative h-[400px] w-[400px] shrink-0">
-            <div aria-hidden className="paper absolute inset-x-4 top-4 bottom-0 -rotate-3 rounded-[2px] opacity-50 brightness-75" />
-            <div aria-hidden className="paper absolute inset-x-2 top-2 bottom-1 rotate-2 rounded-[2px] opacity-70 brightness-[0.85]" />
-
-            <article
-              key={`${round}-${idx}`}
+        {/* Fuentes */}
+        {SOURCES.map((s, k) => (
+          <div
+            key={s.logo}
+            className="absolute flex flex-col items-center gap-2"
+            style={{ left: C + s.x, top: C + s.y, transform: "translate(-50%, -50%)" }}
+          >
+            <span
               className={cn(
-                "paper cv absolute inset-0 rounded-[2px] px-8 pt-8 shadow-[0_0_0_1px_rgba(0,0,0,0.35),0_40px_70px_-30px_rgba(0,0,0,0.9)]",
-                phase === 6 ? "animate-[sheet-out_800ms_var(--ease-in-out-soft)_forwards]" : "animate-[sheet-in_700ms_var(--ease-out-soft)_both]",
+                "flex size-14 items-center justify-center rounded-2xl bg-white p-2.5 transition-[box-shadow,transform] duration-500 ease-[var(--ease-spring)] animate-[float_6s_ease-in-out_infinite]",
+                k === i ? "scale-110 shadow-[0_0_0_4px_rgba(242,169,59,0.45),0_18px_40px_-14px_rgba(0,0,0,0.9)]" : "shadow-[0_14px_30px_-14px_rgba(0,0,0,0.9)]",
               )}
+              style={{ animationDelay: `${k * -1.4}s` }}
             >
-              <p className="text-center text-[19px] font-bold tracking-wide">{cv.name}</p>
-              <p className="mt-0.5 text-center text-[13px] text-ink-2 italic">{cv.headline}</p>
-              <p className="cv-heading mt-5">Experiencia</p>
-              <ul className="mt-3 flex flex-col gap-3">
-                {cv.lines.map((line, i) => {
-                  const on = phase > i;
-                  return (
-                    <li key={i} className="flex flex-col gap-1">
-                      <span className="text-[13px] leading-snug text-ink-2">
-                        <span className={cn("marker", on && line.ok && "is-on", on && !line.ok && "line-through decoration-danger/70")}>{line.text}</span>
-                      </span>
-                      <span
-                        className={cn(
-                          "w-fit rounded-full px-2 py-0.5 font-sans text-[10.5px] font-medium transition-[opacity,translate] duration-500 ease-[var(--ease-out-soft)]",
-                          line.ok ? "bg-success-soft text-success" : "bg-danger-soft text-danger",
-                          on ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0",
-                        )}
-                      >
-                        {line.ok ? "Prueba" : "No prueba"} {line.req}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-              {/* Sello */}
-              <div
-                className={cn(
-                  "absolute right-6 bottom-6 flex -rotate-[9deg] flex-col items-center rounded-md border-[2.5px] px-3 py-1.5 font-sans transition-[opacity,scale] duration-300",
-                  tone === "success" && "border-success text-success",
-                  tone === "warning" && "border-warning text-warning",
-                  tone === "danger" && "border-danger text-danger",
-                  phase >= 5 ? "scale-100 opacity-100" : "scale-150 opacity-0",
-                )}
-                style={{ transitionTimingFunction: "cubic-bezier(0.5,0,0.3,1.4)" }}
-              >
-                <span className="text-[9.5px] font-bold tracking-[0.2em] uppercase">{cv.verdict}</span>
-                <span className="text-[26px] leading-none font-bold">{cv.score}</span>
-              </div>
-            </article>
+              {/* eslint-disable-next-line @next/next/no-img-element -- logo estático pequeño de public/ */}
+              <img src={`/logos/${s.logo}.png`} alt="" width={36} height={36} className="size-full object-contain" />
+            </span>
+            <span className={cn("text-[11.5px] transition-colors duration-500", k === i ? "text-ink" : "text-ink-3")}>{s.name}</span>
           </div>
+        ))}
 
-          {/* Ranking que se arma */}
-          <div className="flex w-[260px] flex-col overflow-hidden rounded-2xl border border-border bg-surface">
-            <div className="border-b border-border px-4 py-3">
-              <p className="text-[13px] font-medium">Ranking</p>
-              <p className="text-[11.5px] text-ink-3">Ingeniero Cloud Senior</p>
-            </div>
-            <ul className="flex min-h-[200px] flex-col">
-              {ranked.map((r, i) => (
-                <li key={r.name} className="flex items-center gap-3 border-b border-border px-4 py-2.5 last:border-0 animate-[drop-in_500ms_var(--ease-out-soft)_both]">
-                  <span className="w-3 font-head text-[13px] font-semibold text-ink-3">{i + 1}</span>
-                  <Avatar name={r.name} size={26} />
-                  <span className="min-w-0 flex-1 truncate text-[12.5px]">{r.name}</span>
-                  <span className={cn("font-mono text-[12.5px] font-semibold", r.score >= 80 ? "text-success" : "text-warning")}>{r.score}</span>
-                </li>
-              ))}
-              {ranked.length === 0 ? <li className="px-4 py-6 text-center text-[12px] text-ink-3">Esperando la primera revisión</li> : null}
-            </ul>
-          </div>
+        {/* Hoja que viaja de la fuente a la criba */}
+        <span
+          key={`paper-${step}`}
+          className="travel absolute h-10 w-8 rounded-[3px] bg-[#f5f1e8] shadow-[0_10px_20px_-8px_rgba(0,0,0,0.8)]"
+          style={{ left: C - 16, top: C - 20, ["--fx" as string]: `${source.x * 0.78}px`, ["--fy" as string]: `${source.y * 0.78}px` }}
+        >
+          <span className="absolute inset-x-1.5 top-2 h-[3px] rounded-full bg-[#1a211d]/55" />
+          <span className="absolute inset-x-1.5 top-[15px] h-[2px] rounded-full bg-[#1a211d]/25" />
+          <span className="absolute top-[21px] right-3 left-1.5 h-[2px] rounded-full bg-[#1a211d]/25" />
+          <span className="absolute top-[27px] right-2 left-1.5 h-[2px] rounded-full bg-[#1a211d]/25" />
+        </span>
+
+        {/* La criba */}
+        <div className="absolute grid size-[104px] grid-cols-3 gap-[9px] rounded-[26px] bg-amber p-[22px] shadow-[0_0_0_10px_rgba(242,169,59,0.08),0_30px_60px_-20px_rgba(242,169,59,0.45)]" style={{ left: C - 52, top: C - 52 }}>
+          {DOTS.map((o, d) => (
+            <span key={`${step}-${d}`} className="sieve-dot size-full rounded-full bg-ink-inverse" style={{ opacity: o, animationDelay: `${1050 + (Math.floor(d / 3) + (d % 3)) * 70}ms` }} />
+          ))}
         </div>
+      </div>
+
+      {/* Resultado de la hoja actual */}
+      <div className="relative mt-2 h-[58px] w-[360px]" aria-live="polite">
+        <div
+          key={`res-${step}`}
+          className="absolute inset-0 flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 animate-[result-in_3400ms_var(--ease-out-soft)_both]"
+        >
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="truncate text-[13.5px] font-medium">{result.name}</span>
+            <span className="truncate text-[12px] text-ink-3">{result.detail}</span>
+          </span>
+          <span
+            className={cn(
+              "rounded-full px-2.5 py-0.5 text-[11.5px] font-medium",
+              result.tone === "success" && "bg-success-soft text-success",
+              result.tone === "warning" && "bg-warning-soft text-warning",
+              result.tone === "danger" && "bg-danger-soft text-danger",
+            )}
+          >
+            {result.verdict}
+          </span>
+          <span
+            className={cn(
+              "w-8 text-right font-mono text-[15px] font-semibold",
+              result.tone === "success" && "text-success",
+              result.tone === "warning" && "text-warning",
+              result.tone === "danger" && "text-danger",
+            )}
+          >
+            {result.score}
+          </span>
+        </div>
+      </div>
+
+      {/* Qué ganas al entrar */}
+      <div className="relative mt-12 flex w-full max-w-[640px] flex-col items-center gap-8 text-center">
+        <h2 className="font-head text-[30px] leading-[1.15] font-semibold tracking-[-0.02em] text-balance animate-rise">Todas tus hojas de vida, revisadas con el mismo criterio.</h2>
+        <ul className="grid w-full grid-cols-3 gap-6 text-left">
+          {HIGHLIGHTS.map((h, k) => (
+            <li key={h.title} className="flex flex-col gap-2.5 animate-rise" style={{ animationDelay: `${150 + k * 120}ms` }}>
+              <span className="flex size-9 items-center justify-center rounded-xl bg-surface-2 text-amber ring-1 ring-border">
+                <h.icon aria-hidden className="size-4" />
+              </span>
+              <span className="text-[13.5px] font-medium">{h.title}</span>
+              <span className="text-[12.5px] leading-snug text-ink-2">{h.detail}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </aside>
   );

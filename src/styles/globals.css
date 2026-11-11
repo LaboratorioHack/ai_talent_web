@@ -378,22 +378,66 @@
   }
 }
 
-/* Mesa de revisión del login: la hoja entra desde abajo y sale hacia el ranking. */
-@keyframes sheet-in {
-  from {
+/* Escena del login: hoja que viaja a la criba, onda de puntos, resultado y líneas que fluyen. */
+.travel {
+  opacity: 0;
+  animation: travel 1100ms var(--ease-in-out-soft) 100ms both;
+}
+@keyframes travel {
+  0% {
     opacity: 0;
-    transform: translateY(40px) rotate(-2deg) scale(0.97);
+    transform: translate(var(--fx), var(--fy)) scale(0.9) rotate(-8deg);
   }
-  to {
+  20% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.45) rotate(0deg);
+  }
+}
+.sieve-dot {
+  animation: sieve-wave 700ms var(--ease-spring) both;
+}
+@keyframes sieve-wave {
+  40% {
+    transform: scale(1.45);
+    background: #fff;
+  }
+}
+@keyframes result-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  42% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  55%,
+  92% {
     opacity: 1;
     transform: none;
   }
-}
-
-@keyframes sheet-out {
-  to {
+  100% {
     opacity: 0;
-    transform: translateX(160px) rotate(6deg) scale(0.6);
+    transform: translateY(-6px);
+  }
+}
+.flow-line {
+  animation: flow 1.6s linear infinite;
+}
+@keyframes flow {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+@keyframes float {
+  50% {
+    translate: 0 -6px;
   }
 }
 
