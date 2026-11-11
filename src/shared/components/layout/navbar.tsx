@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Search } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Logo, Popover } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import type { CurrentUser } from "@/shared/types/domain";
-import { CommandPalette, type SearchItem } from "./command-palette";
+import { NavSearch, type SearchItem } from "./nav-search";
 import { OrgSwitcher } from "./org-switcher";
 
 export interface NavNotice {
@@ -50,7 +50,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
   const pathname = usePathname();
   const nav = useRef<HTMLDivElement>(null);
   const pill = useRef<HTMLSpanElement>(null);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [searching, setSearching] = useState(false);
   const [seen, setSeen] = useState(false);
 
   const activeHref = LINKS.find((l) => pathname === l.href || pathname.startsWith(`${l.href}/`))?.href;
@@ -69,17 +69,6 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
     p.style.transform = `translateX(${el.offsetLeft}px)`;
   }, [activeHref]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setSearchOpen((o) => !o);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-bg/80 backdrop-blur-xl backdrop-saturate-150">
       <div className="flex h-[68px] items-center justify-between gap-6 px-8">
@@ -91,41 +80,42 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
           <OrgSwitcher user={user} />
         </div>
 
-        <nav aria-label="Principal" ref={nav} className="relative flex items-center gap-0.5 rounded-full bg-surface-2 p-1 ring-1 ring-border">
-          <span
-            ref={pill}
-            aria-hidden
-            className="absolute top-1 left-0 h-[calc(100%-8px)] rounded-full bg-surface opacity-0 shadow-[0_1px_2px_rgba(21,32,27,0.08),0_4px_12px_-6px_rgba(21,32,27,0.25)] ring-1 ring-border/60 transition-[transform,width,opacity] duration-500 ease-[var(--ease-spring)]"
-          />
-          {LINKS.map((link) => {
-            const active = link.href === activeHref;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                data-href={link.href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "relative z-10 flex h-10 items-center gap-1.5 rounded-full px-3.5 text-[14px] whitespace-nowrap transition-colors duration-300",
-                  active ? "font-medium text-ink" : "text-ink-2 hover:text-ink",
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
+        {/* Mientras se busca, las secciones se pliegan para dejarle sitio al buscador. */}
+        <div
+          aria-hidden={searching || undefined}
+          className={cn(
+            "transition-[max-width,opacity,transform,filter] duration-500 ease-[var(--ease-out-soft)]",
+            searching ? "pointer-events-none max-w-0 -translate-y-1 scale-95 opacity-0 blur-[2px]" : "max-w-[900px] opacity-100",
+          )}
+        >
+          <nav aria-label="Principal" ref={nav} className="relative flex items-center gap-0.5 rounded-full bg-surface-2 p-1 ring-1 ring-border">
+            <span
+              ref={pill}
+              aria-hidden
+              className="absolute top-1 left-0 h-[calc(100%-8px)] rounded-full bg-surface opacity-0 shadow-[0_1px_2px_rgba(21,32,27,0.08),0_4px_12px_-6px_rgba(21,32,27,0.25)] ring-1 ring-border/60 transition-[transform,width,opacity] duration-500 ease-[var(--ease-spring)]"
+            />
+            {LINKS.map((link) => {
+              const active = link.href === activeHref;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  data-href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "relative z-10 flex h-10 items-center gap-1.5 rounded-full px-3.5 text-[14px] whitespace-nowrap transition-colors duration-300",
+                    active ? "font-medium text-ink" : "text-ink-2 hover:text-ink",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
         <div className="flex items-center justify-end gap-2">
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            className="group flex h-11 w-[250px] items-center gap-2.5 rounded-full border border-border bg-surface pr-2 pl-4 text-[14px] text-ink-3 shadow-[0_1px_2px_rgba(21,32,27,0.04)] transition-[border-color,color,box-shadow] duration-300 hover:border-border-strong hover:text-ink-2 hover:shadow-[0_6px_16px_-10px_rgba(21,32,27,0.3)] 2xl:w-[300px]"
-          >
-            <Search aria-hidden className="size-[18px]" />
-            <span className="flex-1 truncate text-left">Buscar</span>
-            <kbd className="rounded-full bg-surface-2 px-2.5 py-1 font-sans text-[11.5px] text-ink-3 ring-1 ring-border">Ctrl K</kbd>
-          </button>
+          <NavSearch items={[...PAGES, ...searchItems]} onOpenChange={setSearching} />
 
           <Popover
             label={`Avisos${notices.length && !seen ? `, ${notices.length} nuevos` : ""}`}
@@ -166,7 +156,6 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
         </div>
       </div>
 
-      <CommandPalette open={searchOpen} onClose={() => setSearchOpen(false)} items={[...PAGES, ...searchItems]} />
     </header>
   );
 }
