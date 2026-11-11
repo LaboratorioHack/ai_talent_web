@@ -15,11 +15,11 @@ async function Ingest({ searchParams }: { searchParams: Promise<{ job?: string |
 function IngestSkeleton() {
   return (
     <div className="flex flex-col" aria-busy>
-      <div className="border-b border-border bg-surface px-12 pt-6 pb-5">
+      <div className="border-b border-border bg-surface px-4 sm:px-6 lg:px-12 pt-6 pb-5">
         <Skeleton className="h-4 w-56" />
         <Skeleton className="mt-3 h-8 w-64" />
       </div>
-      <div className="flex flex-col gap-6 px-12 pt-7">
+      <div className="flex flex-col gap-6 px-4 sm:px-6 lg:px-12 pt-7">
         <Skeleton className="h-[182px] rounded-2xl" />
         <Skeleton className="h-[86px] rounded-2xl" />
         <Skeleton className="h-[420px] rounded-2xl" />

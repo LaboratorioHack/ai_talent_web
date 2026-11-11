@@ -117,7 +117,7 @@ export function IngestView({ data }: { data: IngestData }) {
         }
       />
 
-      <div className="flex flex-col gap-6 px-12 pt-7 pb-8">
+      <div className="flex flex-col gap-6 px-4 sm:px-6 lg:px-12 pt-7 pb-8">
         <div className="animate-rise">
           <Dropzone onFiles={(list) => upload(list)} onSample={() => upload(SAMPLES)} onConnectFolder={() => setFolder(true)} />
         </div>
@@ -155,7 +155,7 @@ export function IngestView({ data }: { data: IngestData }) {
             className="mx-auto w-[520px] bg-surface animate-rise"
           />
         ) : (
-          <section className="card flex min-h-[460px] flex-col px-6 pt-5 pb-3 animate-rise [animation-delay:140ms]">
+          <section className="card flex min-h-[460px] flex-col px-4 pt-4 pb-3 sm:px-6 sm:pt-5 animate-rise [animation-delay:140ms]">
             <div className="flex flex-wrap items-center justify-between gap-3 pb-3">
               <div className="flex items-center gap-3">
                 <Segmented
@@ -179,9 +179,9 @@ export function IngestView({ data }: { data: IngestData }) {
                   </button>
                 ) : null}
               </div>
-              <div className="flex items-center gap-2">
-                <Select aria-label="Fuente" options={SOURCES} value={source} onChange={(v) => setSource(v as "all" | IngestSource)} className="w-[200px]" triggerClassName="field-box h-10 w-full px-3.5 text-[13.5px] text-ink" />
-                <SearchField placeholder="Buscar archivo" containerClassName="w-[240px]" value={query} onChange={(e) => setQuery(e.target.value)} />
+              <div className="flex w-full items-center gap-2 sm:w-auto">
+                <Select aria-label="Fuente" options={SOURCES} value={source} onChange={(v) => setSource(v as "all" | IngestSource)} className="w-[46%] sm:w-[200px]" triggerClassName="field-box h-10 w-full px-3.5 text-[13.5px] text-ink" />
+                <SearchField placeholder="Buscar archivo" containerClassName="min-w-0 flex-1 sm:w-[240px] sm:flex-none" value={query} onChange={(e) => setQuery(e.target.value)} />
               </div>
             </div>
 
@@ -204,7 +204,7 @@ export function IngestView({ data }: { data: IngestData }) {
       </div>
 
       <div className="sticky bottom-0 z-20 mt-auto border-t border-border bg-surface/90 backdrop-blur-xl">
-        <div className="flex items-center justify-between gap-4 px-12 py-4">
+        <div className="flex flex-col items-stretch justify-between gap-3 px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4 lg:px-12">
           <p className="text-[14px] text-ink-2">
             <strong className="font-semibold text-ink">{counts.read} listas para evaluar</strong>
             {attention ? `, ${attention} necesitan tu acción` : ""}
