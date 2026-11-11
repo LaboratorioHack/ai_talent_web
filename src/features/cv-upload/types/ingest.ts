@@ -1,7 +1,8 @@
 /** Estado de un archivo en la ingesta. UPLOADING solo existe en el navegador. */
 export type IngestStatus = "UPLOADING" | "PROCESSING" | "READ" | "UNREADABLE" | "DUPLICATE" | "UNSUPPORTED" | "NO_DATA";
 
-export type IngestSource = "upload" | "greenhouse" | "drive" | "linkedin";
+/** Canal de la postulación (applications.source): la empresa la sube o el candidato se postula. */
+export type IngestSource = "upload" | "candidate";
 
 export interface IngestFile {
   id: string;

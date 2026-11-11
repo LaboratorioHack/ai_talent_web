@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Ban, Check, Copy, FileQuestion, Loader2, Mail, RotateCcw, ScanLine, Trash2, Upload, type LucideIcon } from "lucide-react";
 import { Tooltip } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
@@ -16,11 +15,9 @@ const STATUS: Record<IngestStatus, { label: string; icon: LucideIcon; tone: stri
   NO_DATA: { label: "No es hoja de vida", icon: FileQuestion, tone: "bg-warning-soft text-warning" },
 };
 
-const SOURCE: Record<IngestSource, { label: string; logo?: string }> = {
-  upload: { label: "Subida a mano" },
-  greenhouse: { label: "Greenhouse", logo: "/logos/greenhouse.png" },
-  drive: { label: "Google Drive", logo: "/logos/gdrive.png" },
-  linkedin: { label: "LinkedIn", logo: "/logos/linkedin.png" },
+const SOURCE: Record<IngestSource, { label: string }> = {
+  upload: { label: "Subida por la empresa" },
+  candidate: { label: "Postulación del candidato" },
 };
 
 const size = (kb: number) => (kb >= 1024 ? `${(kb / 1024).toFixed(1).replace(".", ",")} MB` : `${kb} KB`);
@@ -50,7 +47,7 @@ export function FileRow({ file, index, onRetry, onRemove, onRequestOriginal }: F
       <div className="flex min-w-0 flex-col gap-1">
         <span className="truncate text-[14px] font-medium">{file.name}</span>
         <span className="flex items-center gap-2 text-[12.5px] text-ink-3">
-          {src.logo ? <Image src={src.logo} alt="" width={14} height={14} className="size-3.5 object-contain" /> : null}
+          {file.source === "candidate" ? <span className="shrink-0 rounded-full bg-blue-soft px-1.5 py-px text-[11px] font-medium text-blue">Se postuló</span> : null}
           <span className="truncate">
             {file.detail}
             {file.status === "READ" ? `, ${file.pages} ${file.pages === 1 ? "pág." : "págs."} ${size(file.sizeKb)}` : ""}
