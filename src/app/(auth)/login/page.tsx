@@ -10,13 +10,13 @@ export const metadata: Metadata = { title: "Entrar" };
 /** Pantalla 01 · Login · Paso 1 Cuenta. */
 export default function LoginPage() {
   return (
-    <main className="flex flex-1">
-      <section className="flex w-full flex-col justify-between gap-6 px-[72px] py-9 lg:w-[560px] lg:shrink-0">
-        <div className="flex flex-col gap-7">
+    <main className="flex min-h-dvh lg:h-dvh lg:min-h-0 lg:overflow-hidden">
+      <section className="flex w-full flex-col justify-between gap-6 px-[72px] py-9 lg:w-[560px] lg:shrink-0 lg:overflow-y-auto short:py-6 shorter:py-4">
+        <div className="flex flex-col gap-7 short:gap-4 shorter:gap-3">
           <Logo />
           <div className="flex flex-col gap-2">
             <ProgressSegments total={4} current={0} />
-            <p className="eyebrow">Paso 1 de 4</p>
+            <p className="eyebrow shorter:hidden">Paso 1 de 4</p>
           </div>
         </div>
 

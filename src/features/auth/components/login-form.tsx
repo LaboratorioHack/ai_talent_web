@@ -52,9 +52,9 @@ export function LoginForm() {
   }
 
   return (
-    <div className="stagger flex flex-col gap-7 [&>*]:animate-rise">
+    <div className="stagger flex flex-col gap-7 short:gap-5 shorter:gap-4 [&>*]:animate-rise">
       <div className="flex flex-col gap-2" style={{ "--i": 0 } as React.CSSProperties}>
-        <h1 className="font-head text-[32px] leading-tight font-semibold">Crea tu cuenta o entra</h1>
+        <h1 className="font-head text-[32px] leading-tight short:text-[28px] shorter:text-[26px] font-semibold">Crea tu cuenta o entra</h1>
         <p className="text-base text-ink-2">Paso 1 de 4. Con tu correo de empresa detectamos la organización.</p>
       </div>
 
@@ -69,7 +69,7 @@ export function LoginForm() {
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6" style={{ "--i": 3 } as React.CSSProperties}>
+      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6 short:gap-4 shorter:gap-3" style={{ "--i": 3 } as React.CSSProperties}>
         <TextField
           label="Correo de empresa"
           type="email"
