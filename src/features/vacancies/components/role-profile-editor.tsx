@@ -100,7 +100,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
               "flex flex-wrap justify-between gap-6 rounded-2xl border",
               "transition-[background-color,border-color,box-shadow,padding,margin] duration-500 ease-[var(--ease-out-soft)]",
               stuck
-                ? "-mx-3 items-center border-border bg-surface/90 py-3 pr-3 pl-5 shadow-[0_18px_40px_-24px_rgba(21,32,27,0.45)] backdrop-blur-md"
+                ? "-mx-3 items-center border-border bg-surface py-3 pr-3 pl-5 shadow-[0_18px_40px_-24px_rgba(21,32,27,0.45)]"
                 : "mx-0 items-end border-transparent px-0 py-2",
             )}
           >
