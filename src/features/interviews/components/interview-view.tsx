@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, CalendarPlus, Check, ChevronRight, Download, Minus, Radio, Send, X } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
-import { Avatar, Button, useToast } from "@/shared/components/ui";
+import { Avatar, Button, Logo, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import type { Interview, InterviewTurn } from "@/shared/types/domain";
@@ -48,6 +48,7 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
   const [modal, setModal] = useState<"schedule" | "discard" | null>(null);
   const [flash, setFlash] = useState<number | null>(null);
   const list = useRef<HTMLOListElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
   const first = iv.candidate.name.split(" ")[0];
 
   // Simulación en vivo: cada pocos segundos llega una respuesta y la siguiente pregunta.
@@ -74,6 +75,14 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
     return () => window.clearTimeout(t);
   }, [turns, status, first, toast]);
 
+  // El chat abre mostrando lo último y baja solo cuando llega un mensaje nuevo.
+  const answeredCount = turns.filter((t) => t.answer).length;
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: answeredCount === iv.turns.filter((t) => t.answer).length ? "auto" : "smooth" });
+  }, [answeredCount, iv.turns]);
+
   const shown = turns.filter((t) => t.question);
   const current = status === "IN_PROGRESS" ? turns.find((t) => !t.answer)?.order : undefined;
   const answered = turns.filter((t) => t.answer).length;
@@ -88,7 +97,7 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
   }
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex h-[calc(100dvh-var(--app-header,0px))] flex-col">
       <PageTop
         eyebrow={
           <nav aria-label="Ruta" className="flex items-center gap-1.5">
@@ -128,10 +137,10 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
         }
       />
 
-      <div className="grid flex-1 grid-cols-[1fr_440px]">
-        <section className="flex min-w-0 flex-col px-12 pt-8 pb-16">
+      <div className="grid min-h-0 flex-1 grid-cols-[1fr_440px]">
+        <section className="flex min-h-0 min-w-0 flex-col">
           {status === "SCHEDULED" ? (
-            <div className="my-auto flex flex-col items-center gap-4 self-center text-center animate-rise">
+            <div className="m-auto flex flex-col items-center gap-4 px-12 text-center animate-rise">
               <Avatar name={iv.candidate.name} size={64} />
               <h2 className="font-head text-[24px] font-semibold">{first} todavía no empieza la entrevista</h2>
               <p className="max-w-[420px] text-[14px] text-ink-2">Le enviamos el enlace con {iv.totalQuestions} preguntas sobre lo que falta validar. Te avisamos cuando termine.</p>
@@ -140,45 +149,56 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
               </Button>
             </div>
           ) : (
-            <ol ref={list} className="flex max-w-[760px] flex-col gap-7">
-              {shown.map((t, i) => (
-                <li
-                  key={t.order}
-                  data-order={t.order}
-                  className={cn("flex flex-col gap-3 rounded-2xl transition-[background-color,box-shadow] duration-700", flash === t.order && "bg-amber/10 shadow-[0_0_0_10px_color-mix(in_oklab,var(--amber)_10%,transparent)]")}
-                  style={{ animation: `rise 520ms var(--ease-out-soft) ${Math.min(i, 6) * 60}ms both` }}
-                >
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[12.5px] font-medium text-blue">
-                      Pregunta {t.order}, {t.topic}
-                    </span>
-                    <p className="text-[16px] leading-snug text-ink">{t.question}</p>
-                  </div>
-                  {t.answer ? (
-                    <div className="flex flex-col items-end gap-1.5 self-end">
-                      <p className={cn("flex max-w-[560px] items-start gap-3 rounded-2xl rounded-tr-md px-4 py-3 text-[14.5px] leading-relaxed", t.verdict === "conflict" ? "bg-warning-soft" : "bg-surface ring-1 ring-border")}>
-                        <span className="flex-1">{t.answer}</span>
-                        {t.verdict === "conflict" ? <AlertTriangle aria-label="Contradice la hoja de vida" className="mt-1 size-4 shrink-0 text-warning" /> : <Check aria-label="Coincide con la hoja de vida" className="mt-1 size-4 shrink-0 text-success" />}
-                      </p>
-                      {t.verdict === "conflict" ? <span className="text-[12.5px] text-warning">No coincide con la hoja de vida, revísalo en el contraste</span> : null}
+            <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-smooth px-12">
+              <ol ref={list} className="mx-auto flex min-h-full w-full max-w-[780px] flex-col justify-end gap-6 pt-10 pb-10">
+                {shown.map((t, i) => (
+                  <li
+                    key={t.order}
+                    data-order={t.order}
+                    className={cn("flex flex-col gap-3 rounded-2xl p-2 transition-[background-color] duration-700", flash === t.order && "bg-amber/10")}
+                    style={{ animation: `rise 520ms var(--ease-out-soft) ${Math.max(0, i - shown.length + 5) * 60}ms both` }}
+                  >
+                    <div className="flex items-end gap-3">
+                      <Logo compact className="mb-1 shrink-0 [&>span:first-child]:size-7 [&>span:first-child]:rounded-full" />
+                      <div className="flex max-w-[600px] flex-col gap-1 rounded-2xl rounded-bl-md bg-surface px-4 py-3 ring-1 ring-border">
+                        <span className="text-[12px] font-medium text-blue">
+                          Pregunta {t.order}, {t.topic}
+                        </span>
+                        <p className="text-[15px] leading-snug text-ink">{t.question}</p>
+                      </div>
                     </div>
-                  ) : t.order === current ? (
-                    <div className="flex items-center gap-2.5 self-end rounded-2xl rounded-tr-md bg-surface px-4 py-3 text-[13px] text-ink-3 ring-1 ring-border" aria-live="polite">
-                      <span className="flex gap-1" aria-hidden>
-                        {[0, 1, 2].map((d) => (
-                          <span key={d} className="size-1.5 rounded-full bg-ink-3 animate-[breathe_1.2s_ease-in-out_infinite]" style={{ animationDelay: `${d * 160}ms` }} />
-                        ))}
-                      </span>
-                      {first} está respondiendo
-                    </div>
-                  ) : null}
-                </li>
-              ))}
-            </ol>
+                    {t.answer ? (
+                      <div className="flex items-end justify-end gap-3">
+                        <div className="flex flex-col items-end gap-1.5">
+                          <p className={cn("flex max-w-[560px] items-start gap-3 rounded-2xl rounded-br-md px-4 py-3 text-[14.5px] leading-relaxed", t.verdict === "conflict" ? "bg-warning-soft" : "bg-ink text-ink-inverse")}>
+                            <span className="flex-1">{t.answer}</span>
+                            {t.verdict === "conflict" ? <AlertTriangle aria-label="Contradice la hoja de vida" className="mt-1 size-4 shrink-0 text-warning" /> : <Check aria-label="Coincide con la hoja de vida" className="mt-1 size-4 shrink-0 text-amber" />}
+                          </p>
+                          {t.verdict === "conflict" ? <span className="text-[12.5px] text-warning">No coincide con la hoja de vida, revísalo en el contraste</span> : null}
+                        </div>
+                        <Avatar name={iv.candidate.name} size={28} className="mb-1" />
+                      </div>
+                    ) : t.order === current ? (
+                      <div className="flex items-end justify-end gap-3" aria-live="polite">
+                        <div className="flex items-center gap-2.5 rounded-2xl rounded-br-md bg-surface px-4 py-3 text-[13px] text-ink-3 ring-1 ring-border">
+                          <span className="flex gap-1" aria-hidden>
+                            {[0, 1, 2].map((d) => (
+                              <span key={d} className="size-1.5 rounded-full bg-ink-3 animate-[breathe_1.2s_ease-in-out_infinite]" style={{ animationDelay: `${d * 160}ms` }} />
+                            ))}
+                          </span>
+                          {first} está respondiendo
+                        </div>
+                        <Avatar name={iv.candidate.name} size={28} className="mb-1" />
+                      </div>
+                    ) : null}
+                  </li>
+                ))}
+              </ol>
+            </div>
           )}
         </section>
 
-        <aside className="sticky top-[calc(var(--app-header,0px)+56px)] flex h-[calc(100dvh-var(--app-header,0px)-56px)] flex-col self-start border-l border-border bg-surface">
+        <aside className="flex min-h-0 flex-col border-l border-border bg-surface">
           <div className="flex flex-1 flex-col gap-8 overflow-y-auto px-8 pt-7 pb-10">
             <section className="flex flex-col gap-3">
               <header className="flex items-baseline justify-between">
