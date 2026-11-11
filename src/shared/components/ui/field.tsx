@@ -22,27 +22,25 @@ export function Field({ label, kind, help, error, required, className, children 
   const helpId = `${id}-help`;
   const message = error ?? help;
   return (
-    <div className={cn("flex flex-col gap-1.5", className)}>
-      <div className="flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-sm font-medium text-ink">
-          {label}
-          {required ? <span className="text-danger"> *</span> : null}
-        </label>
-        {kind ? <span className="text-[11px] text-ink-3">{kind}</span> : null}
-      </div>
+    <div className={cn("flex min-w-0 flex-col gap-2", className)}>
+      <label htmlFor={id} className="truncate text-[13px] font-medium text-ink">
+        {label}
+        {required ? <span className="text-danger"> *</span> : null}
+      </label>
       {children({ id, describedBy: message ? helpId : undefined })}
-      {message ? (
-        <p id={helpId} className={cn("text-xs", error ? "text-danger" : "text-ink-2")} role={error ? "alert" : undefined}>
-          {message}
-        </p>
+      {message || kind ? (
+        <div className="flex items-baseline justify-between gap-3">
+          <p id={helpId} className={cn("min-w-0 text-xs", error ? "text-danger" : "text-ink-3")} role={error ? "alert" : undefined}>
+            {message}
+          </p>
+          {kind ? <span className="shrink-0 font-mono text-[10.5px] text-ink-3">{kind}</span> : null}
+        </div>
       ) : null}
     </div>
   );
 }
 
 /** Caja base compartida por texto, selector y fecha. */
-export const inputBoxClass =
-  "flex h-10 w-full items-center gap-2 rounded-md border bg-surface px-3 text-[13.5px] text-ink transition-colors " +
-  "placeholder:text-ink-3 focus-within:border-ink disabled:opacity-45 aria-invalid:border-danger";
+export const inputBoxClass = "field-box flex h-11 w-full items-center gap-2 px-3.5 text-[14px] text-ink placeholder:text-ink-3 disabled:opacity-45";
 
-export const inputBorderClass = (error?: boolean) => (error ? "border-danger" : "border-border");
+export const inputBorderClass = (error?: boolean) => (error ? "is-invalid" : "");

@@ -17,7 +17,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(functi
   return (
     <div
       className={cn(
-        "flex h-10 items-center gap-2 rounded-md border border-border bg-surface px-3 text-[13.5px] focus-within:border-ink",
+        "field-box flex h-10 items-center gap-2 px-3 text-[13.5px]",
         containerClassName,
       )}
     >

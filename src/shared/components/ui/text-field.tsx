@@ -18,13 +18,13 @@ export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElemen
 }
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField(
-  { label, kind = "Texto libre", help, error, validated, leading, trailing, containerClassName, className, required, ...rest },
+  { label, kind, help, error, validated, leading, trailing, containerClassName, className, required, ...rest },
   ref,
 ) {
   return (
     <Field label={label} kind={kind} help={help} error={error} required={required} className={containerClassName}>
       {({ id, describedBy }) => (
-        <div className={cn(inputBoxClass, inputBorderClass(Boolean(error)), validated && "border-success")}>
+        <div className={cn(inputBoxClass, inputBorderClass(Boolean(error)), validated && "is-valid")}>
           {leading}
           <input
             ref={ref}

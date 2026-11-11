@@ -15,7 +15,7 @@ export interface SelectFieldProps extends Omit<SelectProps, "id" | "invalid" | "
 }
 
 /** Selector con etiqueta: no deja escribir, solo elegir de la lista. */
-export function SelectField({ label, kind = "Elegir de lista", help, error, required, containerClassName, ...select }: SelectFieldProps) {
+export function SelectField({ label, kind, help, error, required, containerClassName, ...select }: SelectFieldProps) {
   return (
     <Field label={label} kind={kind} help={help} error={error} required={required} className={containerClassName}>
       {({ id, describedBy }) => <Select id={id} aria-describedby={describedBy} invalid={Boolean(error)} {...select} />}

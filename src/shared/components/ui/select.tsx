@@ -35,8 +35,7 @@ export interface SelectProps {
   className?: string;
 }
 
-const defaultTrigger =
-  "h-10 w-full rounded-md border bg-surface px-3 text-[13.5px] text-ink hover:border-ink-3 data-[open=true]:border-ink";
+const defaultTrigger = "field-box h-11 w-full px-3.5 text-[14px] text-ink";
 
 /**
  * Desplegable propio (patrón combobox de solo selección): no deja escribir,
@@ -178,7 +177,7 @@ export function Select({
         className={cn(
           "flex items-center gap-2 text-left transition-[border-color,background-color,color,box-shadow] duration-300 ease-[var(--ease-out-soft)] disabled:cursor-not-allowed disabled:opacity-45",
           triggerClassName ?? defaultTrigger,
-          !triggerClassName && (invalid ? "border-danger" : "border-border"),
+          !triggerClassName && invalid && "is-invalid",
         )}
       >
         {leading}
@@ -198,7 +197,7 @@ export function Select({
           data-state={state}
           style={{ minWidth: menuMinWidth }}
           className={cn(
-            "absolute top-[calc(100%+6px)] left-0 z-40 max-h-64 w-full overflow-auto rounded-lg border border-border bg-surface p-1",
+            "absolute top-[calc(100%+6px)] left-0 z-40 max-h-64 w-full overflow-auto rounded-xl border border-border bg-surface p-1.5",
             "origin-top shadow-[0_18px_40px_-20px_rgba(21,32,27,0.45)]",
             "data-[state=open]:animate-[menu-in_220ms_var(--ease-out-soft)_both] data-[state=closed]:animate-[menu-out_160ms_var(--ease-in-out-soft)_both]",
           )}
