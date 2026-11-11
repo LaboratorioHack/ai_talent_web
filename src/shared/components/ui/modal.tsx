@@ -70,7 +70,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
           ) : null}
         </header>
         {children}
-        {footer ? <footer className="flex justify-end gap-2">{footer}</footer> : null}
+        {footer ? <footer className="flex items-center justify-end gap-2">{footer}</footer> : null}
       </div>
     </dialog>
   );

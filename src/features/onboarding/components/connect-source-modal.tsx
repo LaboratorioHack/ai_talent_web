@@ -51,14 +51,15 @@ export function ConnectSourceModal({ source, onConnected, onLater, onClose }: Co
           : `Te llevaremos a ${source.provider} para que autorices el acceso. Criba solo lee hojas de vida; no publica nada en tu nombre.`
       }
       footer={
-        <>
-          <Button variant="text" disabled={busy} onClick={() => onLater(source.id)}>
+        // Dos columnas iguales: los botones no cambian de lugar entre una fuente y otra.
+        <div className="grid w-full grid-cols-2 gap-2">
+          <Button variant="outline" block disabled={busy} onClick={() => onLater(source.id)}>
             Conectar más tarde
           </Button>
-          <Button loading={busy} onClick={connect} icon={source.connect === "api-key" ? <KeyRound /> : <ExternalLink />}>
+          <Button block loading={busy} onClick={connect} icon={source.connect === "api-key" ? <KeyRound /> : <ExternalLink />}>
             {source.connect === "api-key" ? "Conectar" : `Autorizar con ${source.provider}`}
           </Button>
-        </>
+        </div>
       }
     >
       <div className="flex items-center gap-3 rounded-xl border border-border bg-bg/50 p-3">
