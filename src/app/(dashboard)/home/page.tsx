@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Plus, Upload } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
-import { ButtonLink, DayClock } from "@/shared/components/ui";
+import { ButtonLink } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { getDashboard } from "@/features/dashboard/api/dashboard";
+import { DailyQuestion } from "@/features/dashboard/components/daily-question";
 import { DashboardSkeleton, DashboardView } from "@/features/dashboard/components/dashboard-view";
 
 export const metadata: Metadata = { title: "Inicio" };
@@ -20,10 +21,9 @@ export default function HomePage() {
     <div className="flex flex-1 flex-col">
       <PageTop
         title="Pipeline de talento"
+        description={<DailyQuestion />}
         actions={
           <>
-            <DayClock />
-            <span aria-hidden className="mx-2 h-8 w-px bg-border" />
             <ButtonLink href={routes.candidates} variant="outline" icon={<Upload />}>
               Subir hojas de vida
             </ButtonLink>
