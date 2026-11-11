@@ -13,7 +13,7 @@ import { ConnectFolderModal } from "./connect-folder-modal";
 import { Dropzone } from "./dropzone";
 import { EvaluateModal } from "./evaluate-modal";
 import { FileRow } from "./file-row";
-import { SieveSummary } from "./sieve-summary";
+import { ReadinessPanel } from "./readiness-panel";
 
 type Group = "busy" | "read" | "unreadable" | "duplicate" | "rejected";
 type View = "all" | "attention" | "read";
@@ -48,7 +48,7 @@ const PAGE = 24;
 export function IngestView({ data }: { data: IngestData }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { files, add, read, remove, requestOriginal } = useIngest(data.files);
+  const { files, add, read, remove, removeMany, requestOriginal } = useIngest(data.files);
   const [view, setView] = useState<View>("attention");
   const [group, setGroup] = useState<Group | null>(null);
   const [source, setSource] = useState<"all" | IngestSource>("all");
@@ -124,7 +124,27 @@ export function IngestView({ data }: { data: IngestData }) {
 
         {emptyJob ? null : (
           <div className="animate-rise [animation-delay:80ms]">
-            <SieveSummary counts={counts} active={group} onPick={setGroup} />
+            <ReadinessPanel
+              files={files}
+              counts={counts}
+              active={group}
+              onPick={setGroup}
+              onRequestAll={() => {
+                const ids = files.filter((f) => f.status === "UNREADABLE").map((f) => f.id);
+                ids.forEach(requestOriginal);
+                toast({ title: `Pedimos ${ids.length} originales`, description: "Cada persona recibe un correo con un enlace para subirla de nuevo." });
+              }}
+              onRemoveDuplicates={() => {
+                const ids = files.filter((f) => f.status === "DUPLICATE").map((f) => f.id);
+                const undo = removeMany(ids);
+                toast({ title: `Quitaste ${ids.length} duplicadas`, description: "Se conserva la primera copia de cada una.", action: { label: "Deshacer", onClick: undo } });
+              }}
+              onRemoveRejected={() => {
+                const ids = files.filter((f) => f.status === "UNSUPPORTED" || f.status === "NO_DATA").map((f) => f.id);
+                const undo = removeMany(ids);
+                toast({ title: `Quitaste ${ids.length} archivos rechazados`, action: { label: "Deshacer", onClick: undo } });
+              }}
+            />
           </div>
         )}
 
