@@ -34,6 +34,7 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 25 | `feat/dark-mode` | 24 | lista | Modo oscuro con interruptor sol y luna en el navbar, sin parpadeo al cargar (`shared/lib/theme.ts`), cambio con View Transitions en círculo; navbar que cabe desde 1366 px |
 | 26 | `feat/floating-headers` | 25 | lista | Encabezados de página como tarjetas flotantes redondeadas, icono dibujado del momento del día en el saludo, gradiente verde del modo oscuro |
 | 27 | `fix/theme-switch` | 26 | lista | Barrido circular del tema con la perilla deslizándose aparte (`view-transition-name`), sol y luna dibujados; las transiciones con `transform` también animan `translate`, `scale` y `rotate` (Tailwind v4 los usa por separado) |
+| 28 | `feat/responsive` | 27 | lista | Toda la app en celular y tablet: menú propio en el navbar, búsqueda a ancho completo, márgenes 16/24/48 px, paneles de dos columnas que se apilan, tablero con columnas que se desplazan, tablas que pasan a filas |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -116,7 +117,7 @@ Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1
 
 ## Landing (repo aparte `ai_talent_landing`)
 
-Rama `feat/two-sided` sobre `feat/landing`: la landing le habla a empresas y a personas que buscan empleo. Selector de rol en el hero, sección "Para los dos lados" en lugar de la criba que cerraba filas, vacantes abiertas con "Postularme", cierre con una acción por rol y una órbita 3D con hojas de vida (sin nombres) alrededor de una vacante genérica: las más cercanas al centro brillan en ámbar porque encajan mejor, tipografía Funnel y el logo nuevo. Los enlaces de candidato van a `/login?rol=candidato`; la app todavía no tiene ese flujo.
+Rama `feat/two-sided` sobre `feat/landing`: la landing le habla a empresas y a personas que buscan empleo. Selector de rol en el hero, sección "Para los dos lados" en lugar de la criba que cerraba filas, vacantes abiertas con "Postularme", cierre con una acción por rol y una órbita 3D con hojas de vida (sin nombres) alrededor de una vacante genérica: las más cercanas al centro brillan en ámbar porque encajan mejor, tipografía Funnel y el logo nuevo. Los enlaces de candidato van a `/login?rol=candidato`; la app todavía no tiene ese flujo. Rama `feat/responsive` encima: menú de celular en la navbar y hero, tarjetas y bandeja que caben en 360 px.
 
 Astro 7 + Tailwind v4, estática y en oscuro (tinta verde de la marca, resaltador ámbar; nada espacial). Repo git **local** (sin remoto todavía): `main` tiene el andamiaje y `feat/landing` todo lo demás. Hay que crear el repo en GitHub y empujar ambas ramas. Detalle en su `README.md`.
 
