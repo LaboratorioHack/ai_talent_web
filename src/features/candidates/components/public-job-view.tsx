@@ -1,5 +1,5 @@
 import { Briefcase, CalendarClock, Check, Users } from "lucide-react";
-import { formatDateDisplay, fromISODate } from "@/shared/lib/dates";
+import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import type { PublicJob } from "../types/public";
 import { ApplyForm } from "./apply-form";
 
@@ -13,7 +13,7 @@ export function PublicJobView({ job }: { job: PublicJob }) {
   const facts = [
     { icon: Briefcase, text: job.area },
     { icon: Users, text: `${job.openings} ${job.openings === 1 ? "plaza" : "plazas"}` },
-    { icon: CalendarClock, text: closes ? `Recibe postulaciones hasta el ${formatDateDisplay(closes)}` : "Postulaciones abiertas" },
+    { icon: CalendarClock, text: closes ? `Recibe postulaciones hasta el ${formatLongDate(closes)}` : "Postulaciones abiertas" },
   ];
 
   return (

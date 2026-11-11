@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRight, Clock, MessageSquareText, Send, UserCheck } from "lucide-react";
 import { Button, LogoMark, ProgressSegments } from "@/shared/components/ui";
-import { formatDateDisplay, fromISODate } from "@/shared/lib/dates";
+import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import { cn } from "@/shared/lib/cn";
 import { sendInterviewAnswer } from "../api/submit";
 import type { CandidateInterview } from "../types/public";
@@ -126,7 +126,7 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
     const expires = fromISODate(iv.expiresAt.slice(0, 10));
     const points = [
       { icon: MessageSquareText, text: `${total} preguntas por chat, solo texto. No hay video ni voz.` },
-      { icon: Clock, text: `Unos 15 minutos. Puedes responder hasta el ${expires ? formatDateDisplay(expires) : "cierre de la vacante"}.` },
+      { icon: Clock, text: `Unos 15 minutos. Puedes responder hasta el ${expires ? formatLongDate(expires) : "cierre de la vacante"}.` },
       { icon: UserCheck, text: "La IA hace las preguntas; quien decide es una persona del equipo." },
     ];
     return (
