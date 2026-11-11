@@ -1,0 +1,104 @@
+"use client";
+
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+
+/**
+ * Lo que la persona va eligiendo en el onboarding, compartido entre pasos.
+ * Se guarda en sessionStorage para sobrevivir a una recarga; cuando exista el
+ * backend, cada paso lo enviará a la API y esto quedará como caché local.
+ */
+export type SourceState = "selected" | "connected" | "later";
+
+export interface OnboardingData {
+  organization: { name: string; sector: string; size: string };
+  invites: string[];
+  sources: Record<string, SourceState>;
+  vacancy: { title: string; requirements: number } | null;
+}
+
+const KEY = "criba.onboarding";
+const DONE_KEY = "criba.onboarded";
+
+const initial: OnboardingData = {
+  organization: { name: "Bancolombia Digital", sector: "Banca y finanzas", size: "1.001–5.000" },
+  invites: [],
+  sources: { upload: "selected", greenhouse: "selected" },
+  vacancy: null,
+};
+
+interface Ctx {
+  data: OnboardingData;
+  update: (patch: Partial<OnboardingData>) => void;
+  setSource: (id: string, state: SourceState | null) => void;
+  finish: () => void;
+}
+
+const OnboardingContext = createContext<Ctx | null>(null);
+
+function read(): OnboardingData {
+  try {
+    const raw = sessionStorage.getItem(KEY);
+    return raw ? { ...initial, ...(JSON.parse(raw) as Partial<OnboardingData>) } : initial;
+  } catch {
+    return initial;
+  }
+}
+
+export function OnboardingProvider({ children }: { children: ReactNode }) {
+  const [data, setData] = useState<OnboardingData>(initial);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Leer lo guardado tras montar (sessionStorage no existe en el servidor).
+  useEffect(() => {
+    const stored = read();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza con un almacén externo una sola vez
+    setData(stored);
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      sessionStorage.setItem(KEY, JSON.stringify(data));
+    } catch {
+      // Sin almacenamiento (modo privado): el onboarding sigue funcionando en memoria.
+    }
+  }, [data, hydrated]);
+
+  const update = useCallback((patch: Partial<OnboardingData>) => setData((d) => ({ ...d, ...patch })), []);
+  const setSource = useCallback(
+    (id: string, state: SourceState | null) =>
+      setData((d) => {
+        const sources = { ...d.sources };
+        if (state === null) delete sources[id];
+        else sources[id] = state;
+        return { ...d, sources };
+      }),
+    [],
+  );
+  const finish = useCallback(() => {
+    try {
+      localStorage.setItem(DONE_KEY, "1");
+    } catch {
+      // Ver arriba.
+    }
+  }, []);
+
+  const value = useMemo(() => ({ data, update, setSource, finish }), [data, update, setSource, finish]);
+  return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;
+}
+
+export function useOnboarding(): Ctx {
+  const ctx = useContext(OnboardingContext);
+  if (!ctx) throw new Error("useOnboarding debe usarse dentro de <OnboardingProvider>");
+  return ctx;
+}
+
+/** ¿Esta cuenta ya terminó el onboarding? (mock: bandera local; real: metadata de Supabase). */
+export function hasFinishedOnboarding(): boolean {
+  try {
+    return localStorage.getItem(DONE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
