@@ -1,5 +1,5 @@
 export { Avatar } from "./avatar";
-export { Button, type ButtonProps, type ButtonVariant } from "./button";
+export { Button, ButtonLink, buttonClasses, type ButtonProps, type ButtonVariant } from "./button";
 export { Calendar } from "./calendar";
 export { DateField } from "./date-field";
 export { EmptyState } from "./empty-state";

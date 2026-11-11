@@ -72,7 +72,7 @@ export function DateField({
             <CalendarIcon aria-hidden className="size-[15px] shrink-0 text-ink-3" />
           </button>
           {open ? (
-            <div role="dialog" aria-label={label} className="absolute top-[calc(100%+6px)] left-0 z-30 shadow-lg animate-[pop-in_140ms_ease-out]">
+            <div role="dialog" aria-label={label} className="absolute top-[calc(100%+6px)] left-0 z-30 shadow-lg animate-pop-in">
               <Calendar
                 value={value}
                 minDate={minDate}
