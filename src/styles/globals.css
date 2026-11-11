@@ -48,6 +48,47 @@
   --panel-2: #22302a;
 }
 
+/*
+ * Modo oscuro de toda la app (clase `dark` en <html>, ver ThemeToggle). Va
+ * fuera de las capas para ganarle a :root. Mismos valores que .dark-scope.
+ */
+:root.dark {
+  color-scheme: dark;
+  --bg: #0d1411;
+  --surface: #141e19;
+  --surface-2: #1b2620;
+  --surface-3: #22302a;
+  --border: rgb(232 240 234 / 0.09);
+  --border-strong: rgb(232 240 234 / 0.18);
+  --ink: #edf2ee;
+  --ink-2: rgb(237 242 238 / 0.7);
+  --ink-3: rgb(237 242 238 / 0.44);
+  --ink-inverse: #121a16;
+  --ink-muted-dark: rgb(237 242 238 / 0.55);
+  --blue: #86aefc;
+  --blue-soft: rgb(31 91 209 / 0.22);
+  --success: #5fd29b;
+  --success-soft: rgb(26 138 90 / 0.2);
+  --success-deep: #3fb07f;
+  --warning: #f4bb5a;
+  --warning-soft: rgb(217 139 15 / 0.2);
+  --danger: #f2877d;
+  --danger-soft: rgb(200 55 45 / 0.2);
+  --panel: #22302a;
+  --panel-2: #2b3a33;
+}
+
+/*
+ * Cambio de tema con View Transitions: el tema nuevo se revela en un círculo
+ * que crece desde el interruptor (ThemeToggle anima el clip-path). Se apagan
+ * las animaciones por defecto para que solo se vea ese círculo.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
