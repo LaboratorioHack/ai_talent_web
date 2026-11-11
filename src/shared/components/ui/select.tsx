@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
 import { useDismiss } from "@/shared/hooks/use-dismiss";
 import { usePresence } from "@/shared/hooks/use-presence";
@@ -71,8 +72,48 @@ export function Select({
   const selectedIndex = useMemo(() => options.findIndex((o) => o.value === value), [options, value]);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
 
+  const [portal, setPortal] = useState<{ host: HTMLElement; style: CSSProperties; up: boolean } | null>(null);
+
   const close = useCallback(() => setOpen(false), []);
-  useDismiss(rootRef, open, close);
+  useDismiss(rootRef, open, close, listRef);
+
+  /**
+   * El menú vive en un portal (body, o el <dialog> si el select está en un
+   * modal) para que ningún contenedor con overflow, transform o z-index lo
+   * tape. Se posiciona junto al disparador y se abre hacia arriba si no cabe.
+   */
+  const place = useCallback(() => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+    const host = (trigger.closest("dialog") as HTMLElement | null) ?? document.body;
+    const r = trigger.getBoundingClientRect();
+    const origin = host === document.body ? { top: 0, left: 0 } : host.getBoundingClientRect();
+    const up = r.bottom + 272 > window.innerHeight && r.top > 272;
+    const style: CSSProperties = {
+      position: "fixed",
+      left: r.left - origin.left,
+      width: r.width,
+      minWidth: menuMinWidth,
+      ...(up ? { bottom: (host === document.body ? window.innerHeight : origin.top + host.offsetHeight) - r.top + 6 } : { top: r.bottom - origin.top + 6 }),
+    };
+    setPortal({ host, style, up });
+  }, [menuMinWidth]);
+
+  useEffect(() => {
+    if (!open) return;
+    let raf = 0;
+    const onMove = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(place);
+    };
+    window.addEventListener("scroll", onMove, true);
+    window.addEventListener("resize", onMove);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onMove, true);
+      window.removeEventListener("resize", onMove);
+    };
+  }, [open, place]);
 
   const enabledIndex = (from: number, step: 1 | -1) => {
     for (let i = 1; i <= options.length; i++) {
@@ -88,6 +129,7 @@ export function Select({
 
   function openMenu(at = selectedIndex >= 0 ? selectedIndex : enabledIndex(-1, 1)) {
     if (disabled) return;
+    place();
     setActive(at);
     setOpen(true);
     requestAnimationFrame(() => scrollIntoView(at));
@@ -188,17 +230,18 @@ export function Select({
         />
       </button>
 
-      {mounted ? (
+      {mounted && portal ? createPortal(
         <ul
           ref={listRef}
           id={listId}
           role="listbox"
           tabIndex={-1}
           data-state={state}
-          style={{ minWidth: menuMinWidth }}
+          style={portal.style}
           className={cn(
-            "absolute top-[calc(100%+6px)] left-0 z-40 max-h-64 w-full overflow-auto rounded-xl border border-border bg-surface p-1.5",
-            "origin-top shadow-[0_18px_40px_-20px_rgba(21,32,27,0.45)]",
+            "z-[60] max-h-64 overflow-auto rounded-xl border border-border bg-surface p-1.5 text-ink",
+            portal.up ? "origin-bottom" : "origin-top",
+            "shadow-[0_18px_40px_-20px_rgba(21,32,27,0.45)]",
             "data-[state=open]:animate-[menu-in_220ms_var(--ease-out-soft)_both] data-[state=closed]:animate-[menu-out_160ms_var(--ease-in-out-soft)_both]",
           )}
         >
@@ -239,7 +282,8 @@ export function Select({
               </li>
             );
           })}
-        </ul>
+        </ul>,
+        portal.host,
       ) : null}
     </div>
   );
