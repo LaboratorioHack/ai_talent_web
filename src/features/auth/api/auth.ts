@@ -1,6 +1,5 @@
 "use client";
 
-import type { Provider } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient, supabaseConfigured } from "@/shared/lib/supabase/client";
 import { delay } from "@/shared/mocks";
 import type { LoginInput } from "../schemas/login";
@@ -11,7 +10,6 @@ const MESSAGES: Record<string, string> = {
   invalid_credentials: "Correo o contraseña incorrectos",
   email_not_confirmed: "Confirma tu correo antes de entrar",
   over_request_rate_limit: "Demasiados intentos. Espera un momento",
-  validation_failed: "Proveedor no habilitado todavía",
 };
 
 function humanize(code: string | undefined, fallback: string): string {
@@ -27,15 +25,15 @@ export async function signInWithPassword(input: LoginInput): Promise<AuthResult>
   return { ok: true };
 }
 
-/** OAuth (Google / Microsoft). Vuelve por /auth/callback. */
-export async function signInWithProvider(provider: Extract<Provider, "google" | "azure">, next = "/home"): Promise<AuthResult> {
-  if (!supabaseConfigured) return { ok: false, message: "Proveedor no habilitado en este entorno" };
+/**
+ * Enlace para restablecer la contraseña. Supabase manda el correo y vuelve por
+ * /auth/callback. Por seguridad respondemos igual exista o no la cuenta.
+ */
+export async function requestPasswordReset(email: string): Promise<AuthResult> {
+  if (!supabaseConfigured) return delay({ ok: true }, 600);
   const supabase = createSupabaseBrowserClient();
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
-  });
-  if (error) return { ok: false, message: humanize(error.code, "No se pudo iniciar sesión con el proveedor") };
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/auth/callback?next=/home` });
+  if (error?.code === "over_request_rate_limit" || error?.code === "over_email_send_rate_limit") return { ok: false, message: MESSAGES.over_request_rate_limit };
   return { ok: true };
 }
 
