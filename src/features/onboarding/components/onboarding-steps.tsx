@@ -4,14 +4,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { Steps } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 
-export const ONBOARDING_STEPS = ["Cuenta", "Organización", "Fuentes", "Primera vacante"];
+export const ONBOARDING_STEPS = ["Cuenta", "Organización", "Primera vacante"];
 
-/** Índice del paso según la URL: /onboarding/2 es 1; /onboarding/listo marca los cuatro como hechos. */
+/** Índice del paso según la URL: /onboarding/2 es 1; /onboarding/listo marca los tres como hechos. */
 export function useOnboardingStep(): number {
   const pathname = usePathname();
   const last = pathname.split("/").pop();
   const step = Number(last);
-  return last === "listo" ? 4 : Number.isFinite(step) && step >= 1 && step <= 4 ? step - 1 : 1;
+  return last === "listo" ? 3 : Number.isFinite(step) && step >= 1 && step <= 3 ? step - 1 : 1;
 }
 
 /** Pasos del onboarding; los ya hechos llevan de vuelta a su pantalla (la cuenta no). */
@@ -23,7 +23,7 @@ export function OnboardingSteps() {
       steps={ONBOARDING_STEPS}
       current={current}
       onStepClick={(i) => {
-        if (i >= 1 && i <= 3) router.push(routes.onboarding((i + 1) as 2 | 3 | 4));
+        if (i >= 1 && i <= 2) router.push(routes.onboarding((i + 1) as 2 | 3));
       }}
     />
   );

@@ -4,38 +4,15 @@ import { useEffect } from "react";
 import { ArrowRight, Upload } from "lucide-react";
 import { ButtonLink } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
-import { SOURCES } from "../sources";
 import { useOnboarding } from "../state/onboarding-store";
-import { SourceLogo } from "./source-logo";
 
 /** Fin del onboarding: lo que quedó configurado y el siguiente paso natural. */
 export function DoneStep() {
   const { data, finish } = useOnboarding();
   useEffect(() => finish(), [finish]);
 
-  const chosen = SOURCES.filter((s) => s.id in data.sources);
-  const stateLabel = (id: string) =>
-    data.sources[id] === "connected" ? "Conectada" : data.sources[id] === "later" ? "Pendiente de conectar" : SOURCES.find((s) => s.id === id)?.connect === "none" ? "Lista" : "Pendiente";
-
-  const rows: { label: string; value: React.ReactNode }[] = [
+  const rows: { label: string; value: string }[] = [
     { label: "Organización", value: `${data.organization.name}, ${data.organization.sector.toLowerCase()}, ${data.organization.size} personas` },
-    { label: "Equipo", value: data.invites.length ? `${data.invites.length} ${data.invites.length === 1 ? "invitación enviada" : "invitaciones enviadas"}` : "Solo tú por ahora" },
-    {
-      label: "Fuentes",
-      value: chosen.length ? (
-        <ul className="flex flex-col gap-2">
-          {chosen.map((s) => (
-            <li key={s.id} className="flex items-center gap-2.5">
-              <SourceLogo source={s} size={24} />
-              <span className="flex-1">{s.name}</span>
-              <span className={data.sources[s.id] === "connected" || s.connect === "none" ? "text-success" : "text-ink-3"}>{stateLabel(s.id)}</span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        "Ninguna todavía"
-      ),
-    },
     { label: "Primera vacante", value: data.vacancy ? `${data.vacancy.title}, con ${data.vacancy.requirements} requisitos` : "Sin crear" },
   ];
 

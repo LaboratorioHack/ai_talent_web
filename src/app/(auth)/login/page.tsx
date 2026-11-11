@@ -15,8 +15,8 @@ export default function LoginPage() {
         <div className="flex flex-col gap-7 short:gap-4 shorter:gap-3">
           <Logo />
           <div className="flex flex-col gap-2">
-            <ProgressSegments total={4} current={0} />
-            <p className="eyebrow shorter:hidden">Paso 1 de 4</p>
+            <ProgressSegments total={3} current={0} />
+            <p className="eyebrow shorter:hidden">Paso 1 de 3</p>
           </div>
         </div>
 

@@ -55,7 +55,7 @@ export function LoginForm() {
     <div className="stagger flex flex-col gap-7 short:gap-5 shorter:gap-4 [&>*]:animate-rise">
       <div className="flex flex-col gap-2" style={{ "--i": 0 } as React.CSSProperties}>
         <h1 className="font-head text-[32px] leading-tight short:text-[28px] shorter:text-[26px] font-semibold">Crea tu cuenta o entra</h1>
-        <p className="text-base text-ink-2">Paso 1 de 4. Con tu correo de empresa detectamos la organización.</p>
+        <p className="text-base text-ink-2">Paso 1 de 3. Con tu correo de empresa detectamos la organización.</p>
       </div>
 
       <div className="flex flex-col gap-2.5" style={{ "--i": 1 } as React.CSSProperties}>
