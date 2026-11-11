@@ -25,11 +25,11 @@ export function OrgSwitcher({ user }: { user: CurrentUser }) {
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
-        className="flex items-center gap-2 rounded-md bg-surface-2 py-1.5 pr-2 pl-2 text-[12.5px] font-medium text-ink hover:brightness-95"
+        className="flex h-11 min-w-0 items-center gap-2.5 rounded-full border border-border bg-surface pr-3 pl-3.5 text-[14px] font-medium text-ink shadow-[0_1px_2px_rgba(21,32,27,0.04)] transition-[border-color,box-shadow] duration-300 hover:border-border-strong hover:shadow-[0_6px_16px_-10px_rgba(21,32,27,0.3)]"
       >
-        <span aria-hidden className="size-2 rounded-full bg-amber" />
-        {current.company.name}
-        <ChevronDown aria-hidden className="size-3.5 text-ink-2" />
+        <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-amber" />
+        <span className="truncate">{current.company.name}</span>
+        <ChevronDown aria-hidden className="size-4 text-ink-3" />
       </button>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Cambiar de organización" size="sm">
@@ -59,7 +59,7 @@ export function OrgSwitcher({ user }: { user: CurrentUser }) {
           })}
         </ul>
         <button type="button" className="self-start text-sm text-blue hover:underline" onClick={() => toast({ title: "Crear organización", description: "Disponible después del hackathon." })}>
-          + Crear organización
+          Crear organización
         </button>
       </Modal>
     </>
