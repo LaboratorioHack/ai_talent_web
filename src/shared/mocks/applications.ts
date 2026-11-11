@@ -74,8 +74,8 @@ const danielaResults: RequirementResult[] = [
     result: "MEETS",
     score: 13,
     confidence: 0.9,
-    justification: "Bancolombia Digital cuenta como banca según tus equivalencias.",
-    evidence: [{ id: "e6", citation: "Ingeniera de plataforma en Bancolombia Digital", location: "CV pág. 1, 2022–2025" }],
+    justification: "Banco Altiplano cuenta como banca según tus equivalencias.",
+    evidence: [{ id: "e6", citation: "Ingeniera de plataforma en Banco Altiplano", location: "CV pág. 1, 2022–2025" }],
   },
   { id: "rr7", requirementId: "r-comp", result: "NO_EVIDENCE", score: 0, confidence: 0.97, justification: "Sin indicios de empleador competidor.", evidence: [] },
 ];

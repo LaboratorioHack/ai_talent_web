@@ -16,7 +16,7 @@ const KEY = "criba.onboarding";
 const DONE_KEY = "criba.onboarded";
 
 const initial: OnboardingData = {
-  organization: { name: "Bancolombia Digital", sector: "Banca y finanzas", size: "1.001–5.000" },
+  organization: { name: "Cordillera Financiera", sector: "Banca y finanzas", size: "1.001–5.000" },
   vacancy: null,
 };
 

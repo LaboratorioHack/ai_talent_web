@@ -90,7 +90,7 @@ function Preview({ iv }: { iv: Interview }) {
         <div className="flex items-baseline justify-between text-[13px]">
           <span className="font-medium">Avance</span>
           <span className="text-ink-3 tabular-nums">
-            {answered.length} de {iv.totalQuestions} preguntas{iv.durationMin ? `, ${iv.durationMin} min` : ""}
+            {answered.length} de {iv.totalQuestions} respondidas{iv.durationMin ? `, ${iv.durationMin} min` : ""}
           </span>
         </div>
         <div className="flex gap-1">
@@ -135,7 +135,7 @@ function Preview({ iv }: { iv: Interview }) {
           {iv.status === "IN_PROGRESS" && pendingQuestion ? (
             <div className="flex items-center justify-end gap-2 text-[12.5px] text-blue">
               <Radio aria-hidden className="size-3.5 animate-breathe" />
-              {first} está respondiendo la pregunta {pendingQuestion.order}
+              {first} está respondiendo la pregunta {pendingQuestion.order} de {iv.totalQuestions}
             </div>
           ) : null}
         </section>

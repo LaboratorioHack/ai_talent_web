@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/shared/lib/cn";
 
 export interface PageHeaderProps {
-  /** Rótulo mono en mayúsculas: "VACANTES / NUEVA", "ÚLTIMOS 30 DÍAS · BANCOLOMBIA DIGITAL". */
+  /** Rótulo mono en mayúsculas: "VACANTES / NUEVA", "ÚLTIMOS 30 DÍAS · CORDILLERA FINANCIERA". */
   eyebrow?: ReactNode;
   title: string;
   description?: ReactNode;

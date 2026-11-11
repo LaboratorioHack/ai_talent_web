@@ -205,7 +205,7 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
               <header className="flex items-baseline justify-between">
                 <h2 className="font-head text-[19px] font-semibold">Preguntas</h2>
                 <span className="text-[12.5px] text-ink-3 tabular-nums">
-                  {answered} de {iv.totalQuestions}
+                  {answered} de {iv.totalQuestions} respondidas
                 </span>
               </header>
               <div className="grid grid-cols-9 gap-1.5">
