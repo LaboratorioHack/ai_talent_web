@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, GripVertical, Minus, Plus, Trash2 } from "lucide-react";
+import { GripVertical, Minus, Plus, Trash2 } from "lucide-react";
+import { Select } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 import { REQUIREMENT_TYPE_LABEL, type RequirementDraft } from "../schemas/role-profile";
 
@@ -11,6 +12,12 @@ export interface RequirementRowProps {
   onRemove: () => void;
   index: number;
 }
+
+const TYPE_OPTIONS = [
+  { value: "MANDATORY", label: REQUIREMENT_TYPE_LABEL.MANDATORY, hint: "Sin él no cumple" },
+  { value: "NICE_TO_HAVE", label: REQUIREMENT_TYPE_LABEL.NICE_TO_HAVE, hint: "Suma puntos" },
+  { value: "DISQUALIFYING", label: REQUIREMENT_TYPE_LABEL.DISQUALIFYING, hint: "Descarta al candidato" },
+];
 
 const typeTone: Record<RequirementDraft["type"], string> = {
   MANDATORY: "bg-ink text-ink-inverse",
@@ -54,24 +61,18 @@ export function RequirementRow({ requirement, onChange, onRemove, index }: Requi
         />
       </div>
 
-      <div className={cn("relative flex h-8 w-[150px] shrink-0 items-center rounded-md transition-colors duration-300", typeTone[requirement.type])}>
-        <select
-          value={requirement.type}
-          aria-label="Tipo de requisito"
-          onChange={(e) => {
-            const type = e.target.value as RequirementDraft["type"];
-            onChange({ ...requirement, type, weight: type === "DISQUALIFYING" ? null : (requirement.weight ?? 10) });
-          }}
-          className="h-full w-full appearance-none bg-transparent pr-7 pl-2.5 text-[12.5px] font-medium outline-none"
-        >
-          {(Object.keys(REQUIREMENT_TYPE_LABEL) as RequirementDraft["type"][]).map((t) => (
-            <option key={t} value={t} className="text-ink">
-              {REQUIREMENT_TYPE_LABEL[t]}
-            </option>
-          ))}
-        </select>
-        <ChevronDown aria-hidden className="pointer-events-none absolute right-2.5 size-[13px]" />
-      </div>
+      <Select
+        aria-label="Tipo de requisito"
+        className="w-[150px] shrink-0"
+        menuMinWidth={190}
+        value={requirement.type}
+        options={TYPE_OPTIONS}
+        onChange={(v) => {
+          const type = v as RequirementDraft["type"];
+          onChange({ ...requirement, type, weight: type === "DISQUALIFYING" ? null : (requirement.weight ?? 10) });
+        }}
+        triggerClassName={cn("h-8 w-full rounded-md px-2.5 text-[12.5px] font-medium", typeTone[requirement.type])}
+      />
 
       <div className={cn("flex h-8 w-24 shrink-0 items-center overflow-hidden rounded-md border border-border transition-opacity duration-300", disqualifying && "pointer-events-none opacity-35")}>
         <button type="button" aria-label="Restar peso" onClick={() => setWeight((requirement.weight ?? 0) - 5)} className="flex h-full w-7 items-center justify-center text-ink-2 hover:bg-surface-2">

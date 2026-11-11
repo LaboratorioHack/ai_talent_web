@@ -234,7 +234,7 @@ export function DesignShowcase() {
             label="Motivo"
             placeholder="Elige un motivo"
             value={reason}
-            onChange={(e) => setReason(e.target.value)}
+            onChange={setReason}
             options={[
               { value: "mandatory", label: "No cumple un obligatorio" },
               { value: "disqualifying", label: "Tiene un descalificante" },
