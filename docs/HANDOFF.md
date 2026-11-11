@@ -12,6 +12,21 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 3 | `feat/auth-onboarding` | 2 | lista | Supabase Auth, login, onboarding 2–4, editor de perfil de cargo |
 | 4 | `feat/custom-select` | 3 | lista | Desplegable propio animado; reemplaza todos los `<select>` nativos |
 | 5 | `feat/ui-polish` | 4 | lista | Campos y tarjetas unificados, editor con aire, título fijo, toasts con salida y pila |
+| 6 | `feat/theme-login` | 5 | lista | Tema claro del pen con piezas oscuras (`.dark-scope`), login con panel oscuro |
+| 7 | `feat/onboarding-flow` | 6 | lista | Onboarding completo: organización, fuentes con conexión, primera vacante y pantalla final |
+| 8 | `feat/home-dashboard` | 7 | lista | Inicio con KPIs, embudo, barras por vacante, mejores perfiles y pendientes |
+| 9 | `feat/login-wizard-polish` | 8 | lista | Guardar y salir, pasos con regreso, descripción de la vacante |
+| 10 | `feat/vacancies` | 9 | lista | Lista de vacantes, tablero de pipeline con arrastre, editar y eliminar |
+| 11 | `feat/login-scene` | 10 | lista | Escena centrada del login: fuentes, criba y resultado en bucle |
+| 12 | `feat/login-fixes` | 11 | lista | Login sin scroll en pantallas bajas, menús del onboarding por encima del pie, botones fijos en el modal de fuentes |
+| 13 | `feat/navbar` | 12 | lista | Fuentes Funnel Display, Funnel Sans y Plex Mono; navbar de una fila fija; encabezado de página fijo que se encoge; transiciones entre pantallas; filtros en los gráficos del inicio |
+| 14 | `feat/cv-ingest` | 13 | lista | 07 Ingesta con subida simulada (progreso, lectura, resultado por archivo), carpeta compartida y modal Evaluar |
+| 15 | `feat/rankings` | 14 | lista | 08 Ranking con foco, 12 sin candidatos, 14 evaluando, 15 descartar y los modales de la 16; menús de los selects en portal |
+| 16 | `feat/feedback-polish` | 15 | lista | Buscadores que se ensanchan, búsqueda de la barra en su sitio, tarjetas de vacante con cifras, entrada suave del editor |
+| 17 | `feat/interviews` | 16 | lista | 09 Entrevista con transcripción en vivo simulada, contraste y modales |
+| 18 | `feat/integrations` | 17 | lista | 10 Integraciones con estados, permisos de la IA, registro en vivo y modales de conexión |
+| 19 | `feat/governance` | 18 | lista | 11 Auditoría: cifras, alertas de sesgo, atributos y decisiones |
+| 20 | `feat/people-first` | 19 | lista | Ranking por vacante con sus mejores personas, chat de entrevista, bandeja de entrevistas, `ScrollArea`, panel de lo que falta en la ingesta, navbar que se recoge en un icono |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -76,6 +91,20 @@ Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1
 - **Toasts**: entran y salen animados; al salir su fila se cierra para que la pila se deslice; máximo 3 visibles; pasar el ratón pausa el tiempo; barra fina de tiempo restante.
 - **Select dentro de filas animadas**: la fila con el menú abierto sube de capa (`has-[[aria-expanded=true]]:z-30`), si no las filas siguientes lo tapaban.
 
+## 13 a 20 · Pantallas del prototipo y correcciones
+
+- **Navbar** (`shared/components/layout/navbar.tsx`): una fila fija de 68 px. Al enfocar la búsqueda (clic o Ctrl K) el campo se ensancha en su sitio, las secciones se recogen en un botón con el icono de la sección actual y los resultados salen debajo (`nav-search.tsx`). Avisos y cuenta usan `Popover`.
+- **Encabezado de página** (`PageTop`): fijo bajo la barra; al bajar se encoge y al volver arriba recupera su tamaño. `useStuck` mide el scroll con histéresis y no se encoge si la página es tan corta que entraría en bucle.
+- **Transiciones**: `app/(dashboard)/template.tsx` anima la entrada de cada pantalla sin dejar `transform` al terminar (no rompe sticky ni fixed).
+- **UI nueva en `shared/components/ui`**: `Popover`, `Segmented` (píldora deslizante, contadores en pastilla), `AnimatedNumber`, `ScrollArea` (barra propia arrastrable con bordes difuminados), `Modal size="lg"`. `SearchField` se ensancha al enfocarse y vuelve al perder el foco o al hacer scroll. Los menús de `Select` viven en un portal (body o el `<dialog>`), así nada los tapa.
+- **Inicio**: filtros de período y vacante que recalculan cifras, tendencia diaria con guía al pasar el ratón, embudo con cifras centradas y barras por vacante con el número dentro de cada tramo. Subtítulo con saludo y una pregunta al azar.
+- **07 Ingesta** (`features/cv-upload`): `useIngest` simula subida, lectura y resultado según el archivo (PDF, Word o fotos se leen; comprimidos se rechazan; "carta" no es hoja de vida; "scan" queda ilegible; nombres repetidos son duplicados). Panel "Qué falta resolver" con acciones en lote (pedir originales, quitar duplicadas o rechazadas) y barra inferior para evaluar.
+- **08 Ranking** (`features/rankings`): portada por vacante con sus tres mejores personas y sus citas; ranking de la vacante con lista, foco, composición del puntaje, evidencia por requisito y modales (invitar, invitación enviada, descartar con motivo, error de la IA, equivalencias, hoja de vida anotada). `?evaluando=N` muestra la pantalla 14; una vacante sin hojas de vida, la 12.
+- **09 Entrevistas** (`features/interviews`): bandeja (en vivo, para decidir, esperando) con vista previa; la entrevista es un chat centrado que abre al final y recibe respuestas en vivo simuladas. Programar con el equipo, descargar transcripción (.txt) y descartar.
+- **10 Integraciones** (`features/integrations`): logos oficiales, estados (conectado, error, sin conectar, pausado), sincronizar, reautorizar, conectar con clave, añadir del catálogo, permisos de la IA y registro que crece con cada acción.
+- **11 Gobierno** (`features/governance`): cifras por período, alertas de sesgo con revisión, atributos agrupados y decisiones como línea de tiempo por día con filtro por persona, ambos con `ScrollArea`. Exporta CSV.
+- **Servidor de desarrollo**: si los estilos no cambian, borrar `.next/dev` y `.next/cache` y reiniciar `pnpm dev`; Turbopack a veces sirve CSS viejo.
+
 ## Landing (repo aparte `ai_talent_landing`)
 
 Astro 7 + Tailwind v4, estática y en oscuro (tinta verde de la marca, resaltador ámbar; nada espacial). Repo git **local** (sin remoto todavía): `main` tiene el andamiaje y `feat/landing` todo lo demás. Hay que crear el repo en GitHub y empujar ambas ramas. Detalle en su `README.md`.
@@ -89,7 +118,8 @@ Astro 7 + Tailwind v4, estática y en oscuro (tinta verde de la marca, resaltado
 
 ## Pendiente
 
-- Pantallas de Santiago sobre este stack: 05 tablero, 06 perfil (reusar `RoleProfileEditor`), 07 ingesta, 08 ranking, 09 entrevista, 10 integraciones, 11 auditoría.
+- Conectar las `api/` de cada feature a los endpoints reales cuando existan (cada función indica su ruta en el comentario).
+- La landing sigue con Bricolage e Instrument; si se quiere la misma tipografía que la app, cambiar a Funnel Display y Funnel Sans.
 - Anon key de Supabase en `.env.local` (`NEXT_PUBLIC_SUPABASE_ANON_KEY`); hoy está vacía y la app corre en modo mock.
 - Proveedores OAuth en `supabase/config.toml` si se quieren los botones Google / Microsoft.
 - Tests: el CI corre `pnpm test --if-present` y aún no hay runner configurado.
