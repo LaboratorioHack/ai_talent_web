@@ -8,6 +8,7 @@ import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button, TextField, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { signInWithPassword, signInWithProvider } from "../api/auth";
+import { hasFinishedOnboarding } from "@/features/onboarding/state/onboarding-store";
 import { loginSchema, organizationFromEmail, type LoginInput } from "../schemas/login";
 import { ProviderButton } from "./provider-button";
 
@@ -17,7 +18,7 @@ export function LoginForm() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [providerLoading, setProviderLoading] = useState<"google" | "azure" | null>(null);
-  const next = params.get("next") ?? routes.home;
+  const requested = params.get("next");
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -36,13 +37,14 @@ export function LoginForm() {
       return;
     }
     toast({ title: "Bienvenida de vuelta", description: org ? `Entrando a ${org}` : undefined, duration: 2500 });
-    router.push(next);
+    // Una cuenta nueva sigue con el onboarding; una que ya lo terminó va a donde iba o al panel.
+    router.push(hasFinishedOnboarding() ? (requested ?? routes.home) : routes.onboarding(2));
     router.refresh();
   }
 
   async function onProvider(provider: "google" | "azure") {
     setProviderLoading(provider);
-    const result = await signInWithProvider(provider, next);
+    const result = await signInWithProvider(provider, requested ?? routes.onboarding(2));
     if (!result.ok) {
       toast({ tone: "error", title: result.message });
       setProviderLoading(null);
