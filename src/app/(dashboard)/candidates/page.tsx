@@ -1,20 +1,38 @@
 import type { Metadata } from "next";
-import { PageBody, PageHeader } from "@/shared/components/layout";
-import { ButtonLink, EmptyState } from "@/shared/components/ui";
-import { routes } from "@/shared/constants/routes";
+import { Suspense } from "react";
+import { Skeleton } from "@/shared/components/ui";
+import { getIngest } from "@/features/cv-upload/api/ingest";
+import { IngestView } from "@/features/cv-upload/components/ingest-view";
 
-export const metadata: Metadata = { title: "Candidatos" };
+export const metadata: Metadata = { title: "Hojas de vida" };
 
-export default function CandidatesPage() {
+async function Ingest({ searchParams }: { searchParams: Promise<{ job?: string | string[] }> }) {
+  const { job } = await searchParams;
+  const data = await getIngest(typeof job === "string" ? job : undefined);
+  return <IngestView key={data.job.id} data={data} />;
+}
+
+function IngestSkeleton() {
   return (
-    <PageBody>
-      <PageHeader eyebrow="TODAS LAS VACANTES" title="Hojas de vida" />
-      <EmptyState
-        title="Todavía no hay candidatos"
-        description="Sube hojas de vida o conecta tu ATS para empezar."
-        action={<ButtonLink href={routes.candidates}>Subir hojas de vida</ButtonLink>}
-        className="w-[480px] animate-rise"
-      />
-    </PageBody>
+    <div className="flex flex-col" aria-busy>
+      <div className="border-b border-border bg-surface px-12 pt-6 pb-5">
+        <Skeleton className="h-4 w-56" />
+        <Skeleton className="mt-3 h-8 w-64" />
+      </div>
+      <div className="flex flex-col gap-6 px-12 pt-7">
+        <Skeleton className="h-[182px] rounded-2xl" />
+        <Skeleton className="h-[86px] rounded-2xl" />
+        <Skeleton className="h-[420px] rounded-2xl" />
+      </div>
+    </div>
+  );
+}
+
+/** Pantalla 07 · Candidatos · Ingesta. La vacante llega por ?job=. */
+export default function CandidatesPage({ searchParams }: PageProps<"/candidates">) {
+  return (
+    <Suspense fallback={<IngestSkeleton />}>
+      <Ingest searchParams={searchParams} />
+    </Suspense>
   );
 }
