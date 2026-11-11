@@ -24,7 +24,7 @@ export function ScoringSidebar({ requirements, autoInterview, onAutoInterviewCha
   const ok = total === 100;
 
   return (
-    <aside className="sticky top-0 flex h-dvh w-[380px] shrink-0 flex-col gap-8 self-start overflow-y-auto overscroll-contain border-l border-border px-9 pt-10 pb-12">
+    <aside className="sticky top-[var(--app-header,0px)] flex h-[calc(100dvh-var(--app-header,0px))] w-[380px] shrink-0 flex-col gap-8 self-start overflow-y-auto overscroll-contain border-l border-border px-9 pt-10 pb-12">
       <h2 className="font-head text-[22px] font-semibold">Cómo se puntúa</h2>
 
       <div className="flex flex-col gap-2.5">
@@ -38,7 +38,7 @@ export function ScoringSidebar({ requirements, autoInterview, onAutoInterviewCha
           {weighted.map((r) => (
             <div
               key={r.id}
-              title={`${r.description} · ${r.weight}`}
+              title={`${r.description}: ${r.weight}`}
               className={cn("h-full rounded-sm transition-[flex-basis] duration-500 ease-[var(--ease-out-soft)]", r.type === "MANDATORY" ? "bg-ink" : "bg-ink-3")}
               style={{ flexBasis: `${r.weight}%` }}
             />
@@ -67,7 +67,7 @@ export function ScoringSidebar({ requirements, autoInterview, onAutoInterviewCha
       <div className="flex flex-col gap-5 border-t border-border pt-7">
         <p className="eyebrow">Opciones</p>
         <Toggle checked={autoInterview} onChange={onAutoInterviewChange} label="Entrevista IA automática" description="A quien cumpla el perfil se le envía el enlace" />
-        <Toggle checked onChange={() => undefined} disabled label="Ignorar foto y datos personales" description="Fijo por política · no se puede cambiar" className="opacity-60" />
+        <Toggle checked onChange={() => undefined} disabled label="Ignorar foto y datos personales" description="Fijo por política, no se puede cambiar" className="opacity-60" />
       </div>
     </aside>
   );

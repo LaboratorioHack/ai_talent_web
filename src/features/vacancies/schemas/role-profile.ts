@@ -18,6 +18,7 @@ export const requirementDraftSchema = z.object({
 export const roleProfileDraftSchema = z
   .object({
     title: z.string().trim().min(1, "Ponle nombre a la vacante").max(80, "Máximo 80 caracteres"),
+    description: z.string().max(4000, "Máximo 4.000 caracteres"),
     area: z.string().min(1, "Elige un área"),
     closesAt: z.string().min(1, "Elige la fecha de cierre"),
     openings: z.number().int().min(1).max(50),

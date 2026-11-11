@@ -2,13 +2,14 @@
 
 import { useId, useState, type ReactNode } from "react";
 import { Plus, Sparkles } from "lucide-react";
-import { Button, DateField, NumberField, SelectField, TextField } from "@/shared/components/ui";
+import { Button, DateField, NumberField, SelectField, TextArea, TextField, useToast } from "@/shared/components/ui";
 import { useStuck } from "@/shared/hooks/use-stuck";
 import { useToday } from "@/shared/hooks/use-today";
 import { cn } from "@/shared/lib/cn";
 import { formatShortDate, fromISODate, toISODate } from "@/shared/lib/dates";
 import { mockAreas } from "@/shared/mocks";
 import { roleProfileDraftSchema, type RequirementDraft, type RoleProfileDraft } from "../schemas/role-profile";
+import { proposeRequirements } from "../api/role-profiles";
 import { RequirementRow } from "./requirement-row";
 import { ScoringSidebar } from "./scoring-sidebar";
 
@@ -33,7 +34,27 @@ export function emptyRequirement(type: RequirementDraft["type"] = "MANDATORY"): 
 export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLabel = "Guardar borrador", evaluateLabel = "Evaluar" }: RoleProfileEditorProps) {
   const [draft, setDraft] = useState<RoleProfileDraft>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [busy, setBusy] = useState<"save" | "evaluate" | null>(null);
+  const [busy, setBusy] = useState<"save" | "evaluate" | "propose" | null>(null);
+  const { toast } = useToast();
+  const descriptionId = useId();
+
+  async function propose() {
+    if (draft.description.trim().length < 40) {
+      toast({ tone: "error", title: "Falta la descripción", description: "Escribe o pega la descripción del cargo y Criba propone los requisitos." });
+      document.getElementById(descriptionId)?.querySelector("textarea")?.focus();
+      return;
+    }
+    setBusy("propose");
+    try {
+      const suggested = await proposeRequirements(draft.description);
+      const known = new Set(draft.requirements.map((r) => r.description.toLowerCase()));
+      const fresh = suggested.filter((r) => !known.has(r.description.toLowerCase()));
+      setDraft((d) => ({ ...d, requirements: [...d.requirements, ...fresh] }));
+      toast({ title: fresh.length ? `Criba propuso ${fresh.length} requisitos` : "No hay requisitos nuevos que proponer", description: fresh.length ? "Revisa su tipo y su peso antes de guardar." : undefined });
+    } finally {
+      setBusy(null);
+    }
+  }
   const headingId = useId();
   const { sentinel, stuck } = useStuck();
   const today = useToday();
@@ -73,7 +94,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
       <section className="flex min-w-0 flex-1 flex-col gap-6 px-10 pt-10 pb-12 xl:px-14" aria-labelledby={headingId}>
         <div ref={sentinel} aria-hidden className="-mb-6 h-px" />
         {/* Al pegarse se vuelve una barra flotante, separada de los bordes. */}
-        <header data-stuck={stuck} className={cn("sticky z-20 transition-[top] duration-500 ease-[var(--ease-out-soft)]", stuck ? "top-3" : "top-0")}>
+        <header data-stuck={stuck} className={cn("sticky z-20 transition-[top] duration-500 ease-[var(--ease-out-soft)]", stuck ? "top-[calc(var(--app-header,0px)+12px)]" : "top-[var(--app-header,0px)]")}>
           <div
             className={cn(
               "flex flex-wrap justify-between gap-6 rounded-2xl border",
@@ -99,7 +120,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
                 stuck ? "max-h-5 opacity-100" : "max-h-0 opacity-0",
               )}
             >
-              {[draft.area, closesLabel && `cierra ${closesLabel}`, `${draft.requirements.length} requisitos`].filter(Boolean).join(" · ")}
+              {closesLabel ? `Cierra el ${closesLabel} y tiene ${draft.requirements.length} requisitos` : `${draft.requirements.length} requisitos`}
             </p>
           </div>
           <div className="flex gap-2">
@@ -122,6 +143,18 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
             <SelectField label="Área" value={draft.area} placeholder="Elige un área" onChange={(area) => patch({ area })} error={errors.area} options={mockAreas.map((a) => ({ value: a, label: a }))} />
             <DateField label="Cierre de postulaciones" value={fromISODate(draft.closesAt)} minDate={today ?? undefined} onChange={(d) => patch({ closesAt: toISODate(d) })} error={errors.closesAt} help="Solo fechas futuras" />
             <NumberField label="Número de vacantes" value={draft.openings} min={1} max={50} onChange={(n) => patch({ openings: n })} help="Personas a contratar" />
+            <div id={descriptionId} className="md:col-span-2">
+              <TextArea
+                label="Descripción del cargo"
+                placeholder="Qué hará la persona, con quién trabajará y qué necesita saber. Puedes pegar la oferta tal como la publicas."
+                value={draft.description}
+                maxLength={4000}
+                error={errors.description}
+                kind={`${draft.description.length} / 4000`}
+                help="Criba la usa para proponer requisitos y para preparar la entrevista"
+                onChange={(e) => patch({ description: e.target.value })}
+              />
+            </div>
           </div>
         </section>
 
@@ -129,7 +162,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
           <header className="flex items-baseline justify-between gap-4 px-7 pt-6 pb-4">
             <h2 className="text-[15px] font-semibold">Requisitos</h2>
             <span className="font-mono text-[11px] text-ink-3">
-              {draft.requirements.length} en total · {mandatory} obligatorios
+              {draft.requirements.length} en total, {mandatory} obligatorios
             </span>
           </header>
           <div className="flex items-center gap-4 border-y border-border bg-bg/60 px-7 py-2.5 font-mono text-[10.5px] tracking-wide text-ink-3 uppercase">
@@ -160,10 +193,9 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
               <Plus aria-hidden className="size-3.5" />
               Añadir requisito
             </button>
-            <button type="button" className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-[13px] text-ink-3 transition-colors duration-300 hover:bg-surface-2 hover:text-ink" title="Disponible cuando el AI Engine exponga el endpoint">
-              <Sparkles aria-hidden className="size-3.5" />
-              Proponer requisitos desde la descripción del cargo
-            </button>
+            <Button variant="text" size="sm" icon={<Sparkles />} loading={busy === "propose"} disabled={busy !== null && busy !== "propose"} onClick={propose}>
+              Proponer requisitos desde la descripción
+            </Button>
           </div>
         </section>
       </section>
