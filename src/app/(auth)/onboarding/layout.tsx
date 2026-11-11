@@ -16,17 +16,19 @@ export default function OnboardingLayout({ children }: { children: ReactNode }) 
     <OnboardingProvider>
       {/* --app-header: alto de la barra fija; los encabezados sticky de las pantallas se pegan debajo. */}
       <div className="flex flex-1 flex-col [--app-header:64px]">
-        <header className="sticky top-0 z-30 grid h-16 grid-cols-[1fr_auto_1fr] items-center bg-bg/85 px-12 backdrop-blur-md">
+        <header className="sticky top-0 z-30 grid h-16 grid-cols-[auto_1fr] items-center lg:grid-cols-[1fr_auto_1fr] bg-bg/85 px-4 sm:px-6 lg:px-12 backdrop-blur-md">
           <Link href={routes.home} aria-label="Inicio" className="justify-self-start">
             <Logo />
           </Link>
-          <OnboardingSteps />
+          <div className="hidden lg:block">
+            <OnboardingSteps />
+          </div>
           <div className="justify-self-end">
             <SaveAndExit />
           </div>
           <OnboardingProgress />
         </header>
-        <main className="flex flex-1 flex-col">{children}</main>
+        <main className="flex flex-1 flex-col overflow-x-clip">{children}</main>
       </div>
     </OnboardingProvider>
   );

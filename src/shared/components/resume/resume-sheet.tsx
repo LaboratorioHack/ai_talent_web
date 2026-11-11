@@ -38,7 +38,7 @@ export function ResumeSheet({ doc, annotated = false, score, reveal = false, com
       <span aria-hidden className="absolute top-0 right-0 size-8 rounded-bl-[3px] bg-[linear-gradient(225deg,var(--bg)_50%,#ddd6c6_50%,#f0ebe0_100%)] shadow-[-3px_3px_6px_-2px_rgba(0,0,0,0.25)]" />
       {annotated ? <span aria-hidden className="absolute inset-y-0 right-[230px] hidden border-l border-dashed border-border md:block" /> : null}
 
-      <div className={cn(compact ? "px-8 pt-8 pb-9" : "px-10 pt-11 pb-12 sm:px-14", annotated && "md:pr-0")}>
+      <div className={cn(compact ? "px-8 pt-8 pb-9" : "px-4 sm:px-6 lg:px-10 pt-11 pb-12 sm:px-14", annotated && "md:pr-0")}>
         <header className={cn("grid gap-4 pb-2", annotated && "md:grid-cols-[1fr_230px]")}>
           <div className="flex flex-col items-center text-center">
             <p className={cn("leading-tight font-bold tracking-wide", compact ? "text-[22px]" : "text-[26px]")}>{doc.name}</p>
