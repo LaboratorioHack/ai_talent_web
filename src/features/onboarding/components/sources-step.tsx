@@ -2,45 +2,44 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Briefcase, Check, Folder, Upload, UserSearch, type LucideIcon } from "lucide-react";
-import { Button } from "@/shared/components/ui";
+import { ArrowLeft, Check } from "lucide-react";
+import { Button, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
+import { SOURCES, sourceById, type SourceDef } from "../sources";
+import { useOnboarding } from "../state/onboarding-store";
+import { ConnectSourceModal } from "./connect-source-modal";
+import { SourceLogo } from "./source-logo";
 import { StepFrame } from "./step-frame";
 
-interface Source {
-  id: string;
-  name: string;
-  detail: string;
-  icon: LucideIcon;
-}
-
-const SOURCES: Source[] = [
-  { id: "upload", name: "Subir archivos", detail: "PDF, DOCX, imágenes o escaneos, con cualquier estructura de CV", icon: Upload },
-  { id: "greenhouse", name: "Greenhouse", detail: "Importa postulantes de tus vacantes abiertas", icon: Briefcase },
-  { id: "lever", name: "Lever", detail: "Sincroniza candidatos y etapas", icon: Briefcase },
-  { id: "linkedin", name: "LinkedIn Recruiter", detail: "Vía MCP · solo perfiles que te autorizaron", icon: UserSearch },
-  { id: "drive", name: "Carpeta compartida", detail: "Google Drive o SharePoint", icon: Folder },
-];
-
-/** Pantalla 03 · Onboarding · Paso 3 Fuentes. */
+/** Pantalla 03 · Onboarding · Paso 3 Fuentes. Al continuar, conecta las que lo necesitan. */
 export function SourcesStep() {
   const router = useRouter();
-  const [selected, setSelected] = useState<Set<string>>(() => new Set(["upload", "greenhouse"]));
+  const { toast } = useToast();
+  const { data, setSource } = useOnboarding();
+  const [connecting, setConnecting] = useState<SourceDef | null>(null);
 
-  const toggle = (id: string) =>
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const pending = (skip?: string) => SOURCES.filter((s) => s.id !== skip && data.sources[s.id] === "selected" && s.connect !== "none");
+
+  function toggle(id: string) {
+    setSource(id, id in data.sources ? null : "selected");
+  }
+
+  /** Abre la siguiente fuente por conectar o pasa al paso 4. */
+  function next(justHandled?: string) {
+    const queue = pending(justHandled);
+    if (queue.length > 0) setConnecting(queue[0]);
+    else {
+      setConnecting(null);
+      router.push(routes.onboarding(4));
+    }
+  }
 
   return (
     <StepFrame
       step={3}
       title="¿De dónde llegan las hojas de vida?"
-      description="Elige una o varias. Puedes cambiarlo después en Integraciones."
+      description="Elige una o varias. Las que necesiten permiso te las pedimos al continuar."
       width={780}
       bare
       footer={
@@ -52,17 +51,17 @@ export function SourcesStep() {
             <button type="button" onClick={() => router.push(routes.onboarding(4))} className="text-sm text-ink-2 transition-colors hover:text-ink">
               Omitir por ahora
             </button>
-            <Button disabled={selected.size === 0} onClick={() => router.push(routes.onboarding(4))}>
+            <Button disabled={Object.keys(data.sources).length === 0} onClick={() => next()}>
               Continuar
             </Button>
           </div>
         </>
       }
     >
-      <div className="stagger grid grid-cols-2 gap-3 [&>*]:animate-rise" role="group" aria-label="Fuentes">
+      <div className="stagger grid grid-cols-1 gap-3 sm:grid-cols-2 [&>*]:animate-rise" role="group" aria-label="Fuentes">
         {SOURCES.map((source, i) => {
-          const on = selected.has(source.id);
-          const Icon = source.icon;
+          const state = data.sources[source.id];
+          const on = state !== undefined;
           return (
             <button
               key={source.id}
@@ -72,23 +71,24 @@ export function SourcesStep() {
               onClick={() => toggle(source.id)}
               style={{ "--i": i } as React.CSSProperties}
               className={cn(
-                "flex items-center gap-3.5 rounded-lg border p-[18px] text-left transition-[border-color,background-color,transform,box-shadow] duration-300 ease-[var(--ease-out-soft)]",
-                "hover:-translate-y-0.5 hover:shadow-[0_18px_36px_-20px_rgba(0,0,0,0.8)]",
-                on ? "border-amber/60 bg-surface" : "border-border bg-transparent",
+                "flex items-center gap-3.5 rounded-xl border bg-surface p-4 text-left transition-[border-color,transform,box-shadow] duration-300 ease-[var(--ease-out-soft)]",
+                "hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-20px_rgba(21,32,27,0.5)]",
+                on ? "border-ink" : "border-border",
+                i === 0 && "sm:col-span-2",
               )}
             >
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-surface-2">
-                <Icon aria-hidden className="size-[18px]" />
-              </span>
-              <span className="flex min-w-0 flex-1 flex-col gap-1">
+              <SourceLogo source={source} className={cn("transition-[filter,opacity] duration-500", !on && "opacity-70 grayscale")} />
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="text-md font-medium">{source.name}</span>
                 <span className="text-[12.5px] text-ink-2">{source.detail}</span>
               </span>
+              {state === "connected" ? <span className="rounded-full bg-success-soft px-2 py-0.5 text-[11px] font-medium text-success">Conectada</span> : null}
+              {state === "later" ? <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[11px] text-ink-2">Más tarde</span> : null}
               <span
                 aria-hidden
                 className={cn(
                   "flex size-[22px] shrink-0 items-center justify-center rounded-full border transition-[background-color,border-color,transform] duration-300 ease-[var(--ease-spring)]",
-                  on ? "scale-100 border-amber bg-amber text-ink-inverse" : "scale-90 border-border-strong",
+                  on ? "scale-100 border-ink bg-ink text-ink-inverse" : "scale-90 border-border-strong",
                 )}
               >
                 <Check className={cn("size-3 transition-opacity duration-200", on ? "opacity-100" : "opacity-0")} />
@@ -97,6 +97,20 @@ export function SourcesStep() {
           );
         })}
       </div>
+
+      <ConnectSourceModal
+        source={connecting}
+        onClose={() => setConnecting(null)}
+        onConnected={(id) => {
+          setSource(id, "connected");
+          toast({ title: `${sourceById(id)?.name} conectada`, description: "Las hojas de vida nuevas llegarán solas a tus vacantes." });
+          next(id);
+        }}
+        onLater={(id) => {
+          setSource(id, "later");
+          next(id);
+        }}
+      />
     </StepFrame>
   );
 }
