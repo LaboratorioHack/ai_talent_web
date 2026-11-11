@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Plus } from "lucide-react";
-import { PageBody, PageHeader } from "@/shared/components/layout";
+import { PageTop } from "@/shared/components/layout";
 import { ButtonLink, Skeleton } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { listVacancies } from "@/features/vacancies/api/vacancies";
@@ -27,11 +27,21 @@ function VacanciesSkeleton() {
 /** Lista de vacantes de la organización. */
 export default function VacanciesPage() {
   return (
-    <PageBody>
-      <PageHeader title="Vacantes" description="Cada vacante tiene su perfil de cargo, sus hojas de vida y su ranking." actions={<ButtonLink href={routes.newVacancy} icon={<Plus />}>Nueva vacante</ButtonLink>} />
-      <Suspense fallback={<VacanciesSkeleton />}>
-        <Vacancies />
-      </Suspense>
-    </PageBody>
+    <div className="flex flex-1 flex-col">
+      <PageTop
+        title="Vacantes"
+        description="Cada vacante tiene su perfil de cargo, sus hojas de vida y su ranking."
+        actions={
+          <ButtonLink href={routes.newVacancy} icon={<Plus />}>
+            Nueva vacante
+          </ButtonLink>
+        }
+      />
+      <div className="flex flex-col px-12 pt-7 pb-14">
+        <Suspense fallback={<VacanciesSkeleton />}>
+          <Vacancies />
+        </Suspense>
+      </div>
+    </div>
   );
 }
