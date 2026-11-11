@@ -19,3 +19,4 @@ export { ToastProvider, useToast, type ToastInput } from "./toast";
 export { ScoreRing } from "./score-ring";
 export { Skeleton } from "./skeleton";
 export { Tooltip } from "./tooltip";
+export { TextArea } from "./text-area";
