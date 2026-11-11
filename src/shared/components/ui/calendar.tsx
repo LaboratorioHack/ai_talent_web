@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
+import { useToday } from "@/shared/hooks/use-today";
 import { addMonths, formatMonthYear, isSameDay, monthGrid, startOfDay, WEEKDAYS_ES } from "@/shared/lib/dates";
 
 export interface CalendarProps {
@@ -17,23 +18,26 @@ export interface CalendarProps {
 
 /** Calendario mensual, semana que empieza en lunes. */
 export function Calendar({ value, onChange, minDate, maxDate, note = "Las fechas pasadas no se pueden elegir", className }: CalendarProps) {
-  const today = startOfDay(new Date());
-  const [month, setMonth] = useState<Date>(() => addMonths(value ?? today, 0));
+  const today = useToday();
+  const [monthOverride, setMonth] = useState<Date | null>(null);
+  const month = monthOverride ?? (value ? addMonths(value, 0) : today ? addMonths(today, 0) : null);
   const min = minDate ? startOfDay(minDate) : null;
   const max = maxDate ? startOfDay(maxDate) : null;
 
   const isDisabled = (d: Date) => (min !== null && d < min) || (max !== null && d > max);
 
+  if (!month) return <div className={cn("h-[332px] w-[300px] rounded-lg border border-border bg-surface animate-breathe", className)} aria-busy />;
+
   return (
     <div className={cn("flex w-[300px] flex-col gap-3 rounded-lg border border-border bg-surface p-4", className)}>
       <div className="flex items-center justify-between">
-        <button type="button" aria-label="Mes anterior" onClick={() => setMonth((m) => addMonths(m, -1))} className="rounded p-1 text-ink-2 hover:bg-surface-2">
+        <button type="button" aria-label="Mes anterior" onClick={() => setMonth(addMonths(month, -1))} className="rounded p-1 text-ink-2 hover:bg-surface-2">
           <ChevronLeft aria-hidden className="size-4" />
         </button>
         <span className="text-[13.5px] font-medium" aria-live="polite">
           {formatMonthYear(month)}
         </span>
-        <button type="button" aria-label="Mes siguiente" onClick={() => setMonth((m) => addMonths(m, 1))} className="rounded p-1 text-ink-2 hover:bg-surface-2">
+        <button type="button" aria-label="Mes siguiente" onClick={() => setMonth(addMonths(month, 1))} className="rounded p-1 text-ink-2 hover:bg-surface-2">
           <ChevronRight aria-hidden className="size-4" />
         </button>
       </div>
@@ -53,7 +57,7 @@ export function Calendar({ value, onChange, minDate, maxDate, note = "Las fechas
               if (!day) return <span key={di} aria-hidden className="size-8" />;
               const selected = value ? isSameDay(day, value) : false;
               const disabled = isDisabled(day);
-              const isToday = isSameDay(day, today);
+              const isToday = today ? isSameDay(day, today) : false;
               return (
                 <button
                   key={di}
