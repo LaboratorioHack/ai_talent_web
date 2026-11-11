@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Moon, Sun, Sunset } from "lucide-react";
 
 /** Preguntas para abrir el día. Se elige una al azar cada vez que se entra al inicio. */
 const QUESTIONS = [
@@ -16,10 +17,20 @@ const QUESTIONS = [
   "¿Qué decisión destrabamos hoy?",
 ];
 
-function pick() {
+type Moment = "day" | "evening" | "night";
+
+function pick(): { moment: Moment; text: string } {
   const h = new Date().getHours();
+  const moment: Moment = h >= 6 && h < 17 ? "day" : h >= 17 && h < 19 ? "evening" : "night";
   const greeting = h >= 5 && h < 12 ? "Buenos días" : h >= 12 && h < 19 ? "Buenas tardes" : "Buenas noches";
-  return `${greeting}. ${QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)]}`;
+  return { moment, text: `${greeting}. ${QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)]}` };
+}
+
+/** Sol que gira despacio de día, atardecer que sube y baja, luna que se mece de noche. */
+function SkyIcon({ moment }: { moment: Moment }) {
+  if (moment === "night") return <Moon aria-hidden className="size-4 text-blue animate-[moon-rock_5s_var(--ease-in-out-soft)_infinite]" />;
+  if (moment === "evening") return <Sunset aria-hidden className="size-4 text-warning animate-[sun-dip_4s_var(--ease-in-out-soft)_infinite]" />;
+  return <Sun aria-hidden className="size-4 text-amber animate-[spin_18s_linear_infinite]" />;
 }
 
 /**
@@ -28,10 +39,21 @@ function pick() {
  * cambia en cada visita a la pantalla.
  */
 export function DailyQuestion() {
-  const [text, setText] = useState("");
+  const [state, setState] = useState<{ moment: Moment; text: string } | null>(null);
   useEffect(() => {
-    const t = window.setTimeout(() => setText(pick()), 0);
+    const t = window.setTimeout(() => setState(pick()), 0);
     return () => window.clearTimeout(t);
   }, []);
-  return <span className="block min-h-[1.4em]">{text ? <span className="animate-fade-in">{text}</span> : " "}</span>;
+  return (
+    <span className="flex min-h-[1.4em] items-center">
+      {state ? (
+        <span className="flex items-center gap-2 animate-fade-in">
+          <SkyIcon moment={state.moment} />
+          {state.text}
+        </span>
+      ) : (
+        " "
+      )}
+    </span>
+  );
 }

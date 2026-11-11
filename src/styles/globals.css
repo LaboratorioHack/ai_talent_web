@@ -675,3 +675,23 @@
     transform: scale(1.35);
   }
 }
+
+/* Saludo del inicio: la luna se mece y el atardecer sube y baja apenas. */
+@keyframes moon-rock {
+  0%,
+  100% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+}
+@keyframes sun-dip {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(1.5px);
+  }
+}
