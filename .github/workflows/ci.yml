@@ -1,0 +1,53 @@
+# CI = quality gate. Runs ONLY on pull requests. Never builds images or deploys.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4 # version taken from package.json "packageManager"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test --if-present
+      - run: pnpm build
+
+  # OWASP A03 (Software Supply Chain): fail PRs that add vulnerable dependencies.
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Needs GitHub Advanced Security on private repos -> only runs when the repo is public.
+      - uses: actions/dependency-review-action@v4
+        if: ${{ !github.event.repository.private }}
+        with:
+          fail-on-severity: high
+      - uses: pnpm/action-setup@v4
+      - run: pnpm audit --prod --audit-level high
+
+  # Single required status check for branch protection.
+  ci-ok:
+    if: always()
+    needs: [quality, security]
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            exit 1
+          fi
