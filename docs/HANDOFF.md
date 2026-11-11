@@ -35,6 +35,7 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 26 | `feat/floating-headers` | 25 | lista | Encabezados de página como tarjetas flotantes redondeadas, icono dibujado del momento del día en el saludo, gradiente verde del modo oscuro |
 | 27 | `fix/theme-switch` | 26 | lista | Barrido circular del tema con la perilla deslizándose aparte (`view-transition-name`), sol y luna dibujados; las transiciones con `transform` también animan `translate`, `scale` y `rotate` (Tailwind v4 los usa por separado) |
 | 28 | `feat/responsive` | 27 | lista | Toda la app en celular y tablet: menú propio en el navbar, búsqueda a ancho completo, márgenes 16/24/48 px, paneles de dos columnas que se apilan, tablero con columnas que se desplazan, tablas que pasan a filas |
+| 29 | `feat/mvp-scope` | 28 | lista | Ajuste al documento de alcance del MVP: onboarding sin Fuentes, sin integraciones ni cambio de organización, login sin OAuth, canales empresa/candidato, datos coherentes y páginas del candidato |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -115,9 +116,29 @@ Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1
 - **Transiciones de movimiento**: Tailwind v4 mueve con las propiedades `translate`, `scale` y `rotate`, no con `transform`. Una lista arbitraria como `transition-[transform,...]` debe incluirlas o el movimiento salta de golpe.
 - **Servidor de desarrollo**: si los estilos no cambian, borrar `.next/dev` y `.next/cache` y reiniciar `pnpm dev`; Turbopack a veces sirve CSS viejo.
 
+
+## 29 · `feat/mvp-scope` (documento de alcance del MVP, 11/11)
+
+Fuente: `AI-Talent-Scout-MVP.docx` (borrador 0.1). Lo marcado como **Fuera** se quitó; lo **Por confirmar** se dejó construido pero fácil de retirar.
+
+- **Onboarding en 3 pasos**: Cuenta (login), Organización (nombre, sector, tamaño) y Primera vacante. Sin el paso Fuentes ni "Invita a tu equipo". `/onboarding/1` redirige al login (antes daba 404). Rutas: `routes.onboarding(2 | 3)`.
+- **Fuera del MVP**: `features/integrations`, `/integrations` y su pestaña; el selector de organización (ahora `OrgBadge`, solo el nombre); "Conectar carpeta compartida" en la ingesta; botones Google / Microsoft del login. Los avisos y pendientes ya no hablan de tokens de LinkedIn.
+- **Login**: "Entra a Criba" (cuentas por invitación), enlace "¿Olvidaste tu contraseña?" con `requestPasswordReset` (Supabase `resetPasswordForEmail`). La escena del panel muestra formatos (PDF, Word, escaneo) y la postulación del candidato, no logos de plataformas. La regla de 8 o 12 caracteres sigue pendiente con Jean.
+- **Canales** (`applications.source`): la ingesta filtra por "Subidas por la empresa" o "Postulaciones de candidatos"; las filas de candidato llevan la marca "Se postuló". Lo mismo en el tablero y en el foco del ranking.
+- **Datos coherentes**: organización ficticia **Cordillera Financiera** (antes un banco real). Cloud Senior: 92 recibidas = 84 leídas + 8 por resolver, igual en Vacantes, Hojas de vida, tablero y panel (30 y 90 días muestran lo mismo). Julián Ríos (no "Rivas"). Entrevista: "5 de 9 respondidas" y "pregunta 6 de 9". Gobierno ya no inventa alertas de sesgo: solo se muestran si la API las calcula; en su lugar, "errores de la IA marcados por personas". Las cifras de Gobierno salen de las vacantes.
+- **Inicio**: KPIs, embudo, resultado por vacante, mejores perfiles y pendientes. Se quitó la tendencia diaria (era una serie inventada).
+- **Candidato (pantallas 16–18, sin sesión)**, en `features/candidates` y el grupo `app/(public)`:
+  - `/jobs/[id]`: vacante pública (cargo, lo que buscamos, cómo se revisa) y formulario con nombre, correo, hoja de vida (PDF o Word, 10 MB) y autorización Habeas Data (`applicationSchema`). Nunca muestra pesos, puntajes ni descalificantes.
+  - `/jobs/[id]/applied`: confirmación y qué sigue.
+  - `/interview/[token]`: entrevista IA por chat, solo texto. Intro, preguntas con barra de progreso, repregunta una vez si la respuesta es corta, y cierre sin puntaje. El token hoy es el id de la entrevista (`i-4` está pendiente; `i-2` ya terminó).
+  - `proxy.ts` deja pasar `/jobs` y `/interview/` sin sesión.
+  - Endpoints que esperan (ver comentarios en `features/candidates/api`): `GET /public/vacancies/{id}`, `POST /public/vacancies/{id}/applications` (multipart), `GET /public/interviews/{token}`, `POST /public/interviews/{token}/turns`.
+- **Empresa ↔ candidato**: botón "Enlace de postulación" en el tablero de una vacante abierta (copia `/jobs/{id}`), enlace en el ranking vacío, y "Ver lo que recibe" en una entrevista pendiente. Las entrevistas se movieron a `shared/mocks/interviews.ts` para que ambas vistas lean lo mismo.
+- **Landing** (rama `feat/mvp-scope` sobre `feat/responsive` en `ai_talent_landing`): sin la sección Fuentes; "Postularme" abre `/jobs/{id}` de la app y "Subir mi hoja de vida" baja a las vacantes.
+
 ## Landing (repo aparte `ai_talent_landing`)
 
-Rama `feat/two-sided` sobre `feat/landing`: la landing le habla a empresas y a personas que buscan empleo. Selector de rol en el hero, sección "Para los dos lados" en lugar de la criba que cerraba filas, vacantes abiertas con "Postularme", cierre con una acción por rol y una órbita 3D con hojas de vida (sin nombres) alrededor de una vacante genérica: las más cercanas al centro brillan en ámbar porque encajan mejor, tipografía Funnel y el logo nuevo. Los enlaces de candidato van a `/login?rol=candidato`; la app todavía no tiene ese flujo. Rama `feat/responsive` encima: menú de celular en la navbar y hero, tarjetas y bandeja que caben en 360 px.
+Rama `feat/two-sided` sobre `feat/landing`: la landing le habla a empresas y a personas que buscan empleo. Selector de rol en el hero, sección "Para los dos lados" en lugar de la criba que cerraba filas, vacantes abiertas con "Postularme", cierre con una acción por rol y una órbita 3D con hojas de vida (sin nombres) alrededor de una vacante genérica: las más cercanas al centro brillan en ámbar porque encajan mejor, tipografía Funnel y el logo nuevo. Los enlaces de candidato van a la vacante pública de la app (`/jobs/{id}`), ver la sección 29. Rama `feat/responsive` encima: menú de celular en la navbar y hero, tarjetas y bandeja que caben en 360 px.
 
 Astro 7 + Tailwind v4, estática y en oscuro (tinta verde de la marca, resaltador ámbar; nada espacial). Repo git **local** (sin remoto todavía): `main` tiene el andamiaje y `feat/landing` todo lo demás. Hay que crear el repo en GitHub y empujar ambas ramas. Detalle en su `README.md`.
 
