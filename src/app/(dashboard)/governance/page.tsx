@@ -1,20 +1,28 @@
 import type { Metadata } from "next";
-import { PageBody, PageHeader } from "@/shared/components/layout";
-import { ButtonLink, EmptyState } from "@/shared/components/ui";
-import { routes } from "@/shared/constants/routes";
+import { Suspense } from "react";
+import { Skeleton } from "@/shared/components/ui";
+import { getGovernance } from "@/features/governance/api/governance";
+import { GovernanceView } from "@/features/governance/components/governance-view";
 
 export const metadata: Metadata = { title: "Gobierno IA" };
 
+async function Governance() {
+  const data = await getGovernance();
+  return <GovernanceView data={data} />;
+}
+
+/** Pantalla 11 · Gobierno de IA · Auditoría. */
 export default function GovernancePage() {
   return (
-    <PageBody>
-      <PageHeader eyebrow="ÚLTIMOS 30 DÍAS · BANCOLOMBIA DIGITAL" title="Qué usó y qué no usó la IA" />
-      <EmptyState
-        title="Sin evaluaciones en el periodo"
-        description="La auditoría se llena con cada hoja de vida evaluada."
-        action={<ButtonLink href={routes.vacancies}>Ver vacantes</ButtonLink>}
-        className="w-[480px] animate-rise"
-      />
-    </PageBody>
+    <Suspense
+      fallback={
+        <div className="flex flex-col gap-6 px-12 pt-8" aria-busy>
+          <Skeleton className="h-[100px] rounded-2xl" />
+          <Skeleton className="h-[480px] rounded-2xl" />
+        </div>
+      }
+    >
+      <Governance />
+    </Suspense>
   );
 }
