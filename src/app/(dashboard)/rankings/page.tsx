@@ -1,20 +1,35 @@
 import type { Metadata } from "next";
-import { PageBody, PageHeader } from "@/shared/components/layout";
-import { ButtonLink, EmptyState } from "@/shared/components/ui";
-import { routes } from "@/shared/constants/routes";
+import { Suspense } from "react";
+import { PageTop } from "@/shared/components/layout";
+import { Skeleton } from "@/shared/components/ui";
+import { listRankings } from "@/features/rankings/api/rankings";
+import { RankingIndex } from "@/features/rankings/components/ranking-index";
 
-export const metadata: Metadata = { title: "Ranking IA" };
+export const metadata: Metadata = { title: "Ranking" };
 
+async function Rankings() {
+  const rankings = await listRankings();
+  return <RankingIndex rankings={rankings} />;
+}
+
+/** Portada de Ranking: elige una vacante para ver su ranking. */
 export default function RankingsPage() {
   return (
-    <PageBody>
-      <PageHeader eyebrow="ELIGE UNA VACANTE" title="Ranking" />
-      <EmptyState
-        title="Sin evaluaciones aún"
-        description="Elige una vacante con hojas de vida y pulsa Evaluar."
-        action={<ButtonLink href={routes.vacancies}>Ver vacantes</ButtonLink>}
-        className="w-[480px] animate-rise"
-      />
-    </PageBody>
+    <div className="flex flex-1 flex-col">
+      <PageTop title="Ranking" description="Elige una vacante para ver a sus candidatos ordenados por ajuste al perfil." />
+      <div className="flex flex-col px-12 pt-7 pb-14">
+        <Suspense
+          fallback={
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 2xl:grid-cols-3" aria-busy>
+              {Array.from({ length: 6 }, (_, i) => (
+                <Skeleton key={i} className="h-[300px] rounded-2xl" />
+              ))}
+            </div>
+          }
+        >
+          <Rankings />
+        </Suspense>
+      </div>
+    </div>
   );
 }
