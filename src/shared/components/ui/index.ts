@@ -16,3 +16,6 @@ export { Tabs, type TabItem } from "./tabs";
 export { TextField } from "./text-field";
 export { Toggle } from "./toggle";
 export { ToastProvider, useToast, type ToastInput } from "./toast";
+export { ScoreRing } from "./score-ring";
+export { Skeleton } from "./skeleton";
+export { Tooltip } from "./tooltip";
