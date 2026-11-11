@@ -5,6 +5,10 @@
 @import "tailwindcss" source(none);
 @source "../";
 
+/* Pantallas bajas (portátiles con barra del navegador): se compacta el espacio vertical. */
+@custom-variant short (@media (max-height: 820px));
+@custom-variant shorter (@media (max-height: 700px));
+
 /*
  * Tokens de Criba (diseño en pen.dev, frame "Criba · Componentes"): claro,
  * tinta verde para el texto y las acciones principales, ámbar como acento.
