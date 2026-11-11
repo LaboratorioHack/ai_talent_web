@@ -1,7 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { Moon, Sun } from "lucide-react";
+import { useState, useSyncExternalStore } from "react";
 import { cn } from "@/shared/lib/cn";
 import { THEME_KEY } from "@/shared/lib/theme";
 
@@ -40,7 +39,7 @@ function setDark(dark: boolean, x: number, y: number) {
     const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
     document.documentElement.animate(
       { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-      { duration: 520, easing: "cubic-bezier(0.22, 1, 0.36, 1)", pseudoElement: "::view-transition-new(root)" },
+      { duration: 650, easing: "cubic-bezier(0.65, 0, 0.35, 1)", pseudoElement: "::view-transition-new(root)" },
     );
   });
 }
@@ -50,7 +49,10 @@ function setDark(dark: boolean, x: number, y: number) {
  * modo elegido y el tema nuevo se revela en círculo desde el botón.
  */
 export function ThemeToggle({ className }: { className?: string }) {
-  const dark = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  // La perilla se desliza primero; el tema se revela cuando ya llegó a su sitio.
+  const [pending, setPending] = useState<boolean | null>(null);
+  const dark = pending ?? theme;
   return (
     <button
       type="button"
@@ -59,21 +61,48 @@ export function ThemeToggle({ className }: { className?: string }) {
       aria-label="Modo oscuro"
       title={dark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
       onClick={(e) => {
+        if (pending !== null) return;
         const r = e.currentTarget.getBoundingClientRect();
-        setDark(!dark, r.left + r.width / 2, r.top + r.height / 2);
+        const next = !theme;
+        setPending(next);
+        window.setTimeout(() => {
+          setDark(next, r.left + r.width / 2, r.top + r.height / 2);
+          setPending(null);
+        }, 380);
       }}
-      className={cn("relative flex h-9 w-[68px] shrink-0 items-center rounded-full bg-surface-2 p-1 ring-1 ring-border transition-[box-shadow] duration-300 hover:ring-border-strong", className)}
+      className={cn(
+        "relative flex h-9 w-[68px] shrink-0 items-center rounded-full p-1 ring-1 transition-[background-color,box-shadow] duration-500",
+        dark ? "bg-[#1b2433] ring-white/10" : "bg-[#fdf1d8] ring-[#f2a93b]/30",
+        className,
+      )}
     >
+      {/* Estrellas del fondo en modo oscuro */}
+      <span aria-hidden className={cn("absolute inset-0 transition-opacity duration-500", dark ? "opacity-100" : "opacity-0")}>
+        <span className="absolute top-[9px] left-[14px] size-[2px] rounded-full bg-white/80 animate-breathe" />
+        <span className="absolute top-[19px] left-[22px] size-[1.5px] rounded-full bg-white/60 animate-breathe [animation-delay:1s]" />
+        <span className="absolute top-[13px] left-[30px] size-[1.5px] rounded-full bg-white/70 animate-breathe [animation-delay:2s]" />
+      </span>
+      {/* Perilla: sol dibujado que se vuelve luna al deslizarse */}
       <span
         aria-hidden
         className={cn(
-          "absolute top-1 left-1 size-7 rounded-full bg-surface shadow-[0_1px_2px_rgba(0,0,0,0.12),0_4px_10px_-4px_rgba(0,0,0,0.35)] ring-1 ring-border transition-transform duration-500 ease-[var(--ease-spring)]",
-          dark && "translate-x-8",
+          "relative z-10 size-7 rounded-full shadow-[0_2px_6px_-1px_rgba(0,0,0,0.35)] transition-[transform,background-color] duration-500 ease-[var(--ease-spring)]",
+          dark ? "translate-x-8 bg-[#2c3b55]" : "translate-x-0 bg-[#fff6e3]",
         )}
-      />
-      <span className="relative z-10 grid w-full grid-cols-2" aria-hidden>
-        <Sun className={cn("mx-auto size-4 transition-[color,transform] duration-500", dark ? "rotate-90 text-ink-3" : "rotate-0 text-amber")} />
-        <Moon className={cn("mx-auto size-[15px] transition-[color,transform] duration-500", dark ? "rotate-0 text-ink" : "-rotate-45 text-ink-3")} />
+      >
+        <svg viewBox="0 0 28 28" className="size-full">
+          <g className={cn("origin-center transition-[opacity,transform] duration-500 [transform-box:fill-box]", dark ? "scale-50 rotate-90 opacity-0" : "scale-100 rotate-0 opacity-100")}>
+            <g className="origin-center animate-[spin_20s_linear_infinite] [transform-box:fill-box]">
+              {Array.from({ length: 8 }, (_, i) => (
+                <line key={i} x1="14" y1="3.5" x2="14" y2="6" stroke="#e08a12" strokeWidth="1.6" strokeLinecap="round" transform={`rotate(${i * 45} 14 14)`} />
+              ))}
+            </g>
+            <circle cx="14" cy="14" r="4.6" fill="#f2a93b" />
+          </g>
+          <g className={cn("origin-center transition-[opacity,transform] duration-500 [transform-box:fill-box]", dark ? "scale-100 rotate-0 opacity-100" : "scale-50 -rotate-90 opacity-0")}>
+            <path d="M16.5 7.5a6.8 6.8 0 1 0 4 12.3A5.4 5.4 0 0 1 16.5 7.5Z" fill="#f5f1e8" />
+          </g>
+        </svg>
       </span>
     </button>
   );
