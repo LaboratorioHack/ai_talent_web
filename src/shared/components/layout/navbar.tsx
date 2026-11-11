@@ -84,11 +84,11 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
         <div
           aria-hidden={searching || undefined}
           className={cn(
-            "transition-[max-width,opacity,transform,filter] duration-500 ease-[var(--ease-out-soft)]",
-            searching ? "pointer-events-none max-w-0 -translate-y-1 scale-95 opacity-0 blur-[2px]" : "max-w-[900px] opacity-100",
+            "grid transition-[grid-template-columns,opacity,filter] duration-[650ms] ease-[var(--ease-out-soft)]",
+            searching ? "pointer-events-none grid-cols-[0fr] opacity-0 blur-[3px]" : "grid-cols-[1fr] opacity-100",
           )}
         >
-          <nav aria-label="Principal" ref={nav} className="relative flex items-center gap-0.5 rounded-full bg-surface-2 p-1 ring-1 ring-border">
+          <nav aria-label="Principal" ref={nav} className="relative flex min-w-0 items-center gap-0.5 overflow-hidden rounded-full bg-surface-2 p-1 ring-1 ring-border">
             <span
               ref={pill}
               aria-hidden
