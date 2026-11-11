@@ -93,7 +93,7 @@ export const mockVacancies: JobOpening[] = [
     closesAt: "2026-11-30",
     area: "Tecnología",
     requirements: cloudRequirements,
-    stats: { received: 84, read: 84, meets: 12, partial: 31, doesNotMeet: 41, interview: 4, finalist: 2 },
+    stats: { received: 92, read: 84, meets: 12, partial: 31, doesNotMeet: 41, interview: 4, finalist: 2 },
   }),
   vacancy({
     id: "v-data",

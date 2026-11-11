@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type DragEvent } from "react";
-import { Files, FolderOpen, FolderSync } from "lucide-react";
+import { Files, FolderOpen } from "lucide-react";
 import { Button } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 import type { IncomingFile } from "../hooks/use-ingest";
@@ -9,7 +9,6 @@ import type { IncomingFile } from "../hooks/use-ingest";
 export interface DropzoneProps {
   onFiles: (files: IncomingFile[]) => void;
   onSample: () => void;
-  onConnectFolder: () => void;
 }
 
 const SHEETS = [
@@ -23,7 +22,7 @@ const SHEETS = [
  * que no se pueda leer se marca después en la lista. En reposo, tres hojas
  * flotan despacio; al arrastrar encima se abren y suben.
  */
-export function Dropzone({ onFiles, onSample, onConnectFolder }: DropzoneProps) {
+export function Dropzone({ onFiles, onSample }: DropzoneProps) {
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
 
@@ -82,9 +81,6 @@ export function Dropzone({ onFiles, onSample, onConnectFolder }: DropzoneProps) 
           <Button variant="outline" icon={<FolderOpen />} onClick={() => input.current?.click()}>
             Elegir archivos
           </Button>
-          <Button variant="text" icon={<FolderSync />} onClick={onConnectFolder}>
-            Conectar carpeta compartida
-          </Button>
           <span aria-hidden className="mx-1 hidden h-5 w-px bg-border sm:block" />
           <Button variant="text" icon={<Files />} onClick={onSample}>
             Probar con archivos de ejemplo
@@ -92,7 +88,7 @@ export function Dropzone({ onFiles, onSample, onConnectFolder }: DropzoneProps) 
         </div>
       </div>
 
-      <input ref={input} type="file" multiple hidden onChange={(e) => {
+      <input ref={input} type="file" multiple hidden accept=".pdf,.docx,.doc,.jpg,.jpeg,.png,.heic,application/pdf" onChange={(e) => {
         take(e.target.files);
         e.target.value = "";
       }} />

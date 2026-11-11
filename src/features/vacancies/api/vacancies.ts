@@ -27,7 +27,7 @@ export interface PipelineCard {
   fulfillment?: Fulfillment;
   /** Lo más fuerte de su hoja de vida, o lo que falta. */
   note?: string;
-  source: "Subida a mano" | "Greenhouse" | "LinkedIn";
+  source: "Subida por la empresa" | "Se postuló";
 }
 
 const NEW_NAMES = ["Martín Quiroga", "Ximena Patiño", "Óscar Lozano", "Renata Gómez", "Samuel Ibarra", "Antonia Vélez", "Iván Becerra", "Luisa Chaparro"];
@@ -63,12 +63,12 @@ export async function getPipeline(id: string): Promise<PipelineCard[]> {
       score: c.score,
       fulfillment: c.fulfillment,
       note: c.fulfillment === "MEETS" ? (best ? short(best.requirementId) : undefined) : gap ? `Falta: ${short(gap.requirementId)}` : undefined,
-      source: i % 5 === 0 ? "Greenhouse" : i % 9 === 0 ? "LinkedIn" : "Subida a mano",
+      source: i % 4 === 0 ? "Se postuló" : "Subida por la empresa",
     };
   });
   const pending = Math.max(0, job.stats.received - job.stats.read);
   for (let i = 0; i < Math.max(pending, id === "v-cloud" ? 1 : 0); i++) {
-    cards.push({ id: `${id}-new${i}`, name: NEW_NAMES[(i + id.length) % NEW_NAMES.length], stage: "received", source: i % 2 ? "Greenhouse" : "Subida a mano" });
+    cards.push({ id: `${id}-new${i}`, name: NEW_NAMES[(i + id.length) % NEW_NAMES.length], stage: "received", source: i % 2 ? "Se postuló" : "Subida por la empresa" });
   }
   return delay(cards);
 }

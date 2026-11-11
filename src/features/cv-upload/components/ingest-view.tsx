@@ -9,7 +9,6 @@ import { Button, EmptyState, SearchField, Segmented, Select, useToast } from "@/
 import { routes } from "@/shared/constants/routes";
 import { useIngest } from "../hooks/use-ingest";
 import type { IngestData, IngestFile, IngestSource } from "../types/ingest";
-import { ConnectFolderModal } from "./connect-folder-modal";
 import { Dropzone } from "./dropzone";
 import { EvaluateModal } from "./evaluate-modal";
 import { FileRow } from "./file-row";
@@ -36,10 +35,9 @@ const SAMPLES = [
 ];
 
 const SOURCES: { value: "all" | IngestSource; label: string }[] = [
-  { value: "all", label: "Todas las fuentes" },
-  { value: "upload", label: "Subidas a mano" },
-  { value: "greenhouse", label: "Greenhouse" },
-  { value: "drive", label: "Google Drive" },
+  { value: "all", label: "Todos los canales" },
+  { value: "upload", label: "Subidas por la empresa" },
+  { value: "candidate", label: "Postulaciones de candidatos" },
 ];
 
 const PAGE = 24;
@@ -55,7 +53,6 @@ export function IngestView({ data }: { data: IngestData }) {
   const [query, setQuery] = useState("");
   const [limit, setLimit] = useState(PAGE);
   const [evaluating, setEvaluating] = useState(false);
-  const [folder, setFolder] = useState(false);
 
   const counts = useMemo(() => {
     const c: Record<Group, number> = { busy: 0, read: 0, unreadable: 0, duplicate: 0, rejected: 0 };
@@ -73,11 +70,11 @@ export function IngestView({ data }: { data: IngestData }) {
       .sort((a, b) => ORDER[groupOf(a)] - ORDER[groupOf(b)]);
   }, [files, group, view, source, query]);
 
-  function upload(list: { name: string; sizeKb: number }[], from: IngestSource = "upload", label?: string) {
-    const n = add(list, from);
+  function upload(list: { name: string; sizeKb: number }[]) {
+    const n = add(list, "upload");
     setGroup(null);
     setView("attention");
-    toast({ title: `${n} ${n === 1 ? "archivo" : "archivos"} ${label ? `desde ${label}` : "subiendo"}`, description: "Aparecen arriba mientras Criba los lee." });
+    toast({ title: `${n} ${n === 1 ? "archivo" : "archivos"} subiendo`, description: "Aparecen arriba mientras Criba los lee." });
   }
 
   function onRemove(id: string) {
@@ -119,7 +116,7 @@ export function IngestView({ data }: { data: IngestData }) {
 
       <div className="flex flex-col gap-6 px-4 sm:px-6 lg:px-12 pt-7 pb-8">
         <div className="animate-rise">
-          <Dropzone onFiles={(list) => upload(list)} onSample={() => upload(SAMPLES)} onConnectFolder={() => setFolder(true)} />
+          <Dropzone onFiles={(list) => upload(list)} onSample={() => upload(SAMPLES)} />
         </div>
 
         {emptyJob ? null : (
@@ -151,7 +148,7 @@ export function IngestView({ data }: { data: IngestData }) {
         {emptyJob ? (
           <EmptyState
             title="Esta vacante todavía no tiene hojas de vida"
-            description="Arrástralas arriba, conecta una carpeta o prueba con los archivos de ejemplo."
+            description="Arrástralas arriba, comparte el enlace de postulación o prueba con los archivos de ejemplo."
             className="mx-auto w-[520px] bg-surface animate-rise"
           />
         ) : (
@@ -180,7 +177,7 @@ export function IngestView({ data }: { data: IngestData }) {
                 ) : null}
               </div>
               <div className="flex w-full items-center gap-2 sm:w-auto">
-                <Select aria-label="Fuente" options={SOURCES} value={source} onChange={(v) => setSource(v as "all" | IngestSource)} className="w-[46%] sm:w-[200px]" triggerClassName="field-box h-10 w-full px-3.5 text-[13.5px] text-ink" />
+                <Select aria-label="Canal" options={SOURCES} value={source} onChange={(v) => setSource(v as "all" | IngestSource)} className="w-[46%] sm:w-[240px]" triggerClassName="field-box h-10 w-full px-3.5 text-[13.5px] text-ink" />
                 <SearchField placeholder="Buscar archivo" containerClassName="min-w-0 flex-1 sm:w-[240px] sm:flex-none" value={query} onChange={(e) => setQuery(e.target.value)} />
               </div>
             </div>
@@ -229,14 +226,6 @@ export function IngestView({ data }: { data: IngestData }) {
       </div>
 
       <EvaluateModal open={evaluating} onClose={() => setEvaluating(false)} jobId={data.job.id} readable={counts.read} skipped={attention} requirements={data.job.requirements} />
-      <ConnectFolderModal
-        open={folder}
-        onClose={() => setFolder(false)}
-        onConnected={(list, provider) => {
-          setFolder(false);
-          upload(list, "drive", provider);
-        }}
-      />
     </div>
   );
 }
