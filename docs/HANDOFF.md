@@ -42,6 +42,7 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 33 | `feat/public-job-details` | 32 | lista | Ficha de vacante tipo portal de empleo: datos clave, perfil deducido, requisitos agrupados con equivalencias, ¿Encajas?, proceso |
 | 34 | `feat/applicant-portal` | 33 | lista | Portal del postulante: entrada con enlace mágico, inicio, mis postulaciones con etapas, detalle con retiro, vacantes con filtros, perfil con lo que ve la IA y borrado de datos |
 | 35 | `feat/portal-redesign` | 34 | lista | Sin textura; lado del candidato en verde oscuro y sin tarjetas de adorno; hoja de vida con vista previa y edición; arreglo del hover de botones en oscuro |
+| 36 | `feat/portal-depth` | 35 | lista | Profundidad sin textura: luces de fondo (`.portal-light`), resaltador ámbar (`.hl`), bloque "Lo próximo" con cuenta regresiva y chat en bucle, filas con monograma y riel animado, hoja de vida en pila de papeles, últimos movimientos |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -120,7 +121,7 @@ Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1
 - **11 Gobierno** (`features/governance`): cifras por período, alertas de sesgo con revisión, atributos agrupados y decisiones como línea de tiempo por día con filtro por persona, ambos con `ScrollArea`. Exporta CSV.
 - **05 Tablero**: `getPipeline` arma las tarjetas con el mismo generador del ranking (`mockCandidatesOf` en `shared/mocks/candidates.ts`), así cifras, nombres y puntajes coinciden entre pantallas.
 - **Transiciones de movimiento**: Tailwind v4 mueve con las propiedades `translate`, `scale` y `rotate`, no con `transform`. Una lista arbitraria como `transition-[transform,...]` debe incluirlas o el movimiento salta de golpe.
-- **Servidor de desarrollo**: si los estilos no cambian, borrar `.next/dev` y `.next/cache` y reiniciar `pnpm dev`; Turbopack a veces sirve CSS viejo.
+- **Servidor de desarrollo**: no correr `next build` con `pnpm dev` encendido (mezcla chunks y da errores de hidratación como "Candidatos" vs "Postulaciones"). Si los estilos no cambian, borrar `.next/dev` y `.next/cache` y reiniciar `pnpm dev`; Turbopack a veces sirve CSS viejo.
 
 
 ## 29 · `feat/mvp-scope` (documento de alcance del MVP, 11/11)
