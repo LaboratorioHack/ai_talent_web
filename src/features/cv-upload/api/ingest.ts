@@ -27,7 +27,7 @@ function mockFiles(total: number, pending: number): IngestFile[] {
     { id: "f-d1", name: "daniela_osorio_cv (1).pdf", kind: "PDF", sizeKb: 184, pages: 2, status: "DUPLICATE", detail: "Igual a daniela_osorio_cv.pdf", source: "candidate" },
     { id: "f-d2", name: "julian_rios_v2.pdf", kind: "PDF", sizeKb: 170, pages: 2, status: "DUPLICATE", detail: "Mismo contenido que julian_rios.pdf", source: "candidate" },
     { id: "f-n1", name: "carta_presentacion.pdf", kind: "PDF", sizeKb: 40, pages: 1, status: "NO_DATA", detail: "No parece una hoja de vida", source: "candidate" },
-    { id: "f-x1", name: "portafolio.zip", kind: "ZIP", sizeKb: 9800, pages: 0, status: "UNSUPPORTED", detail: "Comprimido: descomprímelo y sube los archivos", source: "candidate" },
+    { id: "f-x1", name: "portafolio.zip", kind: "ZIP", sizeKb: 9800, pages: 0, status: "UNSUPPORTED", detail: "Comprimido: pide el archivo suelto a la persona", source: "candidate" },
   ];
   const kinds = ["PDF", "PDF", "DOCX", "PDF", "JPG", "PDF", "DOCX", "PNG"];
   const read: IngestFile[] = Array.from({ length: total }, (_, i) => {
