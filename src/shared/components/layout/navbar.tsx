@@ -157,7 +157,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
             label={`Avisos${notices.length && !seen ? `, ${notices.length} nuevos` : ""}`}
             width={360}
             onOpenChange={(o) => o && setSeen(true)}
-            triggerClassName="relative flex size-11 items-center justify-center rounded-full text-ink-2 transition-colors duration-300 hover:bg-surface-2 hover:text-ink"
+            triggerClassName="relative flex size-11 items-center justify-center rounded-full text-ink-2 transition-colors duration-300 hover:bg-hover hover:text-ink"
             trigger={
               <>
                 <Bell aria-hidden className="size-[18px]"/>
@@ -174,7 +174,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
                 <ul className="flex max-h-[360px] flex-col overflow-y-auto p-1.5">
                   {notices.map((n, i) => (
                     <li key={n.id} className="animate-[option-in_300ms_var(--ease-out-soft)_both]" style={{ animationDelay: `${i * 40}ms` }}>
-                      <Link href={n.href} onClick={close} className="flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface-2">
+                      <Link href={n.href} onClick={close} className="flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-hover">
                         <span aria-hidden className={cn("mt-1.5 size-2 shrink-0 rounded-full", TONE_DOT[n.tone])} />
                         <span className="flex flex-1 flex-col gap-0.5">
                           <span className="text-[13.5px] leading-snug">{n.text}</span>
@@ -197,7 +197,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
             aria-expanded={menu}
             aria-controls="mobile-menu"
             aria-label={menu ? "Cerrar menú" : "Abrir menú"}
-            className="flex size-10 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface-2 lg:hidden"
+            className="flex size-10 items-center justify-center rounded-full text-ink transition-colors hover:bg-hover lg:hidden"
           >
             <svg viewBox="0 0 20 20" className="size-5" aria-hidden>
               <path d="M3 6.5h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className={cn("origin-center transition-transform duration-500 ease-[var(--ease-out-soft)] [transform-box:fill-box]", menu && "translate-y-[3.5px] rotate-45")} />
@@ -228,7 +228,7 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
                   tabIndex={menu ? undefined : -1}
                   onClick={() => setMenu(false)}
                   aria-current={active ? "page" : undefined}
-                  className={cn("flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] transition-colors", active ? "bg-surface font-medium text-ink ring-1 ring-border" : "text-ink-2 hover:bg-surface-2 hover:text-ink")}
+                  className={cn("flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] transition-colors", active ? "bg-surface font-medium text-ink ring-1 ring-border" : "text-ink-2 hover:bg-hover hover:text-ink")}
                 >
                   <link.icon aria-hidden className="size-[18px]" />
                   {link.label}

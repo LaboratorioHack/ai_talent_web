@@ -5,3 +5,4 @@ export { ThemeToggle } from "./theme-toggle";
 export { NavbarSkeleton } from "./navbar-skeleton";
 export { OrgBadge } from "./org-badge";
 export { PageBody, PageHeader } from "./page-header";
+export { PageTopSkeleton } from "./page-top-skeleton";

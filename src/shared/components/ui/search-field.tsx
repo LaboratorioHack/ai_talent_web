@@ -83,7 +83,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(functi
             setter?.call(el, "");
             el.dispatchEvent(new Event("input", { bubbles: true }));
           }}
-          className="flex size-6 shrink-0 items-center justify-center rounded-full text-ink-3 transition-colors hover:bg-surface-2 hover:text-ink animate-[pop-in_240ms_var(--ease-spring)_both]"
+          className="flex size-6 shrink-0 items-center justify-center rounded-full text-ink-3 transition-colors hover:bg-hover hover:text-ink animate-[pop-in_240ms_var(--ease-spring)_both]"
         >
           <X aria-hidden className="size-3.5" />
         </button>

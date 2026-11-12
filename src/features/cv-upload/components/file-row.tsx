@@ -35,7 +35,7 @@ export function FileRow({ file, index, onRetry, onRemove, onRequestOriginal }: F
   const s = STATUS[file.status];
   const src = SOURCE[file.source];
   const busy = file.status === "UPLOADING" || file.status === "PROCESSING";
-  const icon = "flex size-9 items-center justify-center rounded-lg text-ink-3 transition-colors hover:bg-surface-2 hover:text-ink";
+  const icon = "flex size-9 items-center justify-center rounded-lg text-ink-3 transition-colors hover:bg-hover hover:text-ink";
 
   return (
     <li

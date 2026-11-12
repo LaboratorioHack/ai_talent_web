@@ -13,7 +13,7 @@ export function TopProfiles({ profiles }: { profiles: DashboardData["topProfiles
         <li key={p.applicationId} className="animate-rise" style={{ animationDelay: `${i * 80}ms` }}>
           <Link
             href={routes.ranking("v-cloud", p.applicationId)}
-            className="-mx-2 flex items-center gap-3 rounded-lg border-b border-border px-2 py-3 transition-colors duration-300 last:border-0 hover:bg-surface-2"
+            className="-mx-2 flex items-center gap-3 rounded-lg border-b border-border px-2 py-3 transition-colors duration-300 last:border-0 hover:bg-hover"
           >
             <Avatar name={p.name} size={36} />
             <span className="flex min-w-0 flex-1 flex-col">
@@ -43,7 +43,7 @@ export function PendingList({ items }: { items: PendingItem[] }) {
         const { icon: Icon, tone } = pendingIcon[item.kind];
         return (
           <li key={item.id} className="animate-rise" style={{ animationDelay: `${i * 80}ms` }}>
-            <Link href={item.href} className="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors duration-300 hover:bg-surface-2">
+            <Link href={item.href} className="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors duration-300 hover:bg-hover">
               <Icon aria-hidden className={`size-4 shrink-0 ${tone}`} />
               <span className="min-w-0 flex-1 text-[13px]">{item.text}</span>
               <span className="text-[12.5px] font-medium text-blue transition-transform duration-300 group-hover:translate-x-0.5">{item.actionLabel}</span>

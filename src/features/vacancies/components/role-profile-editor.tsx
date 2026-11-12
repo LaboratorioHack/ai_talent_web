@@ -190,7 +190,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
             <button
               type="button"
               onClick={() => setDraft((d) => ({ ...d, requirements: [...d.requirements, emptyRequirement()] }))}
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-dashed border-border-strong px-3.5 text-[13px] font-medium text-ink transition-colors duration-300 hover:border-ink hover:bg-surface-2"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-dashed border-border-strong px-3.5 text-[13px] font-medium text-ink transition-colors duration-300 hover:border-ink hover:bg-hover"
             >
               <Plus aria-hidden className="size-3.5" />
               Añadir requisito

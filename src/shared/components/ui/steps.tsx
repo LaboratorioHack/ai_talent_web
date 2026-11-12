@@ -49,7 +49,7 @@ export function Steps({ steps, current, onStepClick, className }: StepsProps) {
             ) : null}
             <li aria-current={state === "current" ? "step" : undefined}>
               {clickable ? (
-                <button type="button" onClick={() => onStepClick(i)} className="flex items-center gap-2 rounded-full py-1 pr-2 transition-colors duration-300 hover:bg-surface-2" aria-label={`Volver a ${name}`}>
+                <button type="button" onClick={() => onStepClick(i)} className="flex items-center gap-2 rounded-full py-1 pr-2 transition-colors duration-300 hover:bg-hover" aria-label={`Volver a ${name}`}>
                   {content}
                 </button>
               ) : (

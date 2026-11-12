@@ -120,7 +120,7 @@ export function ReadinessPanel({ files, counts, active, onPick, onRequestAll, on
                 <div
                   className={cn(
                     "flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl px-4 py-3.5 transition-colors duration-300",
-                    on ? "bg-surface-2" : "hover:bg-surface-2/60",
+                    on ? "bg-surface-2" : "hover:bg-hover",
                     empty && "opacity-50",
                   )}
                 >
