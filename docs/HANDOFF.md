@@ -44,6 +44,8 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 35 | `feat/portal-redesign` | 34 | lista | Sin textura; lado del candidato en verde oscuro y sin tarjetas de adorno; hoja de vida con vista previa y edición; arreglo del hover de botones en oscuro |
 | 36 | `feat/portal-depth` | 35 | lista | Profundidad sin textura: luces de fondo (`.portal-light`), resaltador ámbar (`.hl`), bloque "Lo próximo" con cuenta regresiva y chat en bucle, filas con monograma y riel animado, hoja de vida en pila de papeles, últimos movimientos |
 | 37 | `feat/portal-theme` | 36 | lista | Portal claro/oscuro con interruptor, textura de contornos (`--contours`), pestañas con contador, entrada propia del postulante, lector de PDF compartido (`shared/components/pdf`), hoja de vida como PDF editable (`shared/lib/resume-pdf.ts`) y PDF en ranking y postulaciones |
+| 38 | `feat/portal-panels` | 37 | lista | Tarjetas translúcidas (`.panel`) para que el texto del postulante se lea sobre la textura |
+| 39 | `feat/criba-ai` | 38 | lista | Textura de arcos para empresa (`.org-light`), filtro propio en cada gráfico del Inicio, marca Criba AI en ambos portales, recomendaciones al postulante y tarjeta de hoja de vida con miniatura del PDF |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -178,6 +180,17 @@ Feedback de Manuel: el gris con tarjetas blancas, la textura y el exceso de text
 - **Empresa**: en el ranking, "Hoja de vida" abre "PDF original" (líneas que prueban requisitos resaltadas) o "Revisión de Criba"; en Postulaciones, el nombre de un PDF o Word leído abre el lector. Mientras no exista Storage, el PDF se genera con datos de ejemplo.
 - **Entrada del postulante** (`/portal/sign-in`): pantalla partida con panel ámbar donde una postulación avanza sola por sus etapas.
 - Con backend: servir el archivo real desde el bucket `cvs` (URL firmada) al lector, y guardar las ediciones como nueva versión del CV.
+
+
+## 38 y 39 · Paneles, Criba AI y pen.dev 1:1
+
+- **`.panel`**: tarjeta translúcida con desenfoque para el lado del candidato; el texto se lee y la textura se sigue viendo.
+- **Textura de empresa** (`.org-light` en `app/(dashboard)/layout.tsx`): arcos concéntricos que barren desde arriba a la derecha (`--rings`), hermana de los contornos del postulante.
+- **Inicio de empresa**: el filtro general mueve las cifras y es el punto de partida; el embudo (período y vacante), el resultado por vacante (período y orden) y los mejores perfiles (vacante y cantidad) tienen su propio filtro.
+- **Criba AI** (`shared/components/ui/criba-ai.tsx`: `CribaAi`, `CribaAiNote`, color `--ai-ink`): marca dónde actúa la IA, sin tono de advertencia. Empresa: embudo, resultado por vacante, mejores perfiles, KPIs de entrevistas y horas, tablero de postulaciones, modal Evaluar, evaluando, ranking y su evidencia, "Proponer requisitos con Criba AI", entrevistas y gobierno. Postulante: lo que encontró en la hoja de vida, "Vacantes para ti" (con el porqué y afinidad Muy afín / Afín / Podría servirte, nunca puntaje), orden de vacantes, perfil deducido de la vacante y la entrevista.
+- **Recomendaciones** (`features/candidates/api/portal.ts`): `skills` de la hoja de vida y `match` por vacante (palabras clave en el mock; con backend, embeddings de requisitos y fragmentos). Hay vacantes de otras empresas ficticias en `other-companies.ts`, también con página pública.
+- **Tarjeta de hoja de vida** del inicio (`CvCard`): miniatura real del PDF (`PdfFirstPage`), archivo y habilidades encontradas.
+- **pen.dev rehecho 1:1**: se borró todo y se importaron 40 frames desde la app (pantallas de empresa y postulante, modo oscuro y modales) en seis tableros. Método: cada pantalla se congela en HTML estático con Playwright (los canvas de PDF pasan a imagen), la app lo sirve temporalmente y el navegador de pen.dev lo importa como capas editables. Las texturas van como imagen (`tex-*.png` junto al `.pen`). Las fuentes llegan con su nombre real (Funnel Display, Funnel Sans, IBM Plex Mono).
 
 ## Landing (repo aparte `ai_talent_landing`)
 
