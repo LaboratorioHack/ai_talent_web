@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Inbox } from "lucide-react";
 import { Button, TextField, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { requestPasswordReset, signInWithPassword } from "../api/auth";
@@ -98,19 +98,28 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <p className="text-sm text-ink-2" style={{ "--i": 2 } as React.CSSProperties}>
-        ¿Tu empresa no usa Criba todavía?{" "}
-        <a href="mailto:hola@criba.app?subject=Demo" className="inline-flex items-center gap-1 text-ink underline-offset-4 transition-colors hover:underline">
-          Pedir una demo
-          <ArrowRight aria-hidden className="size-3.5" />
+      <div className="flex flex-col gap-4" style={{ "--i": 2 } as React.CSSProperties}>
+        <p className="text-sm text-ink-2">
+          ¿Tu empresa no usa Criba todavía?{" "}
+          <a href="mailto:hola@criba.app?subject=Demo" className="inline-flex items-center gap-1 text-ink underline-offset-4 transition-colors hover:underline">
+            Pedir una demo
+            <ArrowRight aria-hidden className="size-3.5" />
+          </a>
+        </p>
+        <a
+          href={routes.portalSignIn}
+          className="group flex items-center gap-4 rounded-2xl bg-amber/10 px-4 py-3.5 ring-1 ring-amber/30 transition-[background-color,box-shadow] duration-300 hover:bg-amber/15 hover:ring-amber/50"
+        >
+          <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber text-[#1a211d]">
+            <Inbox className="size-5" />
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="text-[14.5px] font-semibold text-ink">¿Buscas empleo?</span>
+            <span className="text-[13px] text-ink-2">Entra al portal de postulantes con tu correo, sin contraseña.</span>
+          </span>
+          <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-2 transition-transform duration-300 group-hover:translate-x-1" />
         </a>
-        <br />
-        ¿Buscas empleo?{" "}
-        <a href={routes.portalSignIn} className="inline-flex items-center gap-1 text-ink underline-offset-4 transition-colors hover:underline">
-          Entra al portal de postulantes
-          <ArrowRight aria-hidden className="size-3.5" />
-        </a>
-      </p>
+      </div>
     </div>
   );
 }
