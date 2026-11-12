@@ -104,6 +104,12 @@ export function LoginForm() {
           Pedir una demo
           <ArrowRight aria-hidden className="size-3.5" />
         </a>
+        <br />
+        ¿Buscas empleo?{" "}
+        <a href={routes.portalSignIn} className="inline-flex items-center gap-1 text-ink underline-offset-4 transition-colors hover:underline">
+          Entra al portal de postulantes
+          <ArrowRight aria-hidden className="size-3.5" />
+        </a>
       </p>
     </div>
   );

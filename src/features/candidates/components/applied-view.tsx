@@ -38,10 +38,13 @@ export function AppliedView({ job }: { job: PublicJob }) {
       </ol>
 
       <div className="flex flex-col items-center gap-3" style={{ "--i": 2 } as React.CSSProperties}>
-        <ButtonLink href={routes.apply(job.id)} variant="outline">
-          Volver a la vacante
-        </ButtonLink>
-        <p className="text-xs text-ink-3">¿Quieres retirar tu postulación o borrar tus datos? Responde el correo de confirmación.</p>
+        <div className="flex flex-wrap justify-center gap-2">
+          <ButtonLink href={routes.portal}>Seguir mi postulación</ButtonLink>
+          <ButtonLink href={routes.apply(job.id)} variant="outline">
+            Volver a la vacante
+          </ButtonLink>
+        </div>
+        <p className="text-xs text-ink-3">En tu portal ves en qué etapa va, respondes la entrevista y puedes retirarte o borrar tus datos.</p>
       </div>
     </div>
   );

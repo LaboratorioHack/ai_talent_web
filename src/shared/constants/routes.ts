@@ -19,5 +19,12 @@ export const routes = {
   apply: (jobId: string) => `/jobs/${jobId}`,
   applied: (jobId: string) => `/jobs/${jobId}/applied`,
   candidateInterview: (token: string) => `/interview/${token}`,
+  /** Portal del postulante (sesión de candidato, enlace mágico). */
+  portal: "/portal",
+  portalSignIn: "/portal/sign-in",
+  portalJobs: "/portal/jobs",
+  portalApplications: "/portal/applications",
+  portalApplication: (id: string) => `/portal/applications/${id}`,
+  portalProfile: "/portal/profile",
   design: "/design",
 } as const;
