@@ -62,12 +62,12 @@ export function JobsBrowser({ jobs }: { jobs: PortalJob[] }) {
       </div>
 
       {visible.length ? (
-        <ul className="panel flex flex-col divide-y divide-border overflow-hidden px-4">
+        <ul className="panel flex flex-col divide-y divide-border overflow-hidden px-3">
           {visible.map((j, i) => {
             const closes = fromISODate(j.closesAt);
             return (
               <li key={j.id} className="animate-rise" style={{ animationDelay: `${i * 50}ms` }}>
-                <Link href={routes.apply(j.id)} className="group -mx-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-6 gap-y-2 rounded-xl px-3 py-5 transition-colors duration-300 hover:bg-hover md:grid-cols-[44px_minmax(0,1.2fr)_minmax(0,1fr)_150px_auto]">
+                <Link href={routes.apply(j.id)} className="group -mx-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-6 gap-y-2 rounded-none px-6 py-5 transition-colors duration-300 hover:bg-hover md:grid-cols-[44px_minmax(0,1.2fr)_minmax(0,1fr)_150px_auto]">
                   <span aria-hidden className="flex size-11 items-center justify-center rounded-xl bg-surface-2 font-head text-[14px] font-semibold text-ink-2 ring-1 ring-border transition-[transform,translate,scale,rotate] duration-500 ease-[var(--ease-spring)] group-hover:-rotate-3 max-md:hidden">
                     {j.company.split(" ").slice(0, 2).map((w) => w[0]).join("")}
                   </span>
