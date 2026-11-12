@@ -127,8 +127,8 @@ export function RankingIndex({ people, vacancies }: { people: TopPerson[]; vacan
               ) : (
                 <EmptyState
                   title={v.evaluated ? "Nadie cumple todavía" : "Todavía no hay candidatos"}
-                  description={v.evaluated ? "Prueba con todos o ajusta el perfil de la vacante." : "Sube hojas de vida para ver aquí a las mejores personas."}
-                  action={v.evaluated ? undefined : <ButtonLink href={`${routes.candidates}?job=${v.id}`}>Subir hojas de vida</ButtonLink>}
+                  description={v.evaluated ? "Prueba con todos o ajusta el perfil de la vacante." : "Comparte el enlace de la vacante: aquí verás a las mejores personas que se postulen."}
+                  action={v.evaluated ? undefined : <ButtonLink href={`${routes.candidates}?job=${v.id}`}>Compartir el enlace</ButtonLink>}
                   className="max-w-none animate-rise"
                 />
               )}

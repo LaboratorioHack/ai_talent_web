@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { ArrowRight, Upload } from "lucide-react";
+import { ArrowRight, Link2 } from "lucide-react";
 import { ButtonLink } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { useOnboarding } from "../state/onboarding-store";
@@ -42,8 +42,8 @@ export function DoneStep() {
         <ButtonLink href={routes.home} variant="outline" iconRight={<ArrowRight />}>
           Ir al panel
         </ButtonLink>
-        <ButtonLink href={routes.candidates} icon={<Upload />}>
-          Subir hojas de vida
+        <ButtonLink href={routes.candidates} icon={<Link2 />}>
+          Compartir la convocatoria
         </ButtonLink>
       </div>
     </div>

@@ -27,7 +27,7 @@ export interface PipelineCard {
   fulfillment?: Fulfillment;
   /** Lo más fuerte de su hoja de vida, o lo que falta. */
   note?: string;
-  source: "Subida por la empresa" | "Se postuló";
+  source: "Se postuló";
 }
 
 const NEW_NAMES = ["Martín Quiroga", "Ximena Patiño", "Óscar Lozano", "Renata Gómez", "Samuel Ibarra", "Antonia Vélez", "Iván Becerra", "Luisa Chaparro"];
@@ -45,7 +45,7 @@ export async function getPipeline(id: string): Promise<PipelineCard[]> {
   let finalists = job.stats.finalist - [...fixed.values()].filter((s) => s === "finalist").length;
   let interviews = job.stats.interview - [...fixed.values()].filter((s) => s === "interview").length;
 
-  const cards: PipelineCard[] = ranked.map((c, i) => {
+  const cards: PipelineCard[] = ranked.map((c) => {
     let stage: PipelineStage = fixed.get(c.id) ?? (c.fulfillment === "MEETS" ? "meets" : "evaluated");
     if (!fixed.has(c.id) && c.fulfillment === "MEETS" && finalists > 0) {
       stage = "finalist";
@@ -63,12 +63,12 @@ export async function getPipeline(id: string): Promise<PipelineCard[]> {
       score: c.score,
       fulfillment: c.fulfillment,
       note: c.fulfillment === "MEETS" ? (best ? short(best.requirementId) : undefined) : gap ? `Falta: ${short(gap.requirementId)}` : undefined,
-      source: i % 4 === 0 ? "Se postuló" : "Subida por la empresa",
+      source: "Se postuló",
     };
   });
   const pending = Math.max(0, job.stats.received - job.stats.read);
   for (let i = 0; i < Math.max(pending, id === "v-cloud" ? 1 : 0); i++) {
-    cards.push({ id: `${id}-new${i}`, name: NEW_NAMES[(i + id.length) % NEW_NAMES.length], stage: "received", source: i % 2 ? "Se postuló" : "Subida por la empresa" });
+    cards.push({ id: `${id}-new${i}`, name: NEW_NAMES[(i + id.length) % NEW_NAMES.length], stage: "received", source: "Se postuló" });
   }
   return delay(cards);
 }

@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Upload } from "lucide-react";
+import { ChevronRight, Inbox, Link2 } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
 import { ButtonLink, EmptyState, Select, useToast, CribaAi } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
@@ -102,8 +102,8 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
       actions={
         <>
           <Select aria-label="Vacante" options={data.jobs} value={data.job.id} onChange={(id) => router.push(routes.ranking(id))} className="w-full sm:w-[280px]" />
-          <ButtonLink href={`${routes.candidates}?job=${data.job.id}`} variant="outline" icon={<Upload />}>
-            Subir hojas de vida
+          <ButtonLink href={`${routes.candidates}?job=${data.job.id}`} variant="outline" icon={<Inbox />}>
+            Ver postulaciones
           </ButtonLink>
         </>
       }
@@ -117,10 +117,10 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
         <div className="flex flex-1 flex-col px-4 sm:px-6 lg:px-12 py-16">
           <EmptyState
             title="Todavía no hay candidatos"
-            description="Sube hojas de vida o comparte el enlace para que las personas se postulen. Criba AI las evalúa con el perfil de esta vacante."
+            description="Comparte el enlace para que las personas se postulen. Criba AI evalúa cada hoja de vida con el perfil de esta vacante apenas llega."
             action={
-              <ButtonLink href={`${routes.candidates}?job=${data.job.id}`} icon={<Upload />}>
-                Subir hojas de vida
+              <ButtonLink href={`${routes.candidates}?job=${data.job.id}`} icon={<Link2 />}>
+                Compartir el enlace
               </ButtonLink>
             }
             alternative={

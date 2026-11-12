@@ -79,7 +79,7 @@ function FunnelPanel({ data, period: initialPeriod, vacancy: initialVacancy, vac
       title="Embudo de selección"
       subtitle="De todas las que llegan, cuántas avanzan en cada paso"
       ai="Lee y evalúa"
-      action={{ label: "Subir hojas de vida", href: routes.candidates }}
+      action={{ label: "Ver postulaciones", href: routes.candidates }}
       controls={
         <>
           <Segmented aria-label="Período del embudo" size="sm" items={SHORT_PERIODS} value={period} onChange={setPeriod} />
