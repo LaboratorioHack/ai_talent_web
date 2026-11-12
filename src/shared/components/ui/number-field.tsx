@@ -50,7 +50,7 @@ export function NumberField({
             aria-label="Restar"
             disabled={disabled || value <= min}
             onClick={() => set(value - step)}
-            className="flex w-11 shrink-0 items-center justify-center text-ink-2 transition-colors duration-300 hover:bg-surface-2 hover:text-ink disabled:opacity-35"
+            className="flex w-11 shrink-0 items-center justify-center text-ink-2 transition-colors duration-300 hover:bg-hover hover:text-ink disabled:opacity-35"
           >
             <Minus aria-hidden className="size-3.5" />
           </button>
@@ -76,7 +76,7 @@ export function NumberField({
             aria-label="Sumar"
             disabled={disabled || value >= max}
             onClick={() => set(value + step)}
-            className="flex w-11 shrink-0 items-center justify-center text-ink-2 transition-colors duration-300 hover:bg-surface-2 hover:text-ink disabled:opacity-35"
+            className="flex w-11 shrink-0 items-center justify-center text-ink-2 transition-colors duration-300 hover:bg-hover hover:text-ink disabled:opacity-35"
           >
             <Plus aria-hidden className="size-3.5" />
           </button>

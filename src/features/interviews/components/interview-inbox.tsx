@@ -35,7 +35,7 @@ function Row({ iv, active, onSelect, index }: { iv: Interview; active: boolean; 
       aria-current={active || undefined}
       className={cn(
         "relative flex w-full items-center gap-3.5 rounded-2xl px-3 py-3 text-left transition-[background-color,box-shadow] duration-300 animate-[option-in_360ms_var(--ease-out-soft)_both]",
-        active ? "bg-surface shadow-[0_1px_2px_rgba(21,32,27,0.06),0_12px_28px_-20px_rgba(21,32,27,0.5)] ring-1 ring-border" : "hover:bg-surface/70",
+        active ? "bg-surface shadow-[0_1px_2px_rgba(21,32,27,0.06),0_12px_28px_-20px_rgba(21,32,27,0.5)] ring-1 ring-border" : "hover:bg-hover",
       )}
       style={{ animationDelay: `${index * 45}ms` }}
     >

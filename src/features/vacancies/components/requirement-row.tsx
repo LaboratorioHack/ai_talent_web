@@ -75,11 +75,11 @@ export function RequirementRow({ requirement, onChange, onRemove, index }: Requi
       />
 
       <div className={cn("field-box flex h-9 w-24 shrink-0 items-center overflow-hidden transition-opacity duration-300", disqualifying && "pointer-events-none opacity-35")}>
-        <button type="button" aria-label="Restar peso" onClick={() => setWeight((requirement.weight ?? 0) - 5)} className="flex h-full w-7 items-center justify-center text-ink-2 hover:bg-surface-2">
+        <button type="button" aria-label="Restar peso" onClick={() => setWeight((requirement.weight ?? 0) - 5)} className="flex h-full w-7 items-center justify-center text-ink-2 hover:bg-hover">
           <Minus aria-hidden className="size-3" />
         </button>
         <span className="flex-1 text-center font-mono text-sm">{disqualifying ? "—" : requirement.weight}</span>
-        <button type="button" aria-label="Sumar peso" onClick={() => setWeight((requirement.weight ?? 0) + 5)} className="flex h-full w-7 items-center justify-center text-ink-2 hover:bg-surface-2">
+        <button type="button" aria-label="Sumar peso" onClick={() => setWeight((requirement.weight ?? 0) + 5)} className="flex h-full w-7 items-center justify-center text-ink-2 hover:bg-hover">
           <Plus aria-hidden className="size-3" />
         </button>
       </div>

@@ -31,13 +31,13 @@ export function Calendar({ value, onChange, minDate, maxDate, note = "Las fechas
   return (
     <div className={cn("flex w-[300px] flex-col gap-3 rounded-lg border border-border bg-surface p-4", className)}>
       <div className="flex items-center justify-between">
-        <button type="button" aria-label="Mes anterior" onClick={() => setMonth(addMonths(month, -1))} className="rounded p-1 text-ink-2 hover:bg-surface-2">
+        <button type="button" aria-label="Mes anterior" onClick={() => setMonth(addMonths(month, -1))} className="rounded p-1 text-ink-2 hover:bg-hover">
           <ChevronLeft aria-hidden className="size-4" />
         </button>
         <span className="text-[13.5px] font-medium" aria-live="polite">
           {formatMonthYear(month)}
         </span>
-        <button type="button" aria-label="Mes siguiente" onClick={() => setMonth(addMonths(month, 1))} className="rounded p-1 text-ink-2 hover:bg-surface-2">
+        <button type="button" aria-label="Mes siguiente" onClick={() => setMonth(addMonths(month, 1))} className="rounded p-1 text-ink-2 hover:bg-hover">
           <ChevronRight aria-hidden className="size-4" />
         </button>
       </div>
@@ -69,7 +69,7 @@ export function Calendar({ value, onChange, minDate, maxDate, note = "Las fechas
                   onClick={() => onChange(day)}
                   className={cn(
                     "size-8 rounded-full text-[12.5px] transition-[background-color,color,transform,translate,scale,rotate] duration-200 hover:scale-105 active:scale-95",
-                    selected ? "bg-ink font-semibold text-ink-inverse" : "hover:bg-surface-2",
+                    selected ? "bg-ink font-semibold text-ink-inverse" : "hover:bg-hover",
                     disabled && "text-ink-3 hover:bg-transparent",
                     !selected && !disabled && isToday && "font-semibold underline underline-offset-4",
                   )}

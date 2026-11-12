@@ -70,7 +70,7 @@ export function ApplyForm({ jobId, company }: { jobId: string; company: string }
                     type="button"
                     aria-label="Quitar archivo"
                     onClick={() => field.onChange(undefined)}
-                    className="flex size-8 items-center justify-center rounded-lg text-ink-3 transition-colors hover:bg-surface-2 hover:text-danger"
+                    className="flex size-8 items-center justify-center rounded-lg text-ink-3 transition-colors hover:bg-hover hover:text-danger"
                   >
                     <X aria-hidden className="size-4" />
                   </button>

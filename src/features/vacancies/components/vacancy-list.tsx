@@ -50,7 +50,7 @@ function VacancyCard({ v, index, today }: { v: JobOpening; index: number; today:
   const daysLeft = closes && today ? Math.ceil((closes.getTime() - today.getTime()) / DAY) : null;
   const elapsed = closes && created && today ? Math.min(1, Math.max(0, (today.getTime() - created.getTime()) / (closes.getTime() - created.getTime()))) : 0;
   const draft = v.status === "DRAFT";
-  const action = "flex size-9 items-center justify-center rounded-full text-ink-3 transition-[background-color,color] duration-300 hover:bg-surface-2 hover:text-ink";
+  const action = "flex size-9 items-center justify-center rounded-full text-ink-3 transition-[background-color,color] duration-300 hover:bg-hover hover:text-ink";
 
   return (
     <li className="animate-rise" style={{ animationDelay: `${index * 55}ms` }}>

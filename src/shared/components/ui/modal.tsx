@@ -64,7 +64,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
             ) : null}
           </div>
           {dismissible ? (
-            <button type="button" onClick={onClose} aria-label="Cerrar" className="-m-1 shrink-0 rounded p-1 text-ink-3 hover:bg-surface-2 hover:text-ink">
+            <button type="button" onClick={onClose} aria-label="Cerrar" className="-m-1 shrink-0 rounded p-1 text-ink-3 hover:bg-hover hover:text-ink">
               <X aria-hidden className="size-[18px]" />
             </button>
           ) : null}

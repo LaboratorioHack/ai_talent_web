@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight, Pencil, Upload } from "lucide-react";
-import { PageTop } from "@/shared/components/layout";
+import { PageTop, PageTopSkeleton } from "@/shared/components/layout";
 import { ButtonLink, Skeleton } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { getPipeline, getVacancy } from "@/features/vacancies/api/vacancies";
@@ -54,10 +54,7 @@ async function Board({ params }: { params: Promise<{ id: string }> }) {
 function BoardSkeleton() {
   return (
     <div className="flex flex-col" aria-busy>
-      <div className="border-b border-border bg-surface px-4 sm:px-6 lg:px-12 pt-7 pb-6">
-        <Skeleton className="h-4 w-48" />
-        <Skeleton className="mt-3 h-8 w-80" />
-      </div>
+      <PageTopSkeleton />
       <div className="grid grid-cols-5 gap-4 px-4 sm:px-6 lg:px-10 pt-6">
         {Array.from({ length: 5 }, (_, i) => (
           <Skeleton key={i} className="h-[420px] rounded-2xl" />

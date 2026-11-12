@@ -22,7 +22,7 @@ export function AccountMenu({ user }: { user: CurrentUser }) {
     router.push(routes.login);
   }
 
-  const item = "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[14px] text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink";
+  const item = "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[14px] text-ink-2 transition-colors hover:bg-hover hover:text-ink";
 
   return (
     <Popover

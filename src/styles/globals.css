@@ -20,6 +20,10 @@
   --surface: #ffffff;
   --surface-2: #eef1ec;
   --surface-3: #e6ebe4;
+  /* Hover y carga: translúcidos, así funcionan sobre cualquier fondo. */
+  --hover: rgb(21 32 27 / 0.055);
+  --skeleton: rgb(21 32 27 / 0.055);
+  --skeleton-hi: rgb(21 32 27 / 0.1);
   --border: #e1e6df;
   --border-strong: #cbd3ca;
 
@@ -58,6 +62,9 @@
   --surface: #141e19;
   --surface-2: #1b2620;
   --surface-3: #22302a;
+  --hover: rgb(237 242 238 / 0.07);
+  --skeleton: rgb(237 242 238 / 0.045);
+  --skeleton-hi: rgb(237 242 238 / 0.1);
   --border: rgb(232 240 234 / 0.09);
   --border-strong: rgb(232 240 234 / 0.18);
   --ink: #edf2ee;
@@ -98,6 +105,7 @@
 
 @theme inline {
   --color-bg: var(--bg);
+  --color-hover: var(--hover);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-border: var(--border);
@@ -224,6 +232,9 @@
   --surface: #141e19;
   --surface-2: #1b2620;
   --surface-3: #22302a;
+  --hover: rgb(237 242 238 / 0.07);
+  --skeleton: rgb(237 242 238 / 0.045);
+  --skeleton-hi: rgb(237 242 238 / 0.1);
   --border: rgb(232 240 234 / 0.09);
   --border-strong: rgb(232 240 234 / 0.18);
   --ink: #edf2ee;
@@ -608,6 +619,12 @@
   50% {
     opacity: 1;
   }
+}
+
+/* Bloques de carga: barrido suave de luz, no un bloque que se oscurece y aclara. */
+.skeleton {
+  background: linear-gradient(100deg, var(--skeleton) 30%, var(--skeleton-hi) 50%, var(--skeleton) 70%) 0 0 / 200% 100%;
+  animation: shimmer 1.9s var(--ease-in-out-soft) infinite;
 }
 
 @keyframes shimmer {

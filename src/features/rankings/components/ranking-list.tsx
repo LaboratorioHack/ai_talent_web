@@ -64,7 +64,7 @@ export function RankingList({ candidates, selectedId, onSelect, discarded, dimme
                 aria-current={active ? "true" : undefined}
                 className={cn(
                   "relative grid w-full grid-cols-[28px_36px_1fr_36px] items-center gap-3 rounded-xl px-3 py-3 text-left transition-[background-color] duration-300",
-                  active ? "bg-surface shadow-[0_1px_2px_rgba(21,32,27,0.06),0_10px_24px_-18px_rgba(21,32,27,0.45)] ring-1 ring-border" : "hover:bg-surface/70",
+                  active ? "bg-surface shadow-[0_1px_2px_rgba(21,32,27,0.06),0_10px_24px_-18px_rgba(21,32,27,0.45)] ring-1 ring-border" : "hover:bg-hover",
                 )}
               >
                 <span className={cn("absolute top-3 bottom-3 left-0 w-[3px] rounded-full bg-ink transition-transform duration-500 ease-[var(--ease-spring)]", active ? "scale-y-100" : "scale-y-0")} />
