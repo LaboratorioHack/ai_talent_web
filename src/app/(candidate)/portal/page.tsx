@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Mis postulaciones" };
 
 async function Home() {
   const [applicant, applications, jobs, resume] = await Promise.all([getApplicant(), listMyApplications(), listOpenJobs(), getMyResume()]);
-  return <PortalHome applicant={applicant} applications={applications} resume={resume} newJobs={jobs.filter((j) => !j.applied).length} />;
+  return <PortalHome applicant={applicant} applications={applications} resume={resume} jobs={jobs} />;
 }
 
 function Loading() {

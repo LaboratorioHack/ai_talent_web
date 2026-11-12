@@ -4,6 +4,7 @@ import { env } from "@/config/env";
 import { apiFetch } from "@/shared/lib/api-client";
 import { delay, mockInterviews, mockRequirementsOf, mockUser, mockVacancies } from "@/shared/mocks";
 import type { CandidateInterview, PublicJob } from "../types/public";
+import { OTHER_COMPANY_JOBS } from "./other-companies";
 
 const DESCRIPTIONS: Record<string, string> = {
   "v-cloud":
@@ -32,6 +33,8 @@ const FALLBACK = LISTING["v-cloud"];
  */
 export async function getPublicJob(id: string): Promise<PublicJob | null> {
   if (!env.useMocks) return apiFetch<PublicJob>(`/public/vacancies/${id}`).catch(() => null);
+  const other = OTHER_COMPANY_JOBS.find((j) => j.id === id);
+  if (other) return delay(other);
   const job = mockVacancies.find((v) => v.id === id && v.status === "OPEN");
   if (!job) return delay(null);
   const reqs = mockRequirementsOf(job);

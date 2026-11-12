@@ -4,6 +4,7 @@ import { env } from "@/config/env";
 import { apiFetch } from "@/shared/lib/api-client";
 import { delay, mockRequirementsOf, mockUser, mockVacancies } from "@/shared/mocks";
 import type { Applicant, PortalApplication, PortalJob, ResumeSummary } from "../types/portal";
+import { OTHER_COMPANY_JOBS } from "./other-companies";
 
 /*
  * Datos del portal del postulante. Con backend, todo cuelga de la sesión del
@@ -113,6 +114,7 @@ const RESUME: ResumeSummary = {
   fileName: "sebastian_vega_cv.pdf",
   sizeKb: 196,
   updatedAt: "2026-10-28",
+  skills: ["7 años de experiencia", "Azure", "Kubernetes", "Terraform", "Azure DevOps", "AWS", "GitHub Actions", "Grafana", "Inglés B2"],
   doc: {
     name: "Sebastián Vega",
     headline: "Ingeniero de plataforma cloud",
@@ -171,7 +173,32 @@ export async function getMyResume(): Promise<ResumeSummary> {
   return delay(RESUME);
 }
 
-/** Vacantes abiertas, con lo más visible de cada una y si ya te postulaste. */
+/** Habilidad de la hoja de vida → palabra que la delata en una vacante. */
+const SKILL_KEYS: Record<string, string> = {
+  Azure: "azure",
+  Kubernetes: "kubernetes",
+  Terraform: "terraform",
+  AWS: "aws",
+  "Azure DevOps": "devops",
+  "GitHub Actions": "git",
+  Grafana: "grafana",
+  "Inglés B2": "inglés",
+};
+
+/**
+ * Criba AI compara las vacantes con lo que encontró en la hoja de vida y
+ * explica por qué te sirve cada una. En el backend esto sale de los embeddings
+ * de requisitos y fragmentos; aquí, de palabras clave.
+ */
+function matchOf(text: string): PortalJob["match"] {
+  const t = text.toLowerCase();
+  const reasons = Object.entries(SKILL_KEYS)
+    .filter(([, key]) => t.includes(key))
+    .map(([skill]) => skill);
+  return { level: reasons.length >= 3 ? "alta" : reasons.length ? "media" : "baja", reasons };
+}
+
+/** Vacantes abiertas, con lo más visible de cada una, si ya te postulaste y qué tan afín es a tu hoja de vida. */
 export async function listOpenJobs(): Promise<PortalJob[]> {
   if (!env.useMocks) return apiFetch<PortalJob[]>("/public/vacancies");
   const mine = new Set(APPLICATIONS.filter((a) => a.outcome !== "withdrawn").map((a) => a.jobId));
@@ -192,6 +219,22 @@ export async function listOpenJobs(): Promise<PortalJob[]> {
             .slice(0, 3)
             .map((r) => r.description),
         applied: mine.has(v.id),
-      })),
+        match: matchOf(HIGHLIGHTS[v.id]?.join(" ") ?? mockRequirementsOf(v).map((r) => `${r.description} ${r.equivalences.map((e) => e.label).join(" ")}`).join(" ")),
+      }))
+      .concat(
+        OTHER_COMPANY_JOBS.map((j) => ({
+          id: j.id,
+          title: j.title,
+          company: j.company,
+          area: j.area,
+          location: j.location,
+          modality: j.modality,
+          closesAt: j.closesAt,
+          highlights: j.mandatory.map((r) => r.text),
+          applied: false,
+          match: matchOf([...j.mandatory, ...j.desirable].map((r) => `${r.text} ${r.alsoCounts.join(" ")}`).join(" ")),
+        })),
+      )
+      .sort((a, b) => "altamediabaja".indexOf(a.match.level) - "altamediabaja".indexOf(b.match.level)),
   );
 }

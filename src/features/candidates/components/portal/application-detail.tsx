@@ -18,8 +18,8 @@ const day = (iso?: string) => {
 
 const NEXT: Record<string, string> = {
   received: "Leemos tu hoja de vida.",
-  review: "El equipo revisa las postulaciones.",
-  interview: "Unas preguntas cortas por chat.",
+  review: "Criba AI compara tu experiencia con los requisitos; una persona del equipo revisa.",
+  interview: "Criba AI te hace unas preguntas cortas por chat.",
   decision: "El equipo decide y te escribe.",
 };
 
