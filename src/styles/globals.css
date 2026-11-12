@@ -803,3 +803,17 @@
   transform-origin: left;
   animation: rail-fill 900ms var(--ease-out-soft) both;
 }
+
+/*
+ * Tarjeta del lado del candidato: superficie translúcida con desenfoque, así
+ * el texto se lee sobre los contornos sin tapar del todo el fondo.
+ */
+.panel {
+  background: color-mix(in oklab, var(--surface) 84%, transparent);
+  backdrop-filter: blur(12px) saturate(1.1);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 18px 40px -30px rgb(0 0 0 / 0.4);
+}

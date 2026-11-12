@@ -25,7 +25,7 @@ export function AppliedView({ job }: { job: PublicJob }) {
         </div>
       </div>
 
-      <ol className="flex w-full flex-col divide-y divide-border border-y border-border text-left" style={{ "--i": 1 } as React.CSSProperties}>
+      <ol className="panel flex w-full flex-col divide-y divide-border px-6 text-left" style={{ "--i": 1 } as React.CSSProperties}>
         {NEXT.map((n, i) => (
           <li key={n.title} className="flex gap-4 py-4">
             <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-2 font-mono text-[12px] font-semibold text-ink-2 ring-1 ring-border">{i + 1}</span>

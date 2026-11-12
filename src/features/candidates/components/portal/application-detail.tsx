@@ -58,7 +58,7 @@ export function ApplicationDetail({ application }: { application: PortalApplicat
 
       <section className="flex flex-col animate-rise [animation-delay:140ms]">
         <h2 className="mb-2 text-[13px] text-ink-3">Lo que ha pasado</h2>
-        <ol className="flex flex-col divide-y divide-border border-y border-border">
+        <ol className="panel flex flex-col divide-y divide-border px-5">
           {STAGES.map((s, i) => {
             const reached = a.history.find((h) => h.stage === s.key);
             const isCurrent = i === current;

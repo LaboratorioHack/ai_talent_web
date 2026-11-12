@@ -60,7 +60,7 @@ export function JobsBrowser({ jobs }: { jobs: PortalJob[] }) {
       </div>
 
       {visible.length ? (
-        <ul className="flex flex-col divide-y divide-border border-y border-border">
+        <ul className="panel flex flex-col divide-y divide-border overflow-hidden px-4">
           {visible.map((j, i) => {
             const closes = fromISODate(j.closesAt);
             return (
@@ -92,7 +92,7 @@ export function JobsBrowser({ jobs }: { jobs: PortalJob[] }) {
           })}
         </ul>
       ) : (
-        <p className="border-y border-border py-12 text-center text-[14px] text-ink-3">No hay vacantes con esos filtros.</p>
+        <p className="panel py-12 text-center text-[14px] text-ink-3">No hay vacantes con esos filtros.</p>
       )}
     </div>
   );
