@@ -30,7 +30,7 @@ export interface TradeoffMatrix {
   job: { id: string; title: string; status: string; openings: number; closesAt: string; received: number; meets: number };
   jobs: { value: string; label: string }[];
   sections: { title: string; hint: string; rows: TradeoffRow[] }[];
-  /** Las primeras 4 se muestran; el resto se puede agregar. */
+  /** Las primeras 3 se muestran; el resto se puede agregar. */
   candidates: TradeoffCandidate[];
   /** Lectura de Criba AI sobre las personas comparadas. */
   reading: string;

@@ -127,13 +127,12 @@ export function toJobOpening(v: ApiVacancySummary | ApiVacancyDetail, companyId 
     },
     stats: {
       received: v.counts.resumes,
-      // La API todavía no separa leídas de recibidas ni cuenta finalistas.
-      read: v.counts.resumes,
+      // Sin conteo de «leídas» en /vacancies: usamos evaluaciones completadas, no recibidas.
+      read: v.counts.meets + v.counts.partiallyMeets + v.counts.doesNotMeet,
       meets: v.counts.meets,
       partial: v.counts.partiallyMeets,
       doesNotMeet: v.counts.doesNotMeet + v.counts.disqualified,
       interview: v.counts.interviews,
-      finalist: 0,
     },
   };
 }

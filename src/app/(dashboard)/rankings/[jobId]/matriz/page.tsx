@@ -27,7 +27,7 @@ function MatrixSkeleton() {
   );
 }
 
-/** Ranking · Matriz de trade-offs de una vacante (hasta 4 personas lado a lado). */
+/** Ranking · Matriz de trade-offs de una vacante (de 2 a 3 personas lado a lado). */
 export default function TradeoffsPage(props: PageProps<"/rankings/[jobId]/matriz">) {
   return (
     <Suspense fallback={<MatrixSkeleton />}>
