@@ -1,5 +1,7 @@
 "use client";
 
+import { routes } from "@/shared/constants/routes";
+import { rememberAuthNext } from "@/shared/lib/auth-redirect";
 import { createSupabaseBrowserClient, supabaseConfigured } from "@/shared/lib/supabase/client";
 import { delay } from "@/shared/mocks";
 import type { LoginInput } from "../schemas/login";
@@ -32,7 +34,8 @@ export async function signInWithPassword(input: LoginInput): Promise<AuthResult>
 export async function requestPasswordReset(email: string): Promise<AuthResult> {
   if (!supabaseConfigured) return delay({ ok: true }, 600);
   const supabase = createSupabaseBrowserClient();
-  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/auth/callback?next=/home` });
+  rememberAuthNext(routes.home);
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/auth/callback?next=${routes.home}` });
   if (error?.code === "over_request_rate_limit" || error?.code === "over_email_send_rate_limit") return { ok: false, message: MESSAGES.over_request_rate_limit };
   return { ok: true };
 }

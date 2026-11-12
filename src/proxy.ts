@@ -18,6 +18,15 @@ export async function proxy(request: NextRequest) {
   // "/" es la landing pública.
   const isPublic = pathname === "/" || PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
 
+  // Si el dominio no está en las Redirect URLs de Supabase, el enlace del correo cae en el
+  // Site URL ("/") con ?code o ?error. Se pasa al callback, que sabe a qué portal volver.
+  const { searchParams } = request.nextUrl;
+  if (pathname === "/" && (searchParams.has("code") || searchParams.has("error"))) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    return NextResponse.redirect(url);
+  }
+
   // Sin Supabase configurado (modo mock) no hay sesión que proteger.
   if (!env.supabaseUrl || !env.supabaseAnonKey) return NextResponse.next();
 
