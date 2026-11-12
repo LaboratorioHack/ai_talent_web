@@ -20,7 +20,7 @@ export function NextStep({ application: a }: { application: PortalApplication })
   return (
     <Link
       href={routes.candidateInterview(a.interviewToken!)}
-      className="group relative grid grid-cols-1 overflow-hidden rounded-3xl bg-amber text-[#1a211d] shadow-[0_14px_30px_-24px_rgba(242,169,59,0.45)] transition-[transform,translate,box-shadow] duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[0_18px_36px_-24px_rgba(242,169,59,0.55)] sm:grid-cols-[minmax(0,1fr)_260px]"
+      className="group relative grid grid-cols-1 overflow-hidden rounded-3xl bg-amber text-[#1a211d] shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition-[transform,translate,box-shadow] duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[0_10px_22px_-16px_rgba(0,0,0,0.3)] sm:grid-cols-[minmax(0,1fr)_260px]"
     >
       <span aria-hidden className="pointer-events-none absolute -top-24 -left-16 size-72 rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.18),transparent)]" />
       <div className="relative flex flex-col justify-between gap-6 p-6 sm:p-7">
