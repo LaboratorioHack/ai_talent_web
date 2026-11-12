@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import Link from "next/link";
 import { MyApplicationsLink } from "@/features/candidates/components/portal/my-applications-link";
 import { ThemeToggle } from "@/shared/components/layout";
@@ -20,7 +20,9 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <MyApplicationsLink />
+            <Suspense fallback={null}>
+              <MyApplicationsLink />
+            </Suspense>
           </div>
         </div>
       </header>
