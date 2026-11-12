@@ -1,0 +1,39 @@
+---
+const asset = (file: string) => `${import.meta.env.BASE_URL.replace(/\/$/, "")}/img/${file}`;
+import Logo from "./Logo.astro";
+import OrbitRank from "./OrbitRank.astro";
+const appUrl = import.meta.env.PUBLIC_APP_URL ?? "http://localhost:3000";
+---
+
+<section class="py-20 sm:py-28">
+  <div class="container-x grid items-center gap-10 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)] md:gap-16">
+    <div data-reveal class="photo aspect-[4/3]">
+      <img src={asset("recruiter.webp")} alt="Una reclutadora revisa postulaciones en su portátil" width="1600" height="1067" loading="lazy" class="object-[30%_50%]" />
+    </div>
+    <div class="flex flex-col items-start gap-8">
+      <h2 data-reveal style="--i:1" class="font-head text-[34px] leading-[1.08] font-semibold tracking-[-0.025em] text-balance sm:text-[46px]">Empieza con una vacante. Las primeras hojas de vida se leen hoy.</h2>
+      <div data-reveal style="--i:2" class="flex flex-wrap gap-3">
+        <a href={`${appUrl}/login`} class="btn btn-ink">Publicar una vacante</a>
+        <a href={`${appUrl}/login`} class="btn btn-line">Entrar</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Cierre en bucle: la órbita de Criba, con las que mejor encajan cerca de la vacante. -->
+<div class="-mt-6 overflow-hidden">
+  <OrbitRank />
+</div>
+
+<footer class="relative border-t border-border py-10">
+  <div class="container-x flex flex-col gap-6 text-[14px] text-ink-3 sm:flex-row sm:items-center sm:justify-between">
+    <Logo />
+    <nav aria-label="Pie de página" class="flex flex-wrap gap-x-6 gap-y-2">
+      <a href="#producto" class="hover:text-ink">Producto</a>
+      <a href="#como-funciona" class="hover:text-ink">Cómo funciona</a>
+      <a href={`${appUrl}/portal/jobs`} class="hover:text-ink">Vacantes</a>
+      <a href={`${appUrl}/portal/sign-in`} class="hover:text-ink">Portal de postulantes</a>
+    </nav>
+    <p>Datos tratados según la Ley 1581 de 2012</p>
+  </div>
+</footer>

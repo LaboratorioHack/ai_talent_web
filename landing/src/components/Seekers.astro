@@ -1,0 +1,85 @@
+---
+const asset = (file: string) => `${import.meta.env.BASE_URL.replace(/\/$/, "")}/img/${file}`;
+/**
+ * Para quien busca empleo: la otra mitad de Criba, en una banda verde.
+ * Las vacantes llevan a su página pública en la app (/jobs/{id}).
+ */
+const appUrl = import.meta.env.PUBLIC_APP_URL ?? "http://localhost:3000";
+const roles = [
+  { id: "v-cloud", title: "Ingeniero Cloud Senior", place: "Cordillera Financiera · Medellín, híbrido" },
+  { id: "v-data", title: "Analista de Datos", place: "Cordillera Financiera · Bogotá, remoto" },
+  { id: "v-backend", title: "Desarrollador Backend Jr", place: "Cordillera Financiera · Remoto" },
+];
+const points = ["Te postulas sin crear cuenta, con la hoja de vida que ya tienes", "Ves en qué etapa va cada postulación", "Avances o no, te responden"];
+---
+
+<section id="postulantes" class="scroll-mt-20 border-y border-border bg-green/75 py-20 text-[#eef2ee] backdrop-blur-[2px] sm:py-28">
+  <div class="container-x grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+    <div data-scrub data-scrub-end="0.3" class="relative pb-[18%] pr-[6%]">
+      <div data-reveal class="photo aspect-[4/5] max-h-[600px] w-[78%]">
+        <img src={asset("home-desk.webp")} alt="Una persona revisa vacantes desde el escritorio de su casa" width="1067" height="1600" loading="lazy" />
+      </div>
+      <figure class="drift shot absolute right-0 bottom-0 w-[72%]">
+        <img src={asset("app-portal.webp")} alt="Portal del postulante en Criba: procesos en curso, la próxima entrevista y la hoja de vida" width="1800" height="1266" loading="lazy" />
+      </figure>
+    </div>
+
+    <div class="flex flex-col">
+      <p data-reveal class="text-[14px] font-medium text-amber">Si buscas empleo</p>
+      <h2 data-reveal style="--i:1" class="mt-4 font-head text-[34px] leading-[1.08] font-semibold tracking-[-0.025em] text-balance sm:text-[46px]">Que lean tu hoja de vida completa, no solo las palabras clave.</h2>
+      <ul data-reveal style="--i:2" class="mt-7 flex flex-col gap-3 text-[16px] text-[#eef2ee]/80">
+        {
+          points.map((p) => (
+            <li class="flex items-start gap-3">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--amber)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="mt-1 shrink-0">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              {p}
+            </li>
+          ))
+        }
+      </ul>
+
+      <ul data-reveal style="--i:3" class="mt-10 flex flex-col border-t border-white/12">
+        {
+          roles.map((r) => (
+            <li>
+              <a href={`${appUrl}/jobs/${r.id}`} class="role flex items-center justify-between gap-4 border-b border-white/12 py-4">
+                <span class="flex min-w-0 flex-col">
+                  <span class="truncate text-[17px] font-medium">{r.title}</span>
+                  <span class="truncate text-[14px] text-[#eef2ee]/55">{r.place}</span>
+                </span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="arrow shrink-0 text-[#eef2ee]/60">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div data-reveal style="--i:4" class="mt-9 flex flex-wrap gap-3">
+        <a href={`${appUrl}/portal/jobs`} class="btn btn-amber">Ver todas las vacantes</a>
+        <a href={`${appUrl}/portal/sign-in`} class="btn border border-white/25 text-[#eef2ee] hover:bg-white/8">Entrar a mi portal</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* La captura del portal sube sobre la foto y se asienta con el scroll. */
+  .drift {
+    transform: translateY(calc((1 - var(--p, 1)) * 70px)) rotate(calc((1 - var(--p, 1)) * 2deg));
+    opacity: calc(0.4 + var(--p, 1) * 0.6);
+    will-change: transform;
+  }
+  .role .arrow {
+    transition:
+      translate 300ms var(--ease-out-soft),
+      color 300ms var(--ease-out-soft);
+  }
+  .role:hover .arrow {
+    translate: 4px 0;
+    color: var(--amber);
+  }
+</style>
