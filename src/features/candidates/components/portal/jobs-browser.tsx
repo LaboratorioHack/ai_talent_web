@@ -3,11 +3,12 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Check } from "lucide-react";
-import { SearchField, Select } from "@/shared/components/ui";
+import { CribaAiNote, SearchField, Select } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import type { PortalJob } from "../../types/portal";
+import { MATCH_LABEL, matchReason } from "./recommended-jobs";
 
 type Modality = "all" | PortalJob["modality"];
 const MODALITIES: Modality[] = ["all", "Remoto", "Híbrido", "Presencial"];
@@ -28,6 +29,7 @@ export function JobsBrowser({ jobs }: { jobs: PortalJob[] }) {
 
   return (
     <div className="flex flex-col gap-6">
+      <CribaAiNote>Ordenó las vacantes por qué tan afines son a tu hoja de vida y te dice por qué. No es un puntaje: postúlate a las que te interesen.</CribaAiNote>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div role="radiogroup" aria-label="Modalidad" className="flex flex-wrap gap-2">
           {MODALITIES.map((m) => (
@@ -83,7 +85,10 @@ export function JobsBrowser({ jobs }: { jobs: PortalJob[] }) {
                       {j.company} · {j.location}, {j.modality.toLowerCase()}
                     </span>
                   </span>
-                  <span className="truncate text-[13.5px] text-ink-2 max-md:col-span-2 max-md:row-start-2">{j.highlights.join(" · ")}</span>
+                  <span className="flex min-w-0 flex-col gap-1 max-md:col-span-2 max-md:row-start-2">
+                    <span className={cn("w-fit rounded-full px-2 py-0.5 text-[11.5px] font-medium", MATCH_LABEL[j.match.level].tone)}>{MATCH_LABEL[j.match.level].label}</span>
+                    <span className="truncate text-[12.5px] text-ink-3">{matchReason(j)}</span>
+                  </span>
                   <span className="text-[13px] text-ink-3 max-md:hidden">{closes ? `Hasta el ${formatLongDate(closes)}` : ""}</span>
                   <ArrowUpRight aria-hidden className="size-4 text-ink-3 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 max-md:row-start-1 max-md:col-start-2" />
                 </Link>

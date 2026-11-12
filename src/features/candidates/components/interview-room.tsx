@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRight, Clock, MessageSquareText, Send, UserCheck } from "lucide-react";
-import { Button, ButtonLink, LogoMark, ProgressSegments } from "@/shared/components/ui";
+import { Button, ButtonLink, CribaAi, LogoMark, ProgressSegments } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import { cn } from "@/shared/lib/cn";
@@ -136,7 +136,10 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
     return (
       <div className="stagger mx-auto flex w-full max-w-[600px] flex-col gap-8 px-4 pt-12 pb-16 sm:px-6 sm:pt-16 [&>*]:animate-rise">
         <div className="flex flex-col gap-3" style={{ "--i": 0 } as React.CSSProperties}>
-          <p className="eyebrow">{iv.company}</p>
+          <p className="flex flex-wrap items-center gap-2">
+            <span className="eyebrow">{iv.company}</span>
+            <CribaAi label="te entrevista por chat" />
+          </p>
           <h1 className="font-head text-[30px] leading-[1.1] font-semibold tracking-[-0.01em] sm:text-[36px]">Hola, {first}. Tu entrevista para {iv.jobTitle}</h1>
           <p className="text-[15px] text-ink-2">Las preguntas salen de tu hoja de vida y del cargo. Contesta con calma y con ejemplos de lo que hiciste.</p>
         </div>
@@ -162,7 +165,10 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
     <div className="mx-auto flex w-full max-w-[760px] flex-1 flex-col px-4 sm:px-6">
       <div className="sticky top-[var(--app-header)] z-10 -mx-4 flex flex-col gap-2 bg-bg/90 px-4 pt-4 pb-3 backdrop-blur-md sm:-mx-6 sm:px-6">
         <div className="flex items-baseline justify-between gap-3 text-[13px]">
-          <span className="truncate font-medium">{iv.jobTitle}</span>
+          <span className="flex min-w-0 items-center gap-2">
+            <CribaAi />
+            <span className="truncate font-medium">{iv.jobTitle}</span>
+          </span>
           <span className="shrink-0 text-ink-3 tabular-nums">
             Pregunta {current + 1} de {total}
           </span>

@@ -1,10 +1,8 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { ResumeSheet } from "@/shared/components/resume/resume-sheet";
-import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
-import type { Applicant, PortalApplication, ResumeSummary } from "../../types/portal";
+import type { Applicant, PortalApplication, PortalJob, ResumeSummary } from "../../types/portal";
+import { CvCard } from "./cv-card";
+import { RecommendedJobs } from "./recommended-jobs";
 import { ApplicationRow } from "./application-row";
 import { NextStep } from "./next-step";
 import { STAGES } from "./stage-track";
@@ -33,7 +31,7 @@ function activity(applications: PortalApplication[]) {
  * lo próximo en un bloque ámbar vivo, postulaciones como filas con riel de
  * etapas y, al lado, la hoja de vida en una pila de papeles y lo último que pasó.
  */
-export function PortalHome({ applicant, applications, resume, newJobs }: { applicant: Applicant; applications: PortalApplication[]; resume: ResumeSummary; newJobs: number }) {
+export function PortalHome({ applicant, applications, resume, jobs }: { applicant: Applicant; applications: PortalApplication[]; resume: ResumeSummary; jobs: PortalJob[] }) {
   const first = applicant.name.split(" ")[0];
   const open = applications.filter((a) => a.outcome === "open");
   const ended = applications.filter((a) => a.outcome !== "open");
@@ -83,34 +81,16 @@ export function PortalHome({ applicant, applications, resume, newJobs }: { appli
               </ul>
             </>
           ) : null}
-          <Link href={routes.portalJobs} className="group mt-8 inline-flex w-fit items-center gap-2 rounded-full py-2 pr-4 pl-1 text-[14px] text-ink-2 transition-colors hover:text-ink">
-            <span className="flex size-8 items-center justify-center rounded-full bg-surface-2 font-head text-[13px] font-semibold text-amber ring-1 ring-border">{newJobs}</span>
-            vacantes abiertas que todavía no has visto
-            <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-          </Link>
+          <div className="mt-10">
+            <RecommendedJobs jobs={jobs} />
+          </div>
         </section>
       </div>
 
       <aside className="flex flex-col gap-10 lg:sticky lg:top-[96px] lg:self-start">
-        <section className="flex flex-col gap-4 animate-rise [animation-delay:140ms]">
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-[13px] font-medium tracking-[0.08em] text-ink-3 uppercase">Tu hoja de vida</h2>
-            <span className="text-[12.5px] text-ink-3">{day(resume.updatedAt)}</span>
-          </div>
-          <Link href={routes.portalResume} aria-label="Ver y editar tu hoja de vida" className="group relative block h-[330px]">
-            <span aria-hidden className="absolute inset-x-6 top-3 h-[300px] rounded-[3px] bg-[#e9e3d6] shadow-[0_20px_40px_-20px_rgba(0,0,0,0.8)] transition-transform duration-700 ease-[var(--ease-spring)] [rotate:-4deg] group-hover:[rotate:-9deg] group-hover:-translate-x-3" />
-            <span aria-hidden className="absolute inset-x-4 top-1.5 h-[310px] rounded-[3px] bg-[#efe9dc] shadow-[0_20px_40px_-20px_rgba(0,0,0,0.8)] transition-transform duration-700 ease-[var(--ease-spring)] [rotate:3deg] group-hover:[rotate:7deg] group-hover:translate-x-3" />
-            <span className="absolute inset-x-0 top-0 h-[320px] overflow-hidden rounded-[3px] transition-transform duration-700 ease-[var(--ease-spring)] animate-[float_7s_ease-in-out_infinite] group-hover:-translate-y-1">
-              <span className="pointer-events-none block origin-top-left scale-[0.6]" style={{ width: "166.7%" }}>
-                <ResumeSheet doc={resume.doc} compact />
-              </span>
-              <span className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#f5f1e8] to-transparent" />
-              <span className="absolute inset-x-0 bottom-4 flex justify-center">
-                <span className="rounded-full bg-[#1a211d] px-4 py-2 text-[13px] font-medium text-[#f5f1e8] transition-transform duration-300 group-hover:-translate-y-0.5">Ver y editar</span>
-              </span>
-            </span>
-          </Link>
-        </section>
+        <div className="animate-rise [animation-delay:140ms]">
+          <CvCard resume={resume} />
+        </div>
 
         <section className="panel flex flex-col gap-4 p-5 animate-rise [animation-delay:200ms]">
           <h2 className="text-[13px] font-medium tracking-[0.08em] text-ink-3 uppercase">Últimos movimientos</h2>

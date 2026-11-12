@@ -1,4 +1,5 @@
 import { CalendarClock, Clock, FileSignature, MapPin, Monitor, Wallet, type LucideIcon } from "lucide-react";
+import { CribaAi } from "@/shared/components/ui";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import { alsoCountsText, groupOf, inferExperience, inferLanguage, inferLevel, type RequirementGroup } from "../lib/infer";
 import type { PublicJob, PublicRequirement } from "../types/public";
@@ -78,7 +79,10 @@ export function PublicJobView({ job }: { job: PublicJob }) {
         ) : null}
 
         <section className="panel flex flex-col gap-3 p-6" style={{ "--i": 2 } as React.CSSProperties}>
-          <h2 className="text-[13px] text-ink-3">El perfil en corto</h2>
+          <h2 className="flex flex-wrap items-center gap-2 text-[13px] text-ink-3">
+            El perfil en corto
+            <CribaAi label="lo dedujo del cargo" />
+          </h2>
           <p className="flex flex-wrap items-baseline gap-x-6 gap-y-2 text-[15px]">
             {profile.map((p) => (
               <span key={p.label}>

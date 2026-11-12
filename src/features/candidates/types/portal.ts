@@ -42,6 +42,8 @@ export interface ResumeSummary {
   updatedAt: string;
   /** La hoja de vida como documento, lista para verse y editarse. */
   doc: ResumeDoc;
+  /** Lo que Criba AI encontró en ella (sin datos personales). */
+  skills: string[];
 }
 
 export interface PortalJob {
@@ -54,4 +56,6 @@ export interface PortalJob {
   closesAt: string;
   highlights: string[];
   applied: boolean;
+  /** Qué tan afín es a la hoja de vida, según Criba AI. Nunca un puntaje. */
+  match: { level: "alta" | "media" | "baja"; reasons: string[] };
 }
