@@ -43,6 +43,7 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 34 | `feat/applicant-portal` | 33 | lista | Portal del postulante: entrada con enlace mágico, inicio, mis postulaciones con etapas, detalle con retiro, vacantes con filtros, perfil con lo que ve la IA y borrado de datos |
 | 35 | `feat/portal-redesign` | 34 | lista | Sin textura; lado del candidato en verde oscuro y sin tarjetas de adorno; hoja de vida con vista previa y edición; arreglo del hover de botones en oscuro |
 | 36 | `feat/portal-depth` | 35 | lista | Profundidad sin textura: luces de fondo (`.portal-light`), resaltador ámbar (`.hl`), bloque "Lo próximo" con cuenta regresiva y chat en bucle, filas con monograma y riel animado, hoja de vida en pila de papeles, últimos movimientos |
+| 37 | `feat/portal-theme` | 36 | lista | Portal claro/oscuro con interruptor, textura de contornos (`--contours`), pestañas con contador, entrada propia del postulante, lector de PDF compartido (`shared/components/pdf`), hoja de vida como PDF editable (`shared/lib/resume-pdf.ts`) y PDF en ranking y postulaciones |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -167,6 +168,16 @@ Feedback de Manuel: el gris con tarjetas blancas, la textura y el exceso de text
 - **Botón tinta en oscuro**: su hover ya no se vuelve un panel oscuro con texto oscuro (afectaba también a la app de empresa).
 - `routes.portalProfile` pasó a `routes.portalResume`; `/portal/applications` (lista) se quitó: el inicio es la lista.
 - **pen.dev**: el tablero "MVP · Postulante" ahora es oscuro y tiene las pantallas nuevas.
+
+
+## 37 · `feat/portal-theme` (PDF y tema del postulante)
+
+- **Tema**: el portal y las páginas públicas siguen el interruptor (`ThemeToggle` en sus barras). `.portal-light` pone base cálida en claro (`--portal-base`), luces y una textura de **contornos** SVG (`--contours`) que deriva despacio. Nada de ruido ni cuadrícula.
+- **Lector de PDF** (`shared/components/pdf/pdf-viewer.tsx`, pdf.js 4.10): miniaturas, zoom, página actual, descarga y zonas clicables (`hotspots`). El worker vive en `public/pdf.worker.min.mjs` (copiado de `pdfjs-dist`; actualizarlo si sube la versión) y el proxy excluye `.mjs`.
+- **Hoja de vida en PDF** (`shared/lib/resume-pdf.ts`, pdf-lib): genera un A4 desde `ResumeDoc`, con resaltados en ámbar, y devuelve la caja de cada línea. El portal (`ResumeView`) tiene tres herramientas: Ver, Editar texto (tocar una línea del PDF y editarla en el panel; el PDF se regenera) y Resaltar. Panel con a qué postulaciones llega y versiones.
+- **Empresa**: en el ranking, "Hoja de vida" abre "PDF original" (líneas que prueban requisitos resaltadas) o "Revisión de Criba"; en Postulaciones, el nombre de un PDF o Word leído abre el lector. Mientras no exista Storage, el PDF se genera con datos de ejemplo.
+- **Entrada del postulante** (`/portal/sign-in`): pantalla partida con panel ámbar donde una postulación avanza sola por sus etapas.
+- Con backend: servir el archivo real desde el bucket `cvs` (URL firmada) al lector, y guardar las ediciones como nueva versión del CV.
 
 ## Landing (repo aparte `ai_talent_landing`)
 
