@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { Inbox } from "lucide-react";
+import { MyApplicationsLink } from "@/features/candidates/components/portal/my-applications-link";
 import { ThemeToggle } from "@/shared/components/layout";
 import { Logo } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
@@ -20,10 +20,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link href={routes.portal} className="group inline-flex h-10 items-center gap-2 rounded-full bg-surface px-4 text-[14px] font-medium ring-1 ring-border transition-[box-shadow,transform,translate] duration-300 hover:-translate-y-px hover:shadow-[0_10px_24px_-14px_rgba(0,0,0,0.5)]">
-              <Inbox aria-hidden className="size-4 text-amber transition-transform duration-500 ease-[var(--ease-spring)] group-hover:-rotate-6" />
-              Mis postulaciones
-            </Link>
+            <MyApplicationsLink />
           </div>
         </div>
       </header>
