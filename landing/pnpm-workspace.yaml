@@ -1,0 +1,11 @@
+# Supply-chain hardening (OWASP A03:2025), igual que ai_talent_web:
+# no instalar versiones publicadas hace menos de 24 h.
+minimumReleaseAge: 1440
+# Excepciones puntuales: piezas de Astro publicadas el mismo día que se fijó la versión.
+# Quitarlas en cuanto cumplan 24 h.
+minimumReleaseAgeExclude:
+  - '@astrojs/internal-helpers@0.13.2'
+  - '@astrojs/markdown-satteri@0.4.9'
+  - '@astrojs/runtime@0.1.1'
+  - '@astrojs/vite-plugin-astro@0.1.2'
+  - astro@7.4.11
