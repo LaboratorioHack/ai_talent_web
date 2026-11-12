@@ -38,8 +38,11 @@ export function RequirementRow({ requirement, onChange, onRemove, index }: Requi
     if (text) {
       const match = /^(.*?)\s*(\d{1,3})\s*%?$/.exec(text);
       const label = match ? match[1].trim() : text;
-      const percent = match ? Math.min(100, Number(match[2])) : 100;
-      onChange({ ...requirement, equivalences: [...requirement.equivalences, { label: label || text, percent }] });
+      const percent = match ? Math.min(100, Math.max(1, Number(match[2]))) : 100;
+      const name = label || text;
+      // La API rechaza nombres repetidos sin importar mayúsculas.
+      const repeated = requirement.equivalences.some((e) => e.label.toLowerCase() === name.toLowerCase());
+      if (!repeated) onChange({ ...requirement, equivalences: [...requirement.equivalences, { label: name, percent }] });
     }
     setDraft("");
     setAdding(false);

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { ArrowRight, Link2 } from "lucide-react";
 import { ButtonLink } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
+import { companySizeLabel } from "../api/company";
 import { useOnboarding } from "../state/onboarding-store";
 
 /** Fin del onboarding: lo que quedó configurado y el siguiente paso natural. */
@@ -12,7 +13,7 @@ export function DoneStep() {
   useEffect(() => finish(), [finish]);
 
   const rows: { label: string; value: string }[] = [
-    { label: "Organización", value: `${data.organization.name}, ${data.organization.sector.toLowerCase()}, ${data.organization.size} personas` },
+    { label: "Organización", value: `${data.organization.name}, ${data.organization.sector.toLowerCase()}, ${companySizeLabel(data.organization.size)} personas` },
     { label: "Primera vacante", value: data.vacancy ? `${data.vacancy.title}, con ${data.vacancy.requirements} requisitos` : "Sin crear" },
   ];
 

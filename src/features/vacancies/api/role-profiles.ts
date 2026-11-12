@@ -1,7 +1,10 @@
 import { env } from "@/config/env";
 import { apiFetch } from "@/shared/lib/api-client";
+import { browserApi } from "@/shared/lib/api-browser";
 import { delay, mockVacancies } from "@/shared/mocks";
 import type { RequirementDraft, RoleProfileDraft } from "../schemas/role-profile";
+import type { ApiVacancyDetail } from "@/shared/lib/vacancy-api";
+import { toProfileRequest, toVacancyFields } from "./contracts";
 
 /** Borrador que propone el onboarding: el perfil de ejemplo de Cloud Senior. */
 export function exampleRoleProfileDraft(): RoleProfileDraft {
@@ -25,9 +28,11 @@ export function exampleRoleProfileDraft(): RoleProfileDraft {
   };
 }
 
+/** Crea la vacante como borrador (DRAFT) con su perfil y requisitos. Con backend: POST /vacancies. */
 export async function createVacancy(draft: RoleProfileDraft): Promise<{ id: string }> {
   if (env.useMocks) return delay({ id: "v-cloud" }, 600);
-  return apiFetch<{ id: string }>("/vacancies", { method: "POST", body: JSON.stringify(draft) });
+  const created = await browserApi<ApiVacancyDetail>("/vacancies", { method: "POST", body: JSON.stringify({ ...toVacancyFields(draft), ...toProfileRequest(draft) }) });
+  return { id: created.id };
 }
 
 /**

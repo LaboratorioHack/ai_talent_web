@@ -3,19 +3,22 @@
 import { useRouter } from "next/navigation";
 import { useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
+import type { JobStatus } from "@/shared/types/domain";
 import { createVacancy } from "../api/role-profiles";
-import { updateVacancy } from "../api/mutations";
+import { publishVacancy, updateVacancy } from "../api/mutations";
 import type { RoleProfileDraft } from "../schemas/role-profile";
 import { RoleProfileEditor } from "./role-profile-editor";
 
 export interface VacancyProfileFormProps {
   /** Sin id: se crea una vacante nueva. */
   id?: string;
+  /** Estado actual al editar: solo un borrador se publica. */
+  status?: JobStatus;
   initial: RoleProfileDraft;
 }
 
 /** Pantalla 06 · Perfil de cargo, para crear o editar una vacante. */
-export function VacancyProfileForm({ id, initial }: VacancyProfileFormProps) {
+export function VacancyProfileForm({ id, status, initial }: VacancyProfileFormProps) {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -34,6 +37,15 @@ export function VacancyProfileForm({ id, initial }: VacancyProfileFormProps) {
   async function evaluate(draft: RoleProfileDraft) {
     const target = id ?? (await createVacancy(draft)).id;
     if (id) await updateVacancy(id, draft);
+    if (!id || status === "DRAFT") {
+      try {
+        await publishVacancy(target);
+      } catch (error) {
+        // Ya quedó guardada como borrador: se sigue en su editor para no crearla dos veces.
+        if (!id) router.replace(routes.vacancyEdit(target));
+        throw error;
+      }
+    }
     toast({ title: "Vacante publicada", description: "Comparte el enlace para que las personas se postulen." });
     router.push(`${routes.candidates}?job=${target}`);
   }

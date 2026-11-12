@@ -1,18 +1,38 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServerClient } from "@/shared/lib/supabase/server";
 import { routes } from "@/shared/constants/routes";
+import { AUTH_NEXT_COOKIE, safeNextPath } from "@/shared/lib/auth-redirect";
 
-/** Destino del OAuth (Google / Microsoft) y de los enlaces de invitación de Supabase. */
+/**
+ * Dominio público de la app. Detrás de Caddy, `request.url` puede traer el host
+ * interno del contenedor (localhost:3000); Caddy pone el real en X-Forwarded-Host.
+ */
+function publicOrigin(request: NextRequest): string {
+  const url = new URL(request.url);
+  const host = request.headers.get("x-forwarded-host")?.split(",")[0].trim() || request.headers.get("host");
+  const proto = request.headers.get("x-forwarded-proto")?.split(",")[0].trim() || url.protocol.replace(":", "");
+  return host ? `${proto}://${host}` : url.origin;
+}
+
+/** Destino del enlace mágico del postulante, del cambio de contraseña y de los OAuth de Supabase. */
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? routes.home;
+  const remembered = request.cookies.get(AUTH_NEXT_COOKIE)?.value;
+  const next = safeNextPath(searchParams.get("next")) ?? safeNextPath(remembered ? decodeURIComponent(remembered) : null) ?? routes.home;
 
+  let target = next;
+  let exchanged = false;
   if (code) {
     const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(`${origin}${next}`);
+    exchanged = !(await supabase.auth.exchangeCodeForSession(code)).error;
+  }
+  if (!exchanged) {
+    // El postulante vuelve a su propia entrada, nunca al login de empresas.
+    target = next.startsWith(routes.portal) ? `${routes.portalSignIn}?error=link` : `${routes.login}?error=auth`;
   }
 
-  return NextResponse.redirect(`${origin}${routes.login}?error=auth`);
+  const response = NextResponse.redirect(`${publicOrigin(request)}${target}`);
+  response.cookies.delete(AUTH_NEXT_COOKIE);
+  return response;
 }

@@ -3,13 +3,14 @@ import { z } from "zod";
 export const requirementTypeSchema = z.enum(["MANDATORY", "NICE_TO_HAVE", "DISQUALIFYING"]);
 
 export const equivalenceSchema = z.object({
-  label: z.string().trim().min(1),
-  percent: z.number().int().min(0).max(100),
+  label: z.string().trim().min(1).max(80),
+  // Mismos límites que la API: una equivalencia de 0 % no cuenta y se rechaza.
+  percent: z.number().int().min(1).max(100),
 });
 
 export const requirementDraftSchema = z.object({
   id: z.string(),
-  description: z.string().trim().min(1, "Escribe el requisito"),
+  description: z.string().trim().min(2, "Escribe el requisito").max(1000, "Máximo 1.000 caracteres"),
   type: requirementTypeSchema,
   weight: z.number().int().min(0).max(100).nullable(),
   equivalences: z.array(equivalenceSchema),

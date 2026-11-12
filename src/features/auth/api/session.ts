@@ -4,15 +4,29 @@ import { redirect } from "next/navigation";
 import { env } from "@/config/env";
 import type { NavNotice, SearchItem } from "@/shared/components/layout";
 import { routes } from "@/shared/constants/routes";
-import { apiFetch } from "@/shared/lib/api-client";
+import { ApiError } from "@/shared/lib/api-client";
+import { serverApi } from "@/shared/lib/api-server";
 import { createSupabaseServerClient, supabaseConfigured } from "@/shared/lib/supabase/server";
+import { vacanciesPath, type ApiVacancyPage } from "@/shared/lib/vacancy-api";
 import { delay, mockApplications, mockUser, mockVacancies } from "@/shared/mocks";
-import type { CurrentUser } from "@/shared/types/domain";
+import type { CurrentUser, UserRole } from "@/shared/types/domain";
+
+/** GET /api/auth/me (ai_talent_back). `company` y `name` son null hasta crear o unirse a una empresa. */
+export interface MeResponse {
+  userId: string;
+  email: string | null;
+  name: string | null;
+  mfaVerified: boolean;
+  company: { id: string; name: string; sector: string | null; size: string | null; role: UserRole } | null;
+}
+
+export function getMe(): Promise<MeResponse> {
+  return serverApi<MeResponse>("/auth/me");
+}
 
 /**
- * Usuario autenticado con su organización activa y sus membresías.
- * Con Supabase configurado exige sesión; el perfil lo sirve la API .NET
- * (o el mock mientras no exista el endpoint).
+ * Usuario autenticado con su organización. Con Supabase configurado exige
+ * sesión; el perfil lo sirve la API .NET. Sin empresa todavía, va al onboarding.
  */
 export async function getCurrentUser(): Promise<CurrentUser> {
   if (!supabaseConfigured) return delay(mockUser, 50);
@@ -23,15 +37,26 @@ export async function getCurrentUser(): Promise<CurrentUser> {
   } = await supabase.auth.getUser();
   if (!user) redirect(routes.login);
 
+  const metadataName = user.user_metadata?.name as string | undefined;
   if (env.useMocks) {
-    return { ...mockUser, id: user.id, email: user.email ?? mockUser.email, name: (user.user_metadata?.name as string | undefined) ?? mockUser.name };
+    return { ...mockUser, id: user.id, email: user.email ?? mockUser.email, name: metadataName ?? mockUser.name };
   }
-  return apiFetch<CurrentUser>("/me");
+
+  const me = await getMe();
+  if (!me.company) redirect(routes.onboarding(2));
+  const email = me.email ?? user.email ?? "";
+  return {
+    id: me.userId,
+    name: me.name ?? metadataName ?? email,
+    email,
+    company: { id: me.company.id, name: me.company.name },
+    role: me.company.role,
+  };
 }
 
-/** Avisos de la campana: lo que necesita una acción de la persona. */
+/** Avisos de la campana. La API aún no los calcula: sin backend de avisos, la campana queda vacía. */
 export async function getNavNotices(): Promise<NavNotice[]> {
-  if (!env.useMocks) return apiFetch<NavNotice[]>("/me/notices");
+  if (!env.useMocks) return [];
   return delay(
     [
       { id: "n1", text: "3 hojas de vida ilegibles en Analista de Datos", when: "Hace 20 min", href: "/candidates?job=v-data", tone: "warning" },
@@ -43,9 +68,18 @@ export async function getNavNotices(): Promise<NavNotice[]> {
   );
 }
 
-/** Índice del buscador rápido: vacantes y candidatos de la organización. */
+/** Índice del buscador rápido. Con backend solo vacantes: la API aún no tiene búsqueda de candidatos. */
 export async function getSearchIndex(): Promise<SearchItem[]> {
-  if (!env.useMocks) return apiFetch<SearchItem[]>("/me/search-index");
+  if (!env.useMocks) {
+    try {
+      const page = await serverApi<ApiVacancyPage>(vacanciesPath);
+      return page.items.map((v): SearchItem => ({ id: `v-${v.id}`, label: v.title, hint: `${v.counts.resumes} hojas de vida`, href: routes.vacancy(v.id), group: "Vacantes" }));
+    } catch (error) {
+      // Sin empresa la API responde 403; getCurrentUser se encarga de mandar al onboarding.
+      if (error instanceof ApiError && error.status === 403) return [];
+      throw error;
+    }
+  }
   const vacancies: SearchItem[] = mockVacancies.map((v) => ({ id: `v-${v.id}`, label: v.title, hint: `${v.stats.received} hojas de vida`, href: routes.vacancy(v.id), group: "Vacantes" }));
   const candidates: SearchItem[] = mockApplications.map((a) => ({
     id: `c-${a.id}`,
