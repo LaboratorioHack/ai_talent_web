@@ -214,7 +214,7 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
                   ))}
                 </ol>
               </section>
-              <footer className="flex flex-wrap gap-4 px-1 text-[12.5px] text-ink-3">
+              <footer className="flex flex-wrap justify-center gap-6 px-1 text-[12.5px] text-ink-3">
                 <button type="button" className="hover:text-ink" onClick={() => toast({ title: "Preparando tus datos", description: "Te llega un correo con el archivo." })}>
                   Descargar mis datos
                 </button>
