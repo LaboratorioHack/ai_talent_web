@@ -1,4 +1,4 @@
-import { CalendarClock, Clock, FileSignature, MapPin, Monitor, Wallet, type LucideIcon } from "lucide-react";
+import { CalendarCheck, CalendarClock, Clock, FileSignature, MapPin, Monitor, Wallet, type LucideIcon } from "lucide-react";
 import { CribaAi } from "@/shared/components/ui";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import { alsoCountsText, groupOf, inferExperience, inferLanguage, inferLevel, type RequirementGroup } from "../lib/infer";
@@ -14,6 +14,13 @@ const STEPS = [
   { title: "Entrevista por chat", detail: "Unas preguntas cortas, cuando puedas." },
   { title: "Te responden", detail: "Avances o no, te escriben." },
 ];
+
+function ago(date: Date) {
+  const days = Math.floor((Date.now() - date.getTime()) / 86_400_000);
+  if (days <= 0) return "Hoy";
+  if (days === 1) return "Ayer";
+  return `Hace ${days} días`;
+}
 
 function grouped(list: PublicRequirement[]) {
   const map = new Map<RequirementGroup, PublicRequirement[]>();
@@ -54,9 +61,15 @@ export function PublicJobView({ job }: { job: PublicJob }) {
           <div className="flex flex-col gap-3">
             <p className="text-[14px] text-ink-3">
               {job.company} · {job.openings} {job.openings === 1 ? "plaza" : "plazas"}
-              {posted ? ` · publicada el ${formatLongDate(posted)}` : ""}
             </p>
             <h1 className="font-head text-[36px] leading-[1.02] font-semibold tracking-[-0.02em] text-balance sm:text-[52px]">{job.title}</h1>
+            {posted ? (
+              <p className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[15.5px]">
+                <CalendarCheck aria-hidden className="size-[18px] text-amber" />
+                <span className="font-medium">Publicada el {formatLongDate(posted)}</span>
+                <span className="text-[13px] font-semibold text-[color:var(--ai-ink)]">{ago(posted)}</span>
+              </p>
+            ) : null}
           </div>
           <dl className="panel grid grid-cols-2 gap-x-6 gap-y-5 px-6 py-5 sm:grid-cols-3">
             {facts.map((f) => (
@@ -80,8 +93,8 @@ export function PublicJobView({ job }: { job: PublicJob }) {
 
         <section className="panel flex flex-col gap-3 p-6" style={{ "--i": 2 } as React.CSSProperties}>
           <h2 className="flex flex-wrap items-center gap-2 text-[13px] text-ink-3">
-            El perfil en corto
-            <CribaAi label="lo dedujo del cargo" />
+            Perfil de la vacante
+            <CribaAi label="Lo dedujo del cargo" />
           </h2>
           <p className="flex flex-wrap items-baseline gap-x-6 gap-y-2 text-[15px]">
             {profile.map((p) => (
@@ -135,9 +148,11 @@ export function PublicJobView({ job }: { job: PublicJob }) {
         </section>
       </article>
 
-      <aside id="postularme" className="flex scroll-mt-24 flex-col gap-8 lg:self-start">
+      <aside id="postularme" className="flex scroll-mt-24 flex-col gap-8">
         <FitCheck mandatory={job.mandatory} />
-        <ApplyForm jobId={job.id} company={job.company} />
+        <div className="lg:sticky lg:top-[calc(var(--app-header)+24px)]">
+          <ApplyForm jobId={job.id} company={job.company} />
+        </div>
       </aside>
     </div>
   );

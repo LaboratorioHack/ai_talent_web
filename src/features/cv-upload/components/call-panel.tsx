@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { Copy, ExternalLink, Upload } from "lucide-react";
+import { Copy, ExternalLink } from "lucide-react";
 import { Button, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
@@ -14,17 +14,15 @@ export interface CallPanelProps {
   open: boolean;
   closesAt: string;
   applied: number;
-  uploaded: number;
-  uploading: boolean;
-  onToggleUpload: () => void;
+  read: number;
 }
 
 /**
  * La convocatoria de la vacante: su enlace público, hasta cuándo recibe y
- * cuántas hojas de vida llegaron por cada canal. Subir en bloque queda como
- * acción secundaria para lo que llegó por otros medios.
+ * cuántas personas se postularon. Las hojas de vida solo llegan por aquí: la
+ * empresa no las sube, las revisa.
  */
-export function CallPanel({ jobId, open, closesAt, applied, uploaded, uploading, onToggleUpload }: CallPanelProps) {
+export function CallPanel({ jobId, open, closesAt, applied, read }: CallPanelProps) {
   const { toast } = useToast();
   // El origen solo existe en el navegador; en el servidor se muestra la ruta.
   const origin = useSyncExternalStore(noop, () => window.location.origin, () => "");
@@ -77,16 +75,11 @@ export function CallPanel({ jobId, open, closesAt, applied, uploaded, uploading,
             <dd className="font-head text-[30px] leading-none font-semibold tabular-nums">{applied}</dd>
           </div>
           <div className="flex flex-col gap-1">
-            <dt className="text-[12.5px] text-ink-3">Subidas por tu equipo</dt>
-            <dd className="font-head text-[30px] leading-none font-semibold tabular-nums">{uploaded}</dd>
+            <dt className="text-[12.5px] text-ink-3">Ya leídas</dt>
+            <dd className="font-head text-[30px] leading-none font-semibold tabular-nums">{read}</dd>
           </div>
         </dl>
-        <div className="flex flex-col gap-2">
-          <p className="text-[12.5px] text-ink-3">¿Te llegaron hojas de vida por correo o en una carpeta? Súbelas en bloque y entran a la misma lista.</p>
-          <Button variant={uploading ? "ink" : "outline"} icon={<Upload />} onClick={onToggleUpload} className="self-start">
-            {uploading ? "Cerrar carga" : "Subir hojas de vida"}
-          </Button>
-        </div>
+        <p className="text-[12.5px] text-ink-3">Compártelo en LinkedIn, en tu página de empleo o por correo. Quien no tenga el archivo a mano puede volver al mismo enlace.</p>
       </div>
     </section>
   );

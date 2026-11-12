@@ -27,7 +27,7 @@ export function RecommendedJobs({ jobs }: { jobs: PortalJob[] }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="flex flex-wrap items-center gap-2 text-[13px] font-medium tracking-[0.08em] text-ink-3 uppercase">
           Vacantes para ti
-          <CribaAi label="las eligió por tu hoja de vida" className="tracking-normal normal-case" />
+          <CribaAi label="Las eligió por tu hoja de vida" className="tracking-normal normal-case" />
         </h2>
         <Link href={routes.portalJobs} className="group inline-flex items-center gap-1 text-[13px] text-ink-2 hover:text-ink">
           Ver todas

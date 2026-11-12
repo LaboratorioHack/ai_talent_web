@@ -60,7 +60,7 @@ export function FileCard({ file, index, onRetry, onRemove, onRequestOriginal, on
           <s.icon aria-hidden className={cn("size-3", file.status === "PROCESSING" && "animate-spin")} />
           {file.status === "UPLOADING" ? `${file.progress ?? 0} %` : s.label}
         </span>
-        <span className={cn("truncate text-[11.5px]", file.source === "candidate" ? "text-blue" : "text-ink-3")}>{file.source === "candidate" ? "Se postuló" : "Subida por tu equipo"}</span>
+        <span className="truncate text-[11.5px] text-ink-3">Se postuló</span>
         <span className="ml-auto flex gap-0.5 opacity-70 transition-opacity group-hover:opacity-100">
           {file.status === "UNREADABLE" ? (
             <>

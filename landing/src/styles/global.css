@@ -1,62 +1,46 @@
 @import "tailwindcss";
 
 /*
- * Landing de Criba, en oscuro: la tinta verde de la marca como fondo, el
- * resaltador ámbar sobre la evidencia. Los nombres de los tokens son
- * semánticos (paper = fondo, surface = tarjeta, ink = texto), por eso los
- * componentes no cambian al pasar de claro a oscuro.
+ * Landing de Criba en oscuro: el verde tinta de la marca de fondo y el ámbar
+ * para la acción principal y el resaltador. Sin brillos ni texturas: fotos
+ * reales y el producto real.
  */
 :root {
   color-scheme: dark;
-  --paper: #0d1411;
-  --paper-2: #111a16;
-  --surface: #141e19;
-  --surface-2: #1b2620;
-  --border: rgb(232 240 234 / 0.09);
-  --border-strong: rgb(232 240 234 / 0.18);
+  --paper: #0e1612;
+  --paper-2: #131d18;
+  --surface: #17221c;
+  --border: rgb(237 242 238 / 0.1);
+  --border-strong: rgb(237 242 238 / 0.2);
   --ink: #edf2ee;
-  --ink-2: rgb(237 242 238 / 0.7);
-  --ink-3: rgb(237 242 238 / 0.44);
-  --blue: #86aefc;
-  --blue-soft: rgb(31 91 209 / 0.22);
+  --ink-2: rgb(237 242 238 / 0.72);
+  --ink-3: rgb(237 242 238 / 0.5);
+  --green: #15241c;
+  --green-2: #20352a;
   --success: #5fd29b;
-  --success-soft: rgb(26 138 90 / 0.2);
-  --warning: #f4bb5a;
-  --warning-soft: rgb(217 139 15 / 0.2);
-  --danger: #f2877d;
-  --danger-soft: rgb(200 55 45 / 0.2);
   --amber: #f2a93b;
-  --marker: rgb(242 169 59 / 0.32);
-  --shadow: 0 0 0;
+  --marker: rgb(242 169 59 / 0.38);
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
-  --ease-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
 }
 
 @theme inline {
   --color-paper: var(--paper);
   --color-paper-2: var(--paper-2);
   --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
-  --color-blue: var(--blue);
-  --color-blue-soft: var(--blue-soft);
+  --color-green: var(--green);
+  --color-green-2: var(--green-2);
   --color-success: var(--success);
-  --color-success-soft: var(--success-soft);
-  --color-warning: var(--warning);
-  --color-warning-soft: var(--warning-soft);
-  --color-danger: var(--danger);
-  --color-danger-soft: var(--danger-soft);
   --color-amber: var(--amber);
 
   --font-head: "Funnel Display Variable", sans-serif;
   --font-sans: "Funnel Sans Variable", sans-serif;
-  --font-mono: "IBM Plex Mono", monospace;
 
   --default-transition-duration: 300ms;
   --default-transition-timing-function: var(--ease-out-soft);
@@ -72,188 +56,118 @@
     background: var(--paper);
     color: var(--ink);
     font-family: var(--font-sans);
-    font-size: 15px;
-    line-height: 1.5;
+    font-size: 16px;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     overflow-x: clip;
   }
   ::selection {
     background: var(--marker);
-    color: var(--ink);
   }
   :focus-visible {
-    outline: 2px solid var(--blue);
+    outline: 2px solid var(--ink);
     outline-offset: 3px;
+  }
+  img {
+    display: block;
   }
 }
 
 @layer components {
-  /* Papel de verdad sobre el escritorio oscuro: redefine los tokens dentro. */
-  .paper {
-    --surface: #f5f1e8;
-    --surface-2: #e9e3d6;
-    --border: rgb(26 33 29 / 0.12);
-    --border-strong: rgb(26 33 29 / 0.22);
-    --ink: #1a211d;
-    --ink-2: #4a524d;
-    --ink-3: #8b8f86;
-    --success: #1a7a50;
-    --success-soft: #dcebdc;
-    --warning: #b8740b;
-    --warning-soft: #f3e2bf;
-    --blue: #1f5bd1;
-    --marker: rgb(242 169 59 / 0.45);
-    background-color: var(--surface);
-    background-image:
-      radial-gradient(120% 80% at 20% 0%, rgb(255 255 255 / 0.55), transparent 60%),
-      linear-gradient(transparent 0 0);
-    color: var(--ink);
-  }
   .container-x {
-    @apply mx-auto w-full max-w-[1200px] px-6 md:px-10;
+    @apply mx-auto w-full max-w-[1200px] px-5 sm:px-8 lg:px-10;
   }
   .eyebrow {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--amber);
+    @apply text-[14px] font-medium text-ink-3;
   }
   .btn {
-    @apply inline-flex h-12 items-center justify-center gap-2 rounded-lg px-6 text-[14px] font-medium whitespace-nowrap;
+    @apply inline-flex h-12 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-medium whitespace-nowrap;
     transition:
-      transform 420ms var(--ease-out-soft),
-      box-shadow 420ms var(--ease-out-soft),
-      background-color 420ms var(--ease-out-soft),
-      border-color 420ms var(--ease-out-soft);
-  }
-  .btn:hover {
-    transform: translateY(-2px);
-  }
-  .btn:active {
-    transform: translateY(0) scale(0.98);
-    transition-duration: 120ms;
+      background-color 300ms var(--ease-out-soft),
+      color 300ms var(--ease-out-soft),
+      border-color 300ms var(--ease-out-soft);
   }
   .btn-ink {
     background: var(--amber);
     color: #15201b;
-    box-shadow: 0 10px 30px -14px rgb(242 169 59 / 0.7);
   }
   .btn-ink:hover {
-    background: #ffc266;
-    box-shadow: 0 18px 40px -16px rgb(242 169 59 / 0.85);
+    background: #f5ba5f;
+  }
+  .btn-amber {
+    background: var(--amber);
+    color: var(--ink);
+  }
+  .btn-amber:hover {
+    background: #f5ba5f;
   }
   .btn-line {
-    border: 1px solid var(--border);
-    background: var(--surface);
+    border: 1px solid var(--border-strong);
     color: var(--ink);
   }
   .btn-line:hover {
-    border-color: var(--border-strong);
-    background: var(--surface-2);
+    background: rgb(237 242 238 / 0.06);
   }
-  /* El resaltador: se pasa de izquierda a derecha cuando el elemento tiene .is-on o .is-visible. */
+  .link-arrow {
+    @apply inline-flex items-center gap-1.5 font-medium text-ink;
+  }
+  .link-arrow svg {
+    transition: translate 300ms var(--ease-out-soft);
+  }
+  .link-arrow:hover svg {
+    translate: 3px 0;
+  }
+  /* Resaltador de marcador sobre una frase. */
   .marker {
-    background: linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 92%, transparent 92%) no-repeat;
+    background: linear-gradient(transparent 60%, var(--marker) 60%, var(--marker) 94%, transparent 94%) no-repeat;
     background-size: 0% 100%;
-    transition: background-size 1100ms var(--ease-out-soft) var(--marker-delay, 0ms);
+    transition: background-size 1100ms var(--ease-out-soft) 400ms;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
   }
-  .is-on > .marker,
-  .marker.is-on,
-  .is-visible .marker,
-  .marker.is-visible {
+  .is-visible .marker {
     background-size: 100% 100%;
   }
-  /* Nota al margen, como una cita en un documento revisado. */
-  .margin-note {
-    @apply flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 font-mono text-[11px] text-ink-2;
-    box-shadow: 0 14px 30px -20px rgb(0 0 0 / 0.7);
+  /* Captura del producto: marco fino, como una ventana real. */
+  .shot {
+    @apply overflow-hidden rounded-2xl border border-border bg-surface;
+    box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.75);
+  }
+  .photo {
+    @apply overflow-hidden rounded-3xl bg-paper-2;
+  }
+  .photo img {
+    @apply h-full w-full object-cover;
   }
 }
 
-/* ---------- Revelado ---------- */
+/* Aparición suave al entrar en pantalla (lo maneja scripts/motion.ts). */
 [data-reveal] {
   opacity: 0;
-  translate: 0 18px;
+  translate: 0 14px;
   transition:
-    opacity 1000ms var(--ease-out-soft),
-    translate 1100ms var(--ease-out-soft);
-  transition-delay: calc(var(--i, 0) * 110ms);
+    opacity 900ms var(--ease-out-soft),
+    translate 1000ms var(--ease-out-soft);
+  transition-delay: calc(var(--i, 0) * 90ms);
 }
 [data-reveal].is-visible {
   opacity: 1;
   translate: 0 0;
 }
-
-/* ---------- Paso de un bucle: lo que tiene data-at se enciende con .is-on ---------- */
-[data-at] {
-  transition:
-    opacity 600ms var(--ease-out-soft),
-    translate 700ms var(--ease-out-soft),
-    scale 600ms var(--ease-spring),
-    background-color 600ms var(--ease-out-soft),
-    color 600ms var(--ease-out-soft),
-    border-color 600ms var(--ease-out-soft),
-    box-shadow 600ms var(--ease-out-soft);
-}
-
-[data-offscreen],
-[data-offscreen] * {
-  animation-play-state: paused !important;
-}
-
-/* ---------- Animaciones ---------- */
-@keyframes breathe {
-  50% {
-    opacity: 0.5;
-  }
-}
-@keyframes shimmer {
-  from {
-    translate: -100% 0;
-  }
-  to {
-    translate: 100% 0;
-  }
-}
-@keyframes pop {
-  0% {
-    scale: 0.5;
-    opacity: 0;
-  }
-  60% {
-    scale: 1.12;
-    opacity: 1;
-  }
-  100% {
-    scale: 1;
-    opacity: 1;
-  }
-}
-@keyframes marquee {
-  to {
-    translate: -50% 0;
-  }
-}
-@keyframes caret {
-  50% {
-    opacity: 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
   [data-reveal] {
     opacity: 1;
     translate: none;
+    transition: none;
   }
   .marker {
-    background-size: 100% 100% !important;
+    background-size: 100% 100%;
+    transition: none;
   }
+}
+
+/* Bucle fuera de pantalla: en pausa. */
+[data-offscreen],
+[data-offscreen] * {
+  animation-play-state: paused !important;
 }

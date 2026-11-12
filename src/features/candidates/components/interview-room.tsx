@@ -138,7 +138,7 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
         <div className="flex flex-col gap-3" style={{ "--i": 0 } as React.CSSProperties}>
           <p className="flex flex-wrap items-center gap-2">
             <span className="eyebrow">{iv.company}</span>
-            <CribaAi label="te entrevista por chat" />
+            <CribaAi label="Te entrevista por chat" />
           </p>
           <h1 className="font-head text-[30px] leading-[1.1] font-semibold tracking-[-0.01em] sm:text-[36px]">Hola, {first}. Tu entrevista para {iv.jobTitle}</h1>
           <p className="text-[15px] text-ink-2">Las preguntas salen de tu hoja de vida y del cargo. Contesta con calma y con ejemplos de lo que hiciste.</p>

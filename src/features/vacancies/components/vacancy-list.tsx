@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, ListOrdered, Pencil, Upload } from "lucide-react";
+import { ArrowUpRight, Inbox, ListOrdered, Pencil } from "lucide-react";
 import { ButtonLink, EmptyState, SearchField, Segmented, Select, Tooltip } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { useToday } from "@/shared/hooks/use-today";
@@ -78,9 +78,9 @@ function VacancyCard({ v, index, today }: { v: JobOpening; index: number; today:
                 <ListOrdered aria-hidden className="size-4" />
               </Link>
             </Tooltip>
-            <Tooltip content="Subir hojas de vida">
-              <Link href={`${routes.candidates}?job=${v.id}`} aria-label={`Subir hojas de vida a ${v.title}`} className={action}>
-                <Upload aria-hidden className="size-4" />
+            <Tooltip content="Ver postulaciones">
+              <Link href={`${routes.candidates}?job=${v.id}`} aria-label={`Ver postulaciones de ${v.title}`} className={action}>
+                <Inbox aria-hidden className="size-4" />
               </Link>
             </Tooltip>
           </span>

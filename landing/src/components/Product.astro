@@ -1,0 +1,44 @@
+---
+const asset = (file: string) => `${import.meta.env.BASE_URL.replace(/\/$/, "")}/img/${file}`;
+const points = [
+  { title: "Un orden que se explica", text: "Cada persona con su puntaje, y de dónde sale cada punto." },
+  { title: "La prueba, citada", text: "La frase exacta de la hoja de vida y en qué página está." },
+  { title: "Equivalencias justas", text: "Si pides Azure y alguien tiene AWS, cuenta en parte. No se descarta por una palabra." },
+];
+---
+
+<!-- El producto real: la pantalla de ranking tal como la ve el equipo. -->
+<section id="producto" class="scroll-mt-20 py-20 sm:py-28">
+  <div class="container-x flex flex-col gap-12">
+    <div class="flex max-w-[680px] flex-col gap-4">
+      <h2 data-reveal class="font-head text-[34px] leading-[1.08] font-semibold tracking-[-0.025em] text-balance sm:text-[46px]">Cada punto del puntaje, con la línea que lo prueba.</h2>
+      <p data-reveal style="--i:1" class="text-[17px] leading-relaxed text-ink-2">Nada de cajas negras ni de filtros por palabra clave. Abres a cualquier persona y ves qué encontró Criba en su hoja de vida.</p>
+    </div>
+
+    <div data-scrub data-scrub-end="0.25" class="grow-in">
+      <figure class="shot">
+        <img src={asset("app-ranking.webp")} alt="Pantalla de ranking de Criba para la vacante Ingeniero Cloud Senior, con la evidencia de cada requisito" width="2200" height="1375" loading="lazy" />
+      </figure>
+    </div>
+
+    <ul class="grid gap-8 sm:grid-cols-3 sm:gap-10">
+      {
+        points.map((p, i) => (
+          <li data-reveal style={`--i:${i}`} class="flex flex-col gap-1.5 border-t border-border-strong pt-5">
+            <span class="text-[16px] font-semibold">{p.title}</span>
+            <span class="text-[15px] leading-relaxed text-ink-2">{p.text}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Crece y sube un poco mientras entra con el scroll. */
+  .grow-in {
+    transform: translateY(calc((1 - var(--p, 1)) * 50px)) scale(calc(0.93 + var(--p, 1) * 0.07));
+    transform-origin: 50% 100%;
+    will-change: transform;
+  }
+</style>

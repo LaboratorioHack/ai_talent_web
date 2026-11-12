@@ -28,6 +28,8 @@ export interface PdfViewerProps {
   toolbarEnd?: ReactNode;
   /** Muestra la columna de miniaturas. */
   thumbnails?: boolean;
+  /** Zoom inicial sobre el ajuste al ancho (1 = ancho completo). */
+  initialZoom?: number;
   className?: string;
 }
 
@@ -47,10 +49,10 @@ const ZOOMS = [0.6, 0.75, 0.9, 1, 1.15, 1.3, 1.5, 1.75, 2];
  * actual y descarga. Al cambiar el archivo vuelve a pintar sin parpadeo (cada
  * página se dibuja aparte y se copia al terminar).
  */
-export function PdfViewer({ data, fileName, hotspots = [], activeKey, onHotspot, renderOverlay, toolbarEnd, thumbnails = true, className }: PdfViewerProps) {
+export function PdfViewer({ data, fileName, hotspots = [], activeKey, onHotspot, renderOverlay, toolbarEnd, thumbnails = true, initialZoom = 1, className }: PdfViewerProps) {
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
   const [sizes, setSizes] = useState<{ w: number; h: number }[]>([]);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(initialZoom);
   const [width, setWidth] = useState(0);
   const [current, setCurrent] = useState(0);
   const [error, setError] = useState(false);
@@ -138,7 +140,7 @@ export function PdfViewer({ data, fileName, hotspots = [], activeKey, onHotspot,
           <button type="button" aria-label="Acercar" disabled={zoomIndex >= ZOOMS.length - 1} onClick={() => setZoom(ZOOMS[zoomIndex + 1])} className="flex size-8 items-center justify-center rounded-lg text-ink-2 transition-colors hover:bg-hover hover:text-ink disabled:opacity-40">
             <Plus aria-hidden className="size-4" />
           </button>
-          <button type="button" aria-label="Ajustar al ancho" onClick={() => setZoom(1)} className="flex size-8 items-center justify-center rounded-lg text-ink-2 transition-colors hover:bg-hover hover:text-ink">
+          <button type="button" aria-label="Volver al tamaño inicial" onClick={() => setZoom(initialZoom)} className="flex size-8 items-center justify-center rounded-lg text-ink-2 transition-colors hover:bg-hover hover:text-ink">
             <Maximize2 aria-hidden className="size-3.5" />
           </button>
           <span aria-hidden className="mx-1 h-5 w-px bg-border" />
@@ -171,7 +173,7 @@ export function PdfViewer({ data, fileName, hotspots = [], activeKey, onHotspot,
               <Loader2 aria-hidden className="size-5 animate-spin" />
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-5 px-6 py-6">
+            <div className="flex animate-fade-in flex-col items-center gap-5 px-6 py-6">
               {sizes.map((s, i) => (
                 <div
                   key={i}
@@ -179,7 +181,7 @@ export function PdfViewer({ data, fileName, hotspots = [], activeKey, onHotspot,
                     pages.current[i] = el;
                   }}
                   data-page={i}
-                  className="relative shrink-0 bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_18px_40px_-20px_rgba(0,0,0,0.55)]"
+                  className="relative shrink-0 bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_18px_40px_-20px_rgba(0,0,0,0.55)] transition-[width,height] duration-300 ease-[var(--ease-out-soft)]"
                   style={{ width: s.w * scale, height: s.h * scale }}
                 >
                   <PdfCanvas pdf={pdf} page={i} scale={scale} />
@@ -192,7 +194,7 @@ export function PdfViewer({ data, fileName, hotspots = [], activeKey, onHotspot,
                         aria-label={h.label ?? "Editar línea"}
                         onClick={() => onHotspot?.(h)}
                         className={cn(
-                          "absolute rounded-[3px] transition-[background-color,box-shadow] duration-200",
+                          "absolute rounded-[3px] transition-[background-color,box-shadow,left,top,width,height] duration-300 ease-[var(--ease-out-soft)]",
                           activeKey === h.key ? "bg-amber/20 shadow-[0_0_0_2px_var(--amber)]" : "hover:bg-amber/10 hover:shadow-[0_0_0_1.5px_rgba(242,169,59,0.8)]",
                         )}
                         style={{ left: h.x * scale, top: h.y * scale, width: h.w * scale, height: h.h * scale }}

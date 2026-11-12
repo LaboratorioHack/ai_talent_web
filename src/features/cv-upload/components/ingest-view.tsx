@@ -6,17 +6,16 @@ import { useRouter } from "next/navigation";
 import { ChevronRight, Clock, Play, X } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
 import { PdfViewer } from "@/shared/components/pdf/pdf-viewer";
-import { Button, Collapse, CribaAi, EmptyState, Modal, ScrollArea, SearchField, Select, useToast } from "@/shared/components/ui";
+import { Button, CribaAi, EmptyState, Modal, ScrollArea, SearchField, Select, useToast } from "@/shared/components/ui";
 import { resumeToPdf } from "@/shared/lib/resume-pdf";
 import { mockResumeDocs } from "@/shared/mocks";
 import type { ResumeDoc } from "@/shared/types/resume-doc";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { useIngest } from "../hooks/use-ingest";
-import type { IngestData, IngestFile, IngestSource } from "../types/ingest";
+import type { IngestData, IngestFile } from "../types/ingest";
 import { AiReadingCard } from "./ai-reading-card";
 import { CallPanel } from "./call-panel";
-import { Dropzone } from "./dropzone";
 import { EvaluateModal } from "./evaluate-modal";
 import { FileCard } from "./file-card";
 import { ReadinessPanel } from "./readiness-panel";
@@ -41,21 +40,7 @@ const COLUMNS: { key: Column; title: string; hint: string; dot: string }[] = [
   { key: "read", title: "Listas para evaluar", hint: "Leídas y anonimizadas", dot: "bg-success" },
 ];
 
-const SAMPLES = [
-  { name: "andrea_gomez_cv.pdf", sizeKb: 212 },
-  { name: "hoja de vida carlos ruiz.docx", sizeKb: 88 },
-  { name: "foto_cv_luisa_fernanda.jpg", sizeKb: 1840 },
-  { name: "cv_scan_borroso.pdf", sizeKb: 2200 },
-  { name: "carta_presentacion_2.pdf", sizeKb: 36 },
-  { name: "proyectos_finales.zip", sizeKb: 12400 },
-  { name: "sebastian_vega.pdf", sizeKb: 201 },
-];
 
-const CHANNELS: { value: "all" | IngestSource; label: string }[] = [
-  { value: "all", label: "Todos los canales" },
-  { value: "candidate", label: "Se postularon" },
-  { value: "upload", label: "Subidas por tu equipo" },
-];
 
 /** Mientras no exista el archivo real en Storage: una hoja de vida de ejemplo con el nombre del archivo. */
 function docFromFile(fileName: string): ResumeDoc {
@@ -73,14 +58,13 @@ function docFromFile(fileName: string): ResumeDoc {
 /**
  * Pantalla 07 · Postulaciones de una vacante. Arriba la convocatoria (enlace
  * público y canales); luego qué falta resolver y un tablero con las hojas de
- * vida según su lectura. Subir en bloque es secundario: abre la zona de carga.
+ * vida según su lectura. Las hojas de vida llegan solo por la postulación.
  */
 export function IngestView({ data }: { data: IngestData }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { files, add, read, remove, removeMany, requestOriginal } = useIngest(data.files);
+  const { files, read, remove, removeMany, requestOriginal } = useIngest(data.files);
   const [group, setGroup] = useState<Group | null>(null);
-  const [source, setSource] = useState<"all" | IngestSource>("all");
   const [query, setQuery] = useState("");
   const [evaluating, setEvaluating] = useState(false);
   const [preview, setPreview] = useState<{ name: string; bytes: Uint8Array | null } | null>(null);
@@ -90,7 +74,6 @@ export function IngestView({ data }: { data: IngestData }) {
     const { bytes } = await resumeToPdf(docFromFile(f.name));
     setPreview((p) => (p && p.name === f.name ? { ...p, bytes } : p));
   }
-  const [uploading, setUploading] = useState(data.files.length === 0 && !data.job.open);
 
   const counts = useMemo(() => {
     const c: Record<Group, number> = { busy: 0, read: 0, unreadable: 0, duplicate: 0, rejected: 0 };
@@ -98,12 +81,11 @@ export function IngestView({ data }: { data: IngestData }) {
     return c;
   }, [files]);
   const attention = counts.unreadable + counts.duplicate + counts.rejected;
-  const applied = files.filter((f) => f.source === "candidate").length;
+  const applied = files.length;
 
   const columns = useMemo(() => {
     const q = query.trim().toLowerCase();
     const visible = files
-      .filter((f) => source === "all" || f.source === source)
       .filter((f) => !q || f.name.toLowerCase().includes(q))
       .sort((a, b) => ORDER[groupOf(a)] - ORDER[groupOf(b)]);
     const by: Record<Column, IngestFile[]> = { busy: [], attention: [], read: [] };
@@ -113,13 +95,7 @@ export function IngestView({ data }: { data: IngestData }) {
       by[col].push(f);
     });
     return by;
-  }, [files, source, query, group]);
-
-  function upload(list: { name: string; sizeKb: number }[]) {
-    const n = add(list, "upload");
-    setGroup(null);
-    toast({ title: `${n} ${n === 1 ? "archivo" : "archivos"} subiendo`, description: "Aparecen en Recibidas mientras Criba los lee." });
-  }
+  }, [files, query, group]);
 
   function onRemove(id: string) {
     const file = files.find((f) => f.id === id);
@@ -160,26 +136,13 @@ export function IngestView({ data }: { data: IngestData }) {
 
       <div className="flex flex-col gap-6 px-4 pt-7 pb-8 sm:px-6 lg:px-12">
         <div className="flex flex-col animate-rise">
-          <CallPanel
-            jobId={data.job.id}
-            open={data.job.open}
-            closesAt={data.job.closesAt}
-            applied={applied}
-            uploaded={files.length - applied}
-            uploading={uploading}
-            onToggleUpload={() => setUploading((u) => !u)}
-          />
-          <Collapse open={uploading}>
-            <div className="pt-4">
-              <Dropzone onFiles={(list) => upload(list)} onSample={() => upload(SAMPLES)} />
-            </div>
-          </Collapse>
+          <CallPanel jobId={data.job.id} open={data.job.open} closesAt={data.job.closesAt} applied={applied} read={counts.read} />
         </div>
 
         {emptyJob ? (
           <EmptyState
             title="Todavía nadie se postula"
-            description="Comparte el enlace de la convocatoria o sube las hojas de vida que ya tengas. Cada una aparece aquí apenas llega."
+            description="Comparte el enlace de la convocatoria. Cada hoja de vida aparece aquí apenas alguien se postula."
             className="mx-auto w-[520px] max-w-full bg-surface animate-rise"
           />
         ) : (
@@ -212,10 +175,9 @@ export function IngestView({ data }: { data: IngestData }) {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="flex flex-wrap items-center gap-2 font-head text-[20px] font-semibold tracking-[-0.01em]">
                   Tablero de hojas de vida
-                  <CribaAi label="lee, anonimiza y avisa lo que falta" />
+                  <CribaAi label="Lee, anonimiza y avisa lo que falta" />
                 </h2>
                 <div className="flex w-full items-center gap-2 sm:w-auto">
-                  <Select aria-label="Canal" options={CHANNELS} value={source} onChange={(v) => setSource(v as "all" | IngestSource)} className="w-[46%] sm:w-[220px]" triggerClassName="field-box h-10 w-full px-3.5 text-[13.5px] text-ink" />
                   <SearchField placeholder="Buscar archivo" containerClassName="min-w-0 flex-1 sm:w-[240px] sm:flex-none" value={query} onChange={(e) => setQuery(e.target.value)} />
                 </div>
               </div>
