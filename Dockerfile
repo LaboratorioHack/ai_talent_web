@@ -8,6 +8,16 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
+# Landing (Astro, carpeta landing/): HTML estático que la app sirve en "/".
+FROM base AS landing
+WORKDIR /landing
+COPY landing/package.json landing/pnpm-lock.yaml landing/pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY landing/ .
+ARG LANDING_APP_URL=https://app.criba.isroot.in
+ENV PUBLIC_APP_URL=$LANDING_APP_URL SITE_URL=$LANDING_APP_URL
+RUN pnpm build
+
 FROM base AS build
 WORKDIR /app
 ARG NEXT_PUBLIC_API_URL
@@ -15,6 +25,7 @@ ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+COPY --from=landing /landing/dist ./public/landing
 RUN pnpm build
 
 FROM node:22-alpine
