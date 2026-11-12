@@ -4,7 +4,7 @@ import { env } from "@/config/env";
 import { routes } from "@/shared/constants/routes";
 
 /** Rutas sin sesión. /jobs y /interview/ son del candidato, que no tiene cuenta de empresa. */
-const PUBLIC_PREFIXES = ["/login", "/auth", "/design", "/jobs", "/interview/", "/_next", "/favicon.ico"];
+const PUBLIC_PREFIXES = ["/login", "/auth", "/design", "/jobs", "/interview/", "/portal/sign-in", "/_next", "/favicon.ico"];
 
 /**
  * Refresca la sesión de Supabase en cada petición y protege el panel.
@@ -35,8 +35,10 @@ export async function proxy(request: NextRequest) {
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
-    url.pathname = routes.login;
-    url.searchParams.set("next", pathname);
+    // El portal del postulante tiene su propia entrada (enlace mágico).
+    const portal = pathname.startsWith(routes.portal);
+    url.pathname = portal ? routes.portalSignIn : routes.login;
+    if (!portal) url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 

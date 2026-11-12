@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRight, Clock, MessageSquareText, Send, UserCheck } from "lucide-react";
-import { Button, LogoMark, ProgressSegments } from "@/shared/components/ui";
+import { Button, ButtonLink, LogoMark, ProgressSegments } from "@/shared/components/ui";
+import { routes } from "@/shared/constants/routes";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import { cn } from "@/shared/lib/cn";
 import { sendInterviewAnswer } from "../api/submit";
@@ -118,6 +119,9 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
               : `Ya respondiste la entrevista para ${iv.jobTitle}. Si tienes dudas, responde el correo de ${iv.company}.`}
           </p>
         </div>
+        <ButtonLink href={routes.portal} variant="outline" style={{ "--i": 2 } as React.CSSProperties}>
+          Ir a mi portal
+        </ButtonLink>
       </div>
     );
   }
