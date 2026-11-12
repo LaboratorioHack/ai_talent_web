@@ -41,6 +41,7 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 32 | `feat/texture` | 31 | lista | Fondo con grano fino y luz suave en claro y oscuro (solo el fondo; las tarjetas quedan limpias) |
 | 33 | `feat/public-job-details` | 32 | lista | Ficha de vacante tipo portal de empleo: datos clave, perfil deducido, requisitos agrupados con equivalencias, ¿Encajas?, proceso |
 | 34 | `feat/applicant-portal` | 33 | lista | Portal del postulante: entrada con enlace mágico, inicio, mis postulaciones con etapas, detalle con retiro, vacantes con filtros, perfil con lo que ve la IA y borrado de datos |
+| 35 | `feat/portal-redesign` | 34 | lista | Sin textura; lado del candidato en verde oscuro y sin tarjetas de adorno; hoja de vida con vista previa y edición; arreglo del hover de botones en oscuro |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -151,6 +152,20 @@ Fuente: `AI-Talent-Scout-MVP.docx` (borrador 0.1). Lo marcado como **Fuera** se 
 - **Ficha pública** (`/jobs/[id]`): `features/candidates/lib/infer.ts` deduce nivel, experiencia e idioma y escribe las equivalencias ("GCP o AWS también cuentan"). Ubicación, modalidad, contrato y jornada vienen de `LISTING` en el mock: **la vacante aún no guarda esos campos** (hay que sumarlos al editor y al back). Salario muestra "A convenir" cuando no existe.
 - **Portal del postulante** (`app/(candidate)/portal`, `features/candidates/components/portal`): `/portal`, `/portal/applications`, `/portal/applications/[id]`, `/portal/jobs`, `/portal/profile` y `/portal/sign-in` (enlace mágico con `signInWithOtp`). El proxy manda a `/portal/sign-in` si no hay sesión. Etapas para la persona: Recibida, En revisión, Entrevista, Decisión; nunca puntajes. Endpoints esperados: `GET /me/applicant`, `/me/applications`, `/me/applications/{id}`, `/me/resume`, `/public/vacancies`. La separación de roles (candidato vs. reclutador) la debe validar la API.
 - **pen.dev**: tokens actualizados a la paleta y fuentes actuales (Funnel Display / Funnel Sans / IBM Plex Mono, tema claro y oscuro). Tableros nuevos "MVP · Empresa" y "MVP · Postulante" con las pantallas importadas desde la app; Fuentes e Integraciones movidas a "Archivo · fuera del MVP".
+
+
+## 35 · `feat/portal-redesign`
+
+Feedback de Manuel: el gris con tarjetas blancas, la textura y el exceso de texto sobre la IA no gustaron.
+
+- **Textura eliminada** (revert de `feat/texture`). El fondo vuelve a ser plano.
+- **Todo lo del candidato va en oscuro** (`dark-scope` en `app/(candidate)/portal/layout.tsx` y `app/(public)/layout.tsx`), con el verde y el ámbar de la landing. Sin selector de tema.
+- **Menos cajas**: postulaciones y vacantes son filas con líneas finas (`ApplicationRow`, `JobsBrowser`); el detalle es texto, puntos de etapa y una lista. Lo único que sigue en panel es el formulario de postulación.
+- **Mi hoja de vida** (`/portal/resume`, `ResumeView`): se ve como documento con `ResumeSheet`; "Editar" abre el formulario con la vista previa al lado, que cambia mientras se escribe. Descargar datos y borrar cuenta quedan como enlaces al pie. En el inicio, la hoja de vida se ve a la derecha, junto a las postulaciones.
+- **Sin "lo que ve la IA"** ni frases sobre la IA en el portal; las etapas y estados son texto con color (sin pastillas).
+- **Botón tinta en oscuro**: su hover ya no se vuelve un panel oscuro con texto oscuro (afectaba también a la app de empresa).
+- `routes.portalProfile` pasó a `routes.portalResume`; `/portal/applications` (lista) se quitó: el inicio es la lista.
+- **pen.dev**: el tablero "MVP · Postulante" ahora es oscuro y tiene las pantallas nuevas.
 
 ## Landing (repo aparte `ai_talent_landing`)
 
