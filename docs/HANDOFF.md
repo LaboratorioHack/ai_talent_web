@@ -220,8 +220,8 @@ Con `NEXT_PUBLIC_USE_MOCKS=false` y Supabase configurado, estas partes usan la A
 
 - **Token**: `shared/lib/api-server.ts` (Server Components) y `shared/lib/api-browser.ts` (navegador) ponen el JWT de Supabase en `Authorization`. `apiFetch` lee el `detail` de los ProblemDetails, acepta `FormData` y respuestas 204. Si `NEXT_PUBLIC_API_URL` es relativa, el servidor usa `API_INTERNAL_URL`.
 - **Sesión**: `GET /api/auth/me`. Sin empresa todavía, el panel manda a `/onboarding/2`; con empresa, `/onboarding/2` manda al panel. Campana vacía (la API no calcula avisos) y buscador solo con vacantes.
-- **Onboarding**: `POST /api/companies` con nombre, sector, tamaño (`1-10`, `11-50`, `51-200`, `201-500`, `501-1000`, `1000+`) y el nombre de la cuenta (`user_metadata.name`). Un 409 (ya tiene empresa) deja seguir.
-- **Vacantes**: `GET /api/vacancies` y `/{id}`, `POST`, `PATCH /{id}` + `PUT /{id}/profile`, `POST /{id}/publish` ("Publicar y compartir" y "Crear vacante"), `DELETE /{id}`. `shared/lib/vacancy-api.ts` traduce `NICE_TO_HAVE` ↔ `DESIRABLE` y las equivalencias (lista ↔ objeto). Los descalificantes van con peso 0. Si publicar falla, la vacante queda en borrador y el editor muestra el motivo.
+- **Onboarding**: `POST /api/companies` con nombre, sector, tamaño (`1-10`, `11-50`, `51-200`, `201-500`, `501-1000`, `1000+`) y el nombre de la cuenta (`user_metadata.name`). Un 409 (ya tiene empresa) deja seguir. "Me invitaron: tengo un código" usa `POST /api/companies/join` y entra como reclutador directo al panel.
+- **Vacantes**: `GET /api/vacancies` y `/{id}`, `POST`, `PATCH /{id}` + `PUT /{id}/profile`, `POST /{id}/publish` ("Publicar y compartir" y "Crear vacante"), `POST /{id}/close` ("Cerrar postulaciones" en el tablero de una vacante abierta), `DELETE /{id}` (borrado lógico: conserva postulaciones, evaluaciones y auditoría). `shared/lib/vacancy-api.ts` traduce `NICE_TO_HAVE` ↔ `DESIRABLE` y las equivalencias (lista ↔ objeto). Los descalificantes van con peso 0. Si publicar falla, la vacante queda en borrador y el editor muestra el motivo.
 - **Tablero e ingesta**: `GET /api/vacancies/{id}/applications`. Etapas: `APPLIED` → recibidas, `SHORTLISTED` → cumplen, `INTERVIEW` → entrevista, `HIRED` → finalistas; descartados y retirados no se muestran.
 - **Postulación pública**: `POST /api/vacancies/{id}/applications` (multipart con `name`, `email`, `consent`, `file`). Solo PDF y DOCX de hasta 10 MB.
 
@@ -230,6 +230,8 @@ Falta en el back para terminar estas pantallas:
 - Nombre, tipo, tamaño y páginas del archivo en `GET /vacancies/{id}/applications`: la ingesta muestra el nombre de la persona y deja vacío el tipo.
 - `GET` público de una vacante abierta: `/jobs/[id]` aún no puede cargarla sin sesión.
 - Cambio de etapa de una postulación (`moveApplication`), conteos reales por vacante (hoy en 0), avisos, panel, ranking, entrevistas y gobierno.
+- Evaluación, ranking, comparación y evidencias (RAG de Andrés): existen en el AI Engine (`/v1/evaluate`, `/v1/rank`, `/v1/compare`, `/v1/evidence`), pero la API .NET solo llama a la ingesta al postularse. El front no llama al engine (red interna y clave interna): faltan endpoints en la API.
+- Equipo (`GET/PATCH /api/staff`) y códigos de invitación (`POST /api/companies/current/invite-codes`) exigen admin con MFA (`aal2`); el front no tiene MFA ni pantalla de equipo, que quedaron fuera del MVP. `/api/health` y `/api/health/engine` son para monitoreo y no se muestran.
 
 ## Pendiente
 
