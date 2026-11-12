@@ -725,35 +725,11 @@
  * verde arriba y un rescoldo ámbar abajo. Fijo al viewport, así se siente un
  * espacio y no una página que se acaba.
  */
-/*
- * Textura del fondo: grano fino (ruido SVG) sobre luz suave. Solo vive en el
- * fondo de la página; las tarjetas quedan limpias encima. Nada de cuadrícula.
- */
-:root {
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .08 0 0 0 0 .13 0 0 0 0 .1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.38'/%3E%3C/svg%3E");
-}
-:root.dark {
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .95 0 0 0 0 .93 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.32'/%3E%3C/svg%3E");
-}
-
-body {
-  background:
-    var(--grain),
-    radial-gradient(1100px 620px at 8% -12%, rgb(26 138 90 / 0.09), transparent 70%),
-    radial-gradient(900px 560px at 100% 0%, rgb(31 91 209 / 0.05), transparent 70%),
-    radial-gradient(1100px 600px at 70% 112%, rgb(242 169 59 / 0.11), transparent 70%),
-    linear-gradient(180deg, #f7f8f4 0%, #f2f4ee 100%);
-  background-size: 240px 240px, auto, auto, auto, auto;
-  background-attachment: fixed;
-}
-
 :root.dark body {
   background:
-    var(--grain),
     radial-gradient(1200px 700px at 15% -10%, rgb(95 210 155 / 0.17), transparent 70%),
     radial-gradient(1000px 640px at 95% 10%, rgb(60 140 110 / 0.15), transparent 70%),
     radial-gradient(1100px 560px at 50% 115%, rgb(242 169 59 / 0.09), transparent 70%),
     linear-gradient(180deg, #0f1814 0%, #0b120f 100%);
-  background-size: 240px 240px, auto, auto, auto, auto;
   background-attachment: fixed;
 }
