@@ -739,13 +739,33 @@
  * .portal-light pinta dos luces suaves fijas (verde arriba, ámbar abajo).
  * .hl es el resaltador ámbar de la landing: se pinta de izquierda a derecha.
  */
+:root {
+  --contours: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='240'%3E%3Cg fill='none' stroke='%2315201b' stroke-opacity='0.07' stroke-width='1'%3E%3Cpath d='M0 12 q75 -10 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-25 36 q75 -14 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-50 60 q75 -18 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M0 84 q75 -22 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-25 108 q75 -18 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-50 132 q75 -14 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M0 156 q75 -10 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-25 180 q75 -6 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-50 204 q75 -8 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M0 228 q75 -12 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3C/g%3E%3C/svg%3E");
+  --portal-base: #f7f5ef;
+}
+:root.dark,
+.dark-scope {
+  --contours: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='240'%3E%3Cg fill='none' stroke='%23edf2ee' stroke-opacity='0.055' stroke-width='1'%3E%3Cpath d='M0 12 q75 -10 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-25 36 q75 -14 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-50 60 q75 -18 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M0 84 q75 -22 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-25 108 q75 -18 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-50 132 q75 -14 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M0 156 q75 -10 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-25 180 q75 -6 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-50 204 q75 -8 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M0 228 q75 -12 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3C/g%3E%3C/svg%3E");
+  --portal-base: #0d1411;
+}
+
+/* Contornos que derivan muy despacio: textura sin ruido ni cuadrícula. */
+@keyframes contour-drift {
+  to {
+    background-position: 600px 120px, 0 0, 0 0, 0 0, 0 0;
+  }
+}
+
 .portal-light {
+  --bg: var(--portal-base);
   background:
+    var(--contours) 0 0 / 600px 240px,
     radial-gradient(900px 520px at 12% -8%, rgb(95 210 155 / 0.13), transparent 70%),
     radial-gradient(700px 480px at 92% 4%, rgb(60 140 110 / 0.1), transparent 70%),
-    radial-gradient(900px 520px at 70% 112%, rgb(242 169 59 / 0.09), transparent 70%),
-    var(--bg);
+    radial-gradient(900px 520px at 70% 112%, rgb(242 169 59 / 0.1), transparent 70%),
+    var(--portal-base);
   background-attachment: fixed;
+  animation: contour-drift 90s linear infinite;
 }
 
 .hl {
