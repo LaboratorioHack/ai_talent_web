@@ -11,7 +11,7 @@ export function CribaAi({ label, className }: { label?: string; className?: stri
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[linear-gradient(90deg,rgb(242_169_59/0.2),rgb(242_169_59/0.08))] py-[3px] pr-2.5 pl-1.5 text-[11.5px] font-semibold text-[color:var(--ai-ink)] ring-1 ring-amber/35",
+        "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[linear-gradient(90deg,rgb(242_169_59/0.2),rgb(242_169_59/0.08))] py-[3px] pr-2.5 pl-1.5 text-[11.5px] font-semibold text-[color:var(--ai-ink)] ring-1 ring-amber/35",
         className,
       )}
     >
