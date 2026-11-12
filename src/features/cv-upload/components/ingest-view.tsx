@@ -14,6 +14,7 @@ import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { useIngest } from "../hooks/use-ingest";
 import type { IngestData, IngestFile, IngestSource } from "../types/ingest";
+import { AiReadingCard } from "./ai-reading-card";
 import { CallPanel } from "./call-panel";
 import { Dropzone } from "./dropzone";
 import { EvaluateModal } from "./evaluate-modal";
@@ -242,6 +243,11 @@ export function IngestView({ data }: { data: IngestData }) {
                         ) : null}
                       </header>
                       <ScrollArea className="h-[540px] max-lg:h-auto max-lg:max-h-[420px]" viewportClassName="px-3 pb-3">
+                        {col.key === "busy" ? (
+                          <div className="mb-2">
+                            <AiReadingCard />
+                          </div>
+                        ) : null}
                         {items.length ? (
                           <ul className="flex flex-col gap-2">
                             {items.map((f, i) => (
@@ -250,7 +256,7 @@ export function IngestView({ data }: { data: IngestData }) {
                           </ul>
                         ) : (
                           <p className="px-2 py-10 text-center text-[13px] text-ink-3">
-                            {col.key === "busy" ? "Nada leyéndose ahora." : col.key === "attention" ? "Nada pendiente. Todo se leyó bien." : "Aún no hay hojas de vida listas."}
+                            {col.key === "busy" ? "Las nuevas aparecen aquí mientras se leen." : col.key === "attention" ? "Nada pendiente. Todo se leyó bien." : "Aún no hay hojas de vida listas."}
                           </p>
                         )}
                       </ScrollArea>
