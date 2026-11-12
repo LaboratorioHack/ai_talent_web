@@ -1,0 +1,44 @@
+---
+/**
+ * Fondo de toda la página: papel con grano y la malla de una criba encima.
+ * Dos capas de puntos que se desplazan a distinta velocidad con el scroll,
+ * y un grano de papel fijo (ruido SVG) que le da textura sin ensuciar.
+ */
+const grain =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.93  0 0 0 0 0.95  0 0 0 0 0.93  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>`,
+  );
+---
+
+<div aria-hidden="true" class="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+  <div class="absolute inset-0 opacity-[0.10] mix-blend-screen" style={`background-image:url("${grain}"); background-size:220px 220px`}></div>
+  <div class="mesh-layer absolute inset-x-0 top-0 h-[calc(100%+56px)]" data-depth="0.04" style="--gap:28px; --dot:rgba(237,242,238,0.07)"></div>
+  <div class="mesh-layer absolute inset-x-0 top-0 h-[calc(100%+112px)]" data-depth="0.1" style="--gap:56px; --dot:rgba(237,242,238,0.12); --size:1.5px"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_35%,transparent_40%,var(--paper)_100%)]"></div>
+</div>
+
+<style>
+  .mesh-layer {
+    background-image: radial-gradient(circle, var(--dot) var(--size, 1px), transparent calc(var(--size, 1px) + 0.5px));
+    background-size: var(--gap) var(--gap);
+    will-change: transform;
+  }
+</style>
+
+<script>
+  const layers = Array.from(document.querySelectorAll<HTMLElement>(".mesh-layer"));
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    let raf = 0;
+    const move = () => {
+      raf = 0;
+      for (const l of layers) {
+        const depth = Number(l.dataset.depth);
+        const gap = parseFloat(getComputedStyle(l).getPropertyValue("--gap"));
+        l.style.transform = `translate3d(0, ${(-(window.scrollY * depth) % (gap * 2)).toFixed(1)}px, 0)`;
+      }
+    };
+    window.addEventListener("scroll", () => (raf ||= requestAnimationFrame(move)), { passive: true });
+    move();
+  }
+</script>
