@@ -17,7 +17,7 @@ const base = (name: string) => name.toLowerCase().replace(/\s*\(\d+\)/, "").repl
 /** Decide qué "leyó" Criba según el archivo (simulación mientras no exista la API). */
 function verdict(file: IngestFile, existing: IngestFile[]): Pick<IngestFile, "status" | "detail" | "pages"> {
   const kind = file.kind;
-  if (!READABLE.has(kind)) return { status: "UNSUPPORTED", detail: kind === "ZIP" || kind === "RAR" ? "Comprimido: descomprímelo y sube los archivos" : `Formato ${kind} no soportado`, pages: 0 };
+  if (!READABLE.has(kind)) return { status: "UNSUPPORTED", detail: kind === "ZIP" || kind === "RAR" ? "Comprimido: pide el archivo suelto a la persona" : `Formato ${kind} no soportado`, pages: 0 };
   const twin = existing.find((f) => f.id !== file.id && f.status === "READ" && base(f.name) === base(file.name));
   if (twin) return { status: "DUPLICATE", detail: `Igual a ${twin.name}`, pages: twin.pages };
   if (/carta|cover|certificado/i.test(file.name)) return { status: "NO_DATA", detail: "No parece una hoja de vida", pages: 1 };

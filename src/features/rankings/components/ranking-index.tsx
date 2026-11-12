@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Briefcase, CalendarPlus, Quote } from "lucide-react";
+import { ArrowRight, Briefcase, CalendarPlus, Grid2x2, Quote } from "lucide-react";
 import { Avatar, ButtonLink, EmptyState, Segmented, Select } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
@@ -97,10 +97,18 @@ export function RankingIndex({ people, vacancies }: { people: TopPerson[]; vacan
                     </p>
                   </div>
                 </div>
-                <Link href={routes.ranking(v.id)} className="group flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13.5px] text-ink-2 ring-1 ring-border transition-[color,box-shadow] duration-300 hover:text-ink hover:ring-border-strong">
-                  Ranking completo
-                  <ArrowRight aria-hidden className="size-4 transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5" />
-                </Link>
+                <div className="flex flex-wrap items-center gap-2">
+                  {v.evaluated ? (
+                    <Link href={routes.tradeoffs(v.id)} className="group flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-[13.5px] font-medium text-ink ring-1 ring-border transition-[box-shadow,transform,translate] duration-300 hover:-translate-y-px hover:ring-border-strong hover:shadow-[0_10px_24px_-16px_rgba(0,0,0,0.45)]">
+                      <Grid2x2 aria-hidden className="size-4" />
+                      Ver matriz
+                    </Link>
+                  ) : null}
+                  <Link href={routes.ranking(v.id)} className="group flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13.5px] text-ink-2 transition-colors duration-300 hover:text-ink">
+                    Ranking completo
+                    <ArrowRight aria-hidden className="size-4 transition-transform duration-500 ease-[var(--ease-spring)] group-hover:translate-x-0.5" />
+                  </Link>
+                </div>
               </header>
 
               {top.length ? (
@@ -127,8 +135,8 @@ export function RankingIndex({ people, vacancies }: { people: TopPerson[]; vacan
               ) : (
                 <EmptyState
                   title={v.evaluated ? "Nadie cumple todavía" : "Todavía no hay candidatos"}
-                  description={v.evaluated ? "Prueba con todos o ajusta el perfil de la vacante." : "Sube hojas de vida para ver aquí a las mejores personas."}
-                  action={v.evaluated ? undefined : <ButtonLink href={`${routes.candidates}?job=${v.id}`}>Subir hojas de vida</ButtonLink>}
+                  description={v.evaluated ? "Prueba con todos o ajusta el perfil de la vacante." : "Comparte el enlace de la vacante: aquí verás a las mejores personas que se postulen."}
+                  action={v.evaluated ? undefined : <ButtonLink href={`${routes.candidates}?job=${v.id}`}>Compartir el enlace</ButtonLink>}
                   className="max-w-none animate-rise"
                 />
               )}

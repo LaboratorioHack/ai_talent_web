@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Plus, Upload } from "lucide-react";
+import { Inbox, Plus } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
 import { ButtonLink } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
@@ -24,8 +24,8 @@ export default function HomePage() {
         description={<DailyQuestion />}
         actions={
           <>
-            <ButtonLink href={routes.candidates} variant="outline" icon={<Upload />}>
-              Subir hojas de vida
+            <ButtonLink href={routes.candidates} variant="outline" icon={<Inbox />}>
+              Ver postulaciones
             </ButtonLink>
             <ButtonLink href={routes.newVacancy} icon={<Plus />}>
               Nueva vacante

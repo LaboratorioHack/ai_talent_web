@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { useToday } from "@/shared/hooks/use-today";
-import { CalendarPlus, FileText, Plug, Trash2, Upload, X } from "lucide-react";
+import { CalendarPlus, FileText, Link2, Plug, Trash2, X } from "lucide-react";
 import {
   Avatar,
   Button,
@@ -248,8 +248,8 @@ export function DesignShowcase() {
         <div className="flex flex-wrap items-start gap-10">
           <EmptyState
             title="Todavía no hay candidatos"
-            description="Sube hojas de vida o conecta tu ATS para empezar."
-            action={<Button icon={<Upload />}>Subir hojas de vida</Button>}
+            description="Comparte el enlace de la vacante para empezar."
+            action={<Button icon={<Link2 />}>Compartir el enlace</Button>}
             alternative="o conectar Greenhouse / Lever"
             className="w-[400px]"
           />

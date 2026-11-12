@@ -55,7 +55,7 @@ export function CvCard({ resume }: { resume: ResumeSummary }) {
           </Link>
         </div>
         <div className="flex flex-col gap-2.5">
-          <CribaAi label="leyó tu hoja de vida y encontró" className="self-start" />
+          <CribaAi label="Leyó tu hoja de vida y encontró" className="self-start" />
           <ul className="flex flex-wrap gap-1.5">
             {resume.skills.map((s, i) => (
               <li key={s} className="rounded-full bg-surface-2 px-2.5 py-1 text-[12px] text-ink-2 ring-1 ring-border animate-[pop-in_420ms_var(--ease-spring)_both]" style={{ animationDelay: `${500 + i * 110}ms` }}>

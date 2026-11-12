@@ -33,7 +33,7 @@ export function EvidenceTable({ requirements, results, onOpenResume, onAiError, 
         <span>Requisito</span>
         <span className="flex items-center gap-2">
           Evidencia en la hoja de vida
-          <CribaAi label="la citó" />
+          <CribaAi label="La citó" />
         </span>
         <span>Dónde</span>
         <span className="text-right">Aporte</span>

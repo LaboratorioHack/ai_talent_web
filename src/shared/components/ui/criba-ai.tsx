@@ -17,7 +17,7 @@ export function CribaAi({ label, className }: { label?: string; className?: stri
     >
       <LogoMark size={13} />
       Criba AI
-      {label ? <span className="font-normal opacity-80">· {label}</span> : null}
+      {label ? <span className="font-normal opacity-80">· {label.charAt(0).toUpperCase() + label.slice(1)}</span> : null}
     </span>
   );
 }

@@ -34,6 +34,7 @@ export function VacancyProfileForm({ id, initial }: VacancyProfileFormProps) {
   async function evaluate(draft: RoleProfileDraft) {
     const target = id ?? (await createVacancy(draft)).id;
     if (id) await updateVacancy(id, draft);
+    toast({ title: "Vacante publicada", description: "Comparte el enlace para que las personas se postulen." });
     router.push(`${routes.candidates}?job=${target}`);
   }
 
@@ -44,7 +45,7 @@ export function VacancyProfileForm({ id, initial }: VacancyProfileFormProps) {
       onSave={save}
       onEvaluate={evaluate}
       saveLabel={id ? "Guardar cambios" : "Guardar borrador"}
-      evaluateLabel="Subir hojas de vida"
+      evaluateLabel="Publicar y compartir"
     />
   );
 }

@@ -61,12 +61,12 @@ export function PortalSignIn() {
           </div>
         ) : (
           <form onSubmit={submit} noValidate className="stagger flex flex-col gap-7 [&>*]:animate-rise">
-            <div className="flex flex-col gap-3" style={{ "--i": 0 } as React.CSSProperties}>
+            <div className="flex flex-col gap-4" style={{ "--i": 0 } as React.CSSProperties}>
               <span className="w-fit rounded-md bg-amber px-2 py-0.5 text-[11px] font-bold tracking-[0.08em] text-[#1a211d] uppercase">Portal de postulantes</span>
-              <h1 className="font-head text-[40px] leading-[1.02] font-semibold tracking-[-0.025em] sm:text-[52px]">
+              <h1 className="font-head text-[40px] leading-[1.1] font-semibold tracking-[-0.025em] sm:text-[52px]">
                 Sigue cada <span className="hl">postulación</span>
               </h1>
-              <p className="max-w-[440px] text-[15.5px] text-ink-2">Entra con el correo con el que te postulaste. Sin contraseña: te mandamos un enlace y listo.</p>
+              <p className="max-w-[440px] text-[16px] leading-relaxed text-ink-2">Entra con el correo con el que te postulaste. Sin contraseña: te mandamos un enlace y listo.</p>
             </div>
             <div className="flex max-w-[440px] flex-col gap-4" style={{ "--i": 1 } as React.CSSProperties}>
               <TextField
@@ -96,14 +96,13 @@ export function PortalSignIn() {
         )}
       </div>
 
-      <div aria-hidden className="relative hidden h-[560px] overflow-hidden rounded-[32px] bg-amber text-[#1a211d] lg:block">
-        <span className="pointer-events-none absolute -top-32 -right-24 size-[420px] rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.4),transparent)]" />
-        <span className="pointer-events-none absolute -bottom-40 -left-24 size-[420px] rounded-full bg-[radial-gradient(closest-side,rgba(26,33,29,0.18),transparent)]" />
+      <div aria-hidden className="relative hidden h-[600px] overflow-hidden rounded-[32px] bg-surface text-ink ring-1 ring-border shadow-[0_40px_80px_-40px_rgba(0,0,0,0.6)] lg:block">
+        <span className="pointer-events-none absolute -top-40 -right-32 size-[460px] rounded-full bg-[radial-gradient(closest-side,rgb(242_169_59/0.16),transparent)]" />
 
         <div className="absolute inset-x-10 top-12 flex flex-col gap-2">
-          <span className="text-[13px] font-semibold tracking-[0.08em] uppercase opacity-60">Tu postulación</span>
+          <span className="text-[12.5px] font-medium tracking-[0.08em] text-ink-3 uppercase">Tu postulación</span>
           <span className="font-head text-[30px] leading-[1.05] font-semibold tracking-[-0.02em]">Ingeniero Cloud Senior</span>
-          <span className="text-[14px] opacity-70">Cordillera Financiera · Medellín</span>
+          <span className="text-[14px] text-ink-3">Cordillera Financiera · Medellín</span>
         </div>
 
         <ol className="absolute inset-x-10 top-[200px] flex flex-col gap-3">
@@ -115,24 +114,24 @@ export function PortalSignIn() {
                 key={s}
                 className={cn(
                   "flex items-center gap-4 rounded-2xl px-5 py-4 transition-[background-color,transform,translate,box-shadow] duration-700 ease-[var(--ease-out-soft)]",
-                  now ? "translate-x-3 bg-[#1a211d] text-[#f5f1e8] shadow-[0_24px_40px_-24px_rgba(0,0,0,0.6)]" : done ? "bg-[#1a211d]/10" : "bg-[#1a211d]/5 opacity-60",
+                  now ? "translate-x-3 bg-amber text-[#1a211d] shadow-[0_24px_44px_-22px_rgb(242_169_59/0.7)]" : done ? "bg-surface-2 ring-1 ring-border" : "ring-1 ring-border opacity-50",
                 )}
               >
-                <span className={cn("flex size-7 shrink-0 items-center justify-center rounded-full transition-colors duration-500", now ? "bg-amber text-[#1a211d]" : done ? "bg-[#1a211d] text-amber" : "ring-2 ring-[#1a211d]/30")}>
-                  {done ? <Check className="size-4" /> : now ? <span className="size-2 rounded-full bg-[#1a211d] animate-breathe" /> : null}
+                <span className={cn("flex size-7 shrink-0 items-center justify-center rounded-full transition-colors duration-500", now ? "bg-[#1a211d] text-amber" : done ? "bg-success-soft text-success" : "ring-2 ring-border-strong")}>
+                  {done ? <Check className="size-4" /> : now ? <span className="size-2 rounded-full bg-amber animate-breathe" /> : null}
                 </span>
                 <span className="flex-1 text-[15px] font-semibold">{s}</span>
-                <span className="text-[12.5px] opacity-60">{done ? "Listo" : now ? "Ahora" : ""}</span>
+                <span className={cn("text-[12.5px]", now ? "opacity-70" : "text-ink-3")}>{done ? "Listo" : now ? "Ahora" : ""}</span>
               </li>
             );
           })}
         </ol>
 
-        <div className="absolute inset-x-10 bottom-10 flex items-center justify-between text-[13px] font-medium opacity-70">
+        <div className="absolute inset-x-10 bottom-10 flex items-center justify-between text-[13px] text-ink-3">
           <span>Te avisamos en cada paso</span>
           <span className="flex gap-1.5">
             {Array.from({ length: STAGES.length + 2 }, (_, i) => (
-              <span key={i} className={cn("h-1.5 rounded-full bg-[#1a211d] transition-[width,opacity] duration-500", i === step ? "w-5 opacity-100" : "w-1.5 opacity-30")} />
+              <span key={i} className={cn("h-1.5 rounded-full transition-[width,background-color] duration-500", i === step ? "w-5 bg-amber" : "w-1.5 bg-border-strong")} />
             ))}
           </span>
         </div>

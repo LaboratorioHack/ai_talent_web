@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Check, Eye, FileClock, Highlighter, MousePointerClick, PencilLine, Plus, Trash2, Upload } from "lucide-react";
 import { PdfViewer, type PdfHotspot } from "@/shared/components/pdf/pdf-viewer";
-import { Button, Modal, TextArea, TextField, useToast } from "@/shared/components/ui";
+import { Button, Modal, Segmented, TextArea, TextField, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
@@ -96,7 +96,7 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-6 px-4 pt-10 pb-16 sm:px-6 lg:px-8 lg:pt-12">
+    <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-6 px-4 pt-10 pb-16 sm:px-6 lg:h-[calc(100dvh-var(--app-header)-1px)] lg:min-h-[640px] lg:px-8 lg:pt-10 lg:pb-8">
       <header className="flex flex-wrap items-end justify-between gap-4 animate-rise">
         <div className="flex flex-col gap-2">
           <h1 className="font-head text-[36px] leading-[1.02] font-semibold tracking-[-0.025em] sm:text-[48px]">
@@ -111,27 +111,15 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div role="radiogroup" aria-label="Herramienta" className="flex rounded-full bg-surface-2/80 p-1 ring-1 ring-border">
-            {MODES.map((m) => (
-              <button
-                key={m.value}
-                type="button"
-                role="radio"
-                aria-checked={mode === m.value}
-                onClick={() => {
-                  setMode(m.value);
-                  setActive(null);
-                }}
-                className={cn(
-                  "flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[13.5px] transition-[background-color,color,box-shadow] duration-300",
-                  mode === m.value ? "bg-surface font-medium text-ink shadow-[0_1px_2px_rgba(0,0,0,0.1)] ring-1 ring-border" : "text-ink-2 hover:text-ink",
-                )}
-              >
-                <m.icon aria-hidden className={cn("size-4", mode === m.value && "text-amber")} />
-                {m.label}
-              </button>
-            ))}
-          </div>
+          <Segmented
+            aria-label="Herramienta"
+            items={MODES}
+            value={mode}
+            onChange={(m) => {
+              setMode(m);
+              setActive(null);
+            }}
+          />
           <Button variant="outline" icon={<Upload />} onClick={() => input.current?.click()}>
             Subir otro PDF
           </Button>
@@ -141,17 +129,18 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid grid-cols-1 gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_340px]">
         <PdfViewer
           data={pdf?.bytes ?? null}
           fileName={file.name}
           hotspots={hotspots}
           activeKey={active}
           onHotspot={onHotspot}
-          className="h-[calc(100dvh-230px)] min-h-[560px] animate-rise [animation-delay:60ms]"
+          initialZoom={0.75}
+          className="h-[calc(100dvh-260px)] min-h-[480px] lg:h-full lg:min-h-0 animate-rise [animation-delay:60ms]"
         />
 
-        <aside className="flex flex-col gap-6 animate-rise [animation-delay:120ms]">
+        <aside key={mode} className="flex flex-col gap-6 [&>*]:animate-rise [&>*:nth-child(2)]:[animation-delay:70ms] [&>*:nth-child(3)]:[animation-delay:140ms]">
           {mode === "edit" ? (
             active ? (
               <LineEditor key={active} doc={doc} lineKey={active} patch={patch} onClose={() => setActive(null)} />
@@ -225,7 +214,7 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
                   ))}
                 </ol>
               </section>
-              <footer className="flex flex-wrap gap-4 px-1 text-[12.5px] text-ink-3">
+              <footer className="flex flex-wrap justify-center gap-6 px-1 text-[12.5px] text-ink-3">
                 <button type="button" className="hover:text-ink" onClick={() => toast({ title: "Preparando tus datos", description: "Te llega un correo con el archivo." })}>
                   Descargar mis datos
                 </button>

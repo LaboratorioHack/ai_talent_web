@@ -1,7 +1,7 @@
 /** Estado de un archivo en la ingesta. UPLOADING solo existe en el navegador. */
 export type IngestStatus = "UPLOADING" | "PROCESSING" | "READ" | "UNREADABLE" | "DUPLICATE" | "UNSUPPORTED" | "NO_DATA";
 
-/** Canal de la postulación (applications.source): la empresa la sube o el candidato se postula. */
+/** Canal de la postulación (applications.source). En el MVP solo llegan por la postulación del candidato. */
 export type IngestSource = "upload" | "candidate";
 
 export interface IngestFile {

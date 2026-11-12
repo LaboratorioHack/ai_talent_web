@@ -1,150 +1,76 @@
 ---
-import ReviewedSheet from "./ReviewedSheet.astro";
+const asset = (file: string) => `${import.meta.env.BASE_URL.replace(/\/$/, "")}/img/${file}`;
 const appUrl = import.meta.env.PUBLIC_APP_URL ?? "http://localhost:3000";
-const words = ["evidencia", "criterio", "calma"];
+const facts = ["Lee PDF, Word y escaneos", "Evalúa sin foto, edad ni datos personales", "Tu equipo toma la decisión final"];
 ---
 
 <!--
-  Hero para los dos roles. El selector cambia el texto y las acciones (empresa
-  o persona que busca empleo); el titular es el mismo porque la promesa es la
-  misma: cada hoja de vida leída completa y con la prueba de cada punto.
+  Hero: la promesa en una frase y el producto real debajo. La composición entra
+  inclinada hacia atrás y se endereza mientras se baja (data-scrub), sin fijar
+  la página: el movimiento sigue al scroll en las dos direcciones.
 -->
-<section id="producto" data-audience="org" class="hero relative scroll-mt-24">
-  <div class="container-x relative flex flex-col items-center pt-36 pb-28 text-center sm:pt-44 sm:pb-36">
-    <div data-reveal role="radiogroup" aria-label="Soy" class="audience relative mb-8 inline-flex max-w-full rounded-full border border-border bg-surface p-1">
-      <span aria-hidden="true" class="audience-pill absolute top-1 bottom-1 left-1 rounded-full bg-ink"></span>
-      <button type="button" role="radio" aria-checked="true" data-pick="org" class="relative z-10 h-10 rounded-full px-4 text-[13.5px] font-medium sm:px-5 sm:text-[14px]">Contrato personas</button>
-      <button type="button" role="radio" aria-checked="false" data-pick="person" class="relative z-10 h-10 rounded-full px-4 text-[13.5px] font-medium sm:px-5 sm:text-[14px]">Busco empleo</button>
-    </div>
-
-    <h1 data-reveal style="--i:1" class="max-w-[1000px] font-head text-[36px] leading-[1.06] font-semibold tracking-[-0.03em] text-ink sm:text-[56px] lg:text-[76px]">
-      <span class="sr-only">Hojas de vida leídas completas, con evidencia y no con palabras clave.</span>
-      <span aria-hidden="true">
-        Hojas de vida leídas con
-        <span data-rotate data-ms="2800" class="rotator relative inline-grid align-bottom">
-          <span class="invisible col-start-1 row-start-1 px-1">{words.reduce((a, b) => (b.length > a.length ? b : a))},</span>
-          {words.map((w) => <span data-word class="col-start-1 row-start-1 justify-self-center px-1"><span class="marker">{w}</span>,</span>)}
-        </span>
-        <br />
-        <span class="struck relative inline-block whitespace-nowrap text-ink-3">no con palabras clave.</span>
-      </span>
-    </h1>
-
-    <div data-reveal style="--i:2" class="swap mt-7 grid max-w-[620px]">
-      <p data-for="org" class="col-start-1 row-start-1 text-[17px] leading-relaxed text-ink-2">
-        Publica tu vacante y recibe un ranking explicado: por cada punto del puntaje, la línea de la hoja de vida que lo prueba. La decisión sigue siendo de tu equipo.
-      </p>
-      <p data-for="person" class="col-start-1 row-start-1 text-[17px] leading-relaxed text-ink-2">
-        Sube tu hoja de vida una vez, en el formato que tengas, y postúlate. Se lee completa, con el mismo criterio para todos, y sabes qué se tuvo en cuenta.
-      </p>
-    </div>
-
-    <div data-reveal style="--i:3" class="swap mt-10 grid">
-      <div data-for="org" class="col-start-1 row-start-1 flex flex-wrap items-center justify-center gap-3">
-        <a href={`${appUrl}/login`} class="btn btn-ink">Publicar una vacante</a>
-        <a href="#como-evalua" class="btn btn-line">Ver cómo evalúa</a>
+<section class="pt-32 sm:pt-40">
+  <div class="container-x flex flex-col">
+    <div class="grid items-end gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16">
+      <div class="flex flex-col items-start">
+        <p data-reveal class="eyebrow">Selección de personal con IA, para empresas en Colombia</p>
+        <h1 data-reveal style="--i:1" class="mt-5 font-head text-[42px] leading-[1.03] font-semibold tracking-[-0.03em] text-balance sm:text-[62px] lg:text-[72px]">
+          Contrata por lo que la gente <span class="marker">sabe hacer</span>.
+        </h1>
       </div>
-      <div data-for="person" class="col-start-1 row-start-1 flex flex-wrap items-center justify-center gap-3">
-        <a href="#vacantes" class="btn btn-ink">Subir mi hoja de vida</a>
-        <a href="#vacantes" class="btn btn-line">Ver vacantes abiertas</a>
+      <div class="flex flex-col items-start gap-8 lg:pb-3">
+        <p data-reveal style="--i:2" class="text-[18px] leading-relaxed text-ink-2">
+          Criba lee cada hoja de vida completa, la compara con tu vacante y te muestra la línea que prueba cada requisito. Tú decides a quién llamar.
+        </p>
+        <div data-reveal style="--i:3" class="flex flex-wrap items-center gap-x-6 gap-y-4">
+          <a href={`${appUrl}/login`} class="btn btn-ink">Publicar una vacante</a>
+          <a href="#postulantes" class="link-arrow text-[15px]">
+            Busco empleo
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </a>
+        </div>
       </div>
     </div>
 
-    <ReviewedSheet />
+    <ul data-reveal style="--i:4" class="mt-10 flex flex-wrap gap-x-8 gap-y-2.5 text-[14.5px] text-ink-2">
+      {
+        facts.map((f) => (
+          <li class="flex items-center gap-2.5">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--success)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+            {f}
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="hero-stage mt-14 sm:mt-20" data-scrub data-scrub-end="0.12">
+      <div class="hero-tilt relative pb-[12%]">
+        <figure class="shot">
+          <img src={asset("app-home.webp")} alt="Inicio de Criba: vacantes abiertas, hojas de vida recibidas, embudo de selección y lo que Criba AI está haciendo" width="2000" height="1250" fetchpriority="high" />
+        </figure>
+        <figure class="hero-card shot absolute -bottom-0 left-[4%] w-[62%] sm:w-[48%]">
+          <img src={asset("app-score.webp")} alt="Daniela Osorio: cumple 4 de 4 obligatorios, 92 de 100 y de dónde sale cada punto" width="1200" height="402" loading="eager" />
+        </figure>
+      </div>
+    </div>
   </div>
 </section>
 
-<script>
-  document.querySelectorAll<HTMLElement>(".hero").forEach((hero) => {
-    const pill = hero.querySelector<HTMLElement>(".audience-pill");
-    const buttons = [...hero.querySelectorAll<HTMLButtonElement>("[data-pick]")];
-    const place = (btn: HTMLButtonElement) => {
-      if (!pill) return;
-      pill.style.width = `${btn.offsetWidth}px`;
-      pill.style.transform = `translateX(${btn.offsetLeft - 4}px)`;
-    };
-    const pick = (btn: HTMLButtonElement) => {
-      hero.dataset.audience = btn.dataset.pick;
-      document.documentElement.dataset.audience = btn.dataset.pick;
-      buttons.forEach((b) => b.setAttribute("aria-checked", String(b === btn)));
-      place(btn);
-    };
-    buttons.forEach((b) => b.addEventListener("click", () => pick(b)));
-    requestAnimationFrame(() => place(buttons[0]));
-    window.addEventListener("resize", () => place(buttons.find((b) => b.getAttribute("aria-checked") === "true") ?? buttons[0]));
-  });
-</script>
-
 <style>
-  .audience-pill {
-    transition:
-      transform 600ms var(--ease-spring),
-      width 600ms var(--ease-spring);
+  .hero-stage {
+    perspective: 1600px;
   }
-  .audience button {
-    color: var(--ink-2);
-    transition: color 400ms var(--ease-out-soft);
+  /* --p va de 0 (recién visible) a 1 (asentada): inclinada y chica, luego plana. */
+  .hero-tilt {
+    transform-origin: 50% 0%;
+    transform: rotateX(calc((1 - var(--p, 1)) * 16deg)) scale(calc(0.9 + var(--p, 1) * 0.1));
+    will-change: transform;
   }
-  .audience button[aria-checked="true"] {
-    color: var(--paper);
-  }
-
-  /* Texto y acciones de cada rol: el que no aplica se desvanece en su sitio. */
-  .swap [data-for] {
-    transition:
-      opacity 500ms var(--ease-out-soft),
-      translate 600ms var(--ease-out-soft),
-      filter 500ms var(--ease-out-soft);
-  }
-  .hero[data-audience="org"] .swap [data-for="person"],
-  .hero[data-audience="person"] .swap [data-for="org"] {
-    opacity: 0;
-    translate: 0 8px;
-    filter: blur(3px);
-    pointer-events: none;
-    visibility: hidden;
-    transition-property: opacity, translate, filter, visibility;
-    transition-delay: 0ms, 0ms, 0ms, 500ms;
-  }
-
-  .rotator [data-word] {
-    transition:
-      opacity 700ms var(--ease-out-soft),
-      translate 800ms var(--ease-out-soft);
-    opacity: 0;
-    translate: 0 0.45em;
-  }
-  .rotator [data-word][data-state="on"] {
-    opacity: 1;
-    translate: 0 0;
-  }
-  .rotator [data-word][data-state="out"] {
-    translate: 0 -0.45em;
-  }
-  .rotator [data-word] .marker {
-    --marker-delay: 250ms;
-  }
-  .rotator [data-word][data-state="on"] .marker {
-    background-size: 100% 100%;
-  }
-  .rotator [data-word]:not([data-state="on"]) .marker {
-    transition-duration: 0ms;
-    transition-delay: 0ms;
-  }
-  .struck::after {
-    content: "";
-    position: absolute;
-    left: -0.06em;
-    right: -0.06em;
-    top: 54%;
-    height: 0.07em;
-    border-radius: 99px;
-    background: var(--ink);
-    scale: 0 1;
-    transform-origin: left;
-    transition: scale 900ms var(--ease-in-out-soft) 1100ms;
-  }
-  .is-visible .struck::after {
-    scale: 1 1;
+  .hero-card {
+    translate: 0 calc((1 - var(--p, 1)) * 60px);
+    opacity: calc(0.35 + var(--p, 1) * 0.65);
+    box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.85);
   }
 </style>

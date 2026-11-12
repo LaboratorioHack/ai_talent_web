@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { ArrowRight, Upload } from "lucide-react";
+import { ArrowRight, Link2 } from "lucide-react";
 import { ButtonLink } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { useOnboarding } from "../state/onboarding-store";
@@ -25,7 +25,7 @@ export function DoneStep() {
         </svg>
         <div className="flex flex-col gap-2">
           <h1 className="font-head text-[34px] leading-[1.1] font-semibold tracking-[-0.01em]">Todo listo</h1>
-          <p className="text-[15px] text-ink-2">Sube las hojas de vida de tu vacante y Criba arma el ranking con sus pruebas.</p>
+          <p className="text-[15px] text-ink-2">Comparte el enlace de tu vacante: cada persona que se postule entra al ranking con sus pruebas.</p>
         </div>
       </div>
 
@@ -42,8 +42,8 @@ export function DoneStep() {
         <ButtonLink href={routes.home} variant="outline" iconRight={<ArrowRight />}>
           Ir al panel
         </ButtonLink>
-        <ButtonLink href={routes.candidates} icon={<Upload />}>
-          Subir hojas de vida
+        <ButtonLink href={routes.candidates} icon={<Link2 />}>
+          Compartir la convocatoria
         </ButtonLink>
       </div>
     </div>

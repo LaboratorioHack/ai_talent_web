@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, Pencil, Upload } from "lucide-react";
+import { ChevronRight, Inbox, Pencil } from "lucide-react";
 import { PageTop, PageTopSkeleton } from "@/shared/components/layout";
 import { ButtonLink, Skeleton } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
@@ -40,8 +40,8 @@ async function Board({ params }: { params: Promise<{ id: string }> }) {
             <ButtonLink href={routes.vacancyEdit(vacancy.id)} variant="outline" icon={<Pencil />}>
               Editar perfil
             </ButtonLink>
-            <ButtonLink href={`${routes.candidates}?job=${vacancy.id}`} icon={<Upload />}>
-              Subir hojas de vida
+            <ButtonLink href={`${routes.candidates}?job=${vacancy.id}`} icon={<Inbox />}>
+              Ver postulaciones
             </ButtonLink>
           </>
         }

@@ -20,9 +20,8 @@ export function NextStep({ application: a }: { application: PortalApplication })
   return (
     <Link
       href={routes.candidateInterview(a.interviewToken!)}
-      className="group relative grid grid-cols-1 overflow-hidden rounded-3xl bg-amber text-[#1a211d] shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition-[transform,translate,box-shadow] duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[0_10px_22px_-16px_rgba(0,0,0,0.3)] sm:grid-cols-[minmax(0,1fr)_260px]"
+      className="group relative grid grid-cols-1 overflow-hidden rounded-3xl bg-amber text-[#1a211d] shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition-[transform,translate,box-shadow] duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[0_8px_18px_-14px_rgba(0,0,0,0.25)] sm:grid-cols-[minmax(0,1fr)_260px]"
     >
-      <span aria-hidden className="pointer-events-none absolute -top-24 -left-16 size-72 rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.18),transparent)]" />
       <div className="relative flex flex-col justify-between gap-6 p-6 sm:p-7">
         <div className="flex flex-col gap-2">
           <span className="text-[12.5px] font-semibold tracking-[0.08em] uppercase opacity-70">Lo próximo · {left}</span>
@@ -35,7 +34,7 @@ export function NextStep({ application: a }: { application: PortalApplication })
         </span>
       </div>
 
-      <div aria-hidden className="relative hidden flex-col justify-center gap-2.5 bg-[#1a211d]/8 p-6 sm:flex">
+      <div aria-hidden className="relative hidden flex-col justify-center gap-2.5 border-l border-[#1a211d]/12 p-6 sm:flex">
         <span className="chat-q max-w-[210px] self-start rounded-2xl rounded-bl-md bg-[#fff8ea] px-3.5 py-2.5 text-[12.5px] leading-snug shadow-[0_6px_16px_-10px_rgba(0,0,0,0.4)]">
           ¿Cuántos servicios migraron a AKS y cuánto duró?
         </span>

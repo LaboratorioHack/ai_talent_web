@@ -19,7 +19,7 @@ export default function InterviewsPage() {
     <div className="flex flex-1 flex-col lg:h-[calc(100dvh-var(--app-header,0px))] lg:flex-none">
       <PageTop sticky={false} title="Entrevistas" description={
           <span className="flex flex-wrap items-center gap-2">
-            <CribaAi label="entrevista por chat" />
+            <CribaAi label="Entrevista por chat" />
             Pregunta por lo que falta validar y marca lo que no coincide con la hoja de vida. Decide tu equipo.
           </span>
         } />

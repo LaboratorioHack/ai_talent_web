@@ -1,0 +1,57 @@
+---
+const asset = (file: string) => `${import.meta.env.BASE_URL.replace(/\/$/, "")}/img/${file}`;
+const steps = [
+  {
+    n: "1",
+    title: "Publica la vacante",
+    text: "Escribe lo que necesitas y comparte el enlace. Las personas se postulan con la hoja de vida que ya tienen, sin crear cuenta.",
+    img: asset("app-applications.webp"),
+    alt: "Postulaciones de Criba: enlace público de la vacante y hojas de vida que llegaron",
+    w: 1800,
+    h: 981,
+  },
+  {
+    n: "2",
+    title: "Criba AI lee y ordena",
+    text: "Lee cada hoja completa, quita los datos personales y compara contra cada requisito. Te avisa lo que no pudo leer.",
+    img: asset("app-evidence.webp"),
+    alt: "Detalle de una candidata: puntaje, aporte de cada requisito y la evidencia citada",
+    w: 1800,
+    h: 1228,
+  },
+  {
+    n: "3",
+    title: "Entrevistas y decides",
+    text: "Invita a las mejores a una entrevista corta por chat y llévalas a tu proceso. La última palabra es de tu equipo.",
+    img: asset("interview.webp"),
+    alt: "Un equipo de selección entrevista a una candidata",
+    w: 1600,
+    h: 933,
+    photo: true,
+  },
+];
+---
+
+<section id="como-funciona" class="scroll-mt-20 py-20 sm:py-28">
+  <div class="container-x flex flex-col gap-12">
+    <h2 data-reveal class="max-w-[640px] font-head text-[34px] leading-[1.08] font-semibold tracking-[-0.025em] text-balance sm:text-[46px]">De la vacante a la entrevista, en tres pasos.</h2>
+    <ol class="grid gap-10 md:grid-cols-3 md:gap-8">
+      {
+        steps.map((s, i) => (
+          <li data-reveal style={`--i:${i}`} class="flex flex-col gap-5">
+            <div class:list={["aspect-[4/3]", s.photo ? "photo rounded-2xl" : "shot"]}>
+              <img src={s.img} alt={s.alt} width={s.w} height={s.h} loading="lazy" class="h-full w-full object-cover object-left-top" />
+            </div>
+            <div class="flex flex-col gap-2">
+              <span class="flex items-center gap-3 font-head text-[21px] font-semibold tracking-[-0.01em]">
+                <span class="flex size-7 items-center justify-center rounded-full bg-amber text-[13px] text-[#15201b]">{s.n}</span>
+                {s.title}
+              </span>
+              <p class="text-[15.5px] leading-relaxed text-ink-2">{s.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
