@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Inbox, Link2 } from "lucide-react";
+import { ChevronRight, Grid2x2, Inbox, Link2 } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
 import { ButtonLink, EmptyState, Select, useToast, CribaAi } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
@@ -102,6 +102,11 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
       actions={
         <>
           <Select aria-label="Vacante" options={data.jobs} value={data.job.id} onChange={(id) => router.push(routes.ranking(id))} className="w-full sm:w-[280px]" />
+          {evaluated ? (
+            <ButtonLink href={routes.tradeoffs(data.job.id)} variant="outline" icon={<Grid2x2 />}>
+              Ver matriz
+            </ButtonLink>
+          ) : null}
           <ButtonLink href={`${routes.candidates}?job=${data.job.id}`} variant="outline" icon={<Inbox />}>
             Ver postulaciones
           </ButtonLink>

@@ -12,6 +12,7 @@ export const routes = {
   rankings: "/rankings",
   ranking: (jobId: string, applicationId?: string) =>
     applicationId ? `/rankings/${jobId}?candidate=${applicationId}` : `/rankings/${jobId}`,
+  tradeoffs: (jobId: string) => `/rankings/${jobId}/matriz`,
   interviews: "/interviews",
   interview: (id: string) => `/interviews/${id}`,
   governance: "/governance",
