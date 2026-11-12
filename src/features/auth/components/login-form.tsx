@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Eye, EyeOff, Inbox } from "lucide-react";
 import { Button, TextField, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
+import { safeNextPath } from "@/shared/lib/auth-redirect";
 import { requestPasswordReset, signInWithPassword } from "../api/auth";
 import { hasFinishedOnboarding } from "@/features/onboarding/state/onboarding-store";
 import { loginSchema, organizationFromEmail, type LoginInput } from "../schemas/login";
@@ -17,7 +18,14 @@ export function LoginForm() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [resetting, setResetting] = useState(false);
-  const requested = params.get("next");
+  // Solo rutas internas: ?next=//otro-sitio no debe sacar a nadie de Criba.
+  const requested = safeNextPath(params.get("next"));
+  const linkFailed = params.get("error") === "auth";
+
+  // /auth/callback manda aquí con ?error=auth si el enlace de cambio de contraseña ya no sirve.
+  useEffect(() => {
+    if (linkFailed) toast({ tone: "error", title: "El enlace ya no sirve", description: "Venció, ya se usó o se abrió en otro navegador. Pide uno nuevo con «¿Olvidaste tu contraseña?»." });
+  }, [linkFailed, toast]);
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
