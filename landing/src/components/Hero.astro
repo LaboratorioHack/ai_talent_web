@@ -1,0 +1,150 @@
+---
+import ReviewedSheet from "./ReviewedSheet.astro";
+const appUrl = import.meta.env.PUBLIC_APP_URL ?? "http://localhost:3000";
+const words = ["evidencia", "criterio", "calma"];
+---
+
+<!--
+  Hero para los dos roles. El selector cambia el texto y las acciones (empresa
+  o persona que busca empleo); el titular es el mismo porque la promesa es la
+  misma: cada hoja de vida leída completa y con la prueba de cada punto.
+-->
+<section id="producto" data-audience="org" class="hero relative scroll-mt-24">
+  <div class="container-x relative flex flex-col items-center pt-36 pb-28 text-center sm:pt-44 sm:pb-36">
+    <div data-reveal role="radiogroup" aria-label="Soy" class="audience relative mb-8 inline-flex max-w-full rounded-full border border-border bg-surface p-1">
+      <span aria-hidden="true" class="audience-pill absolute top-1 bottom-1 left-1 rounded-full bg-ink"></span>
+      <button type="button" role="radio" aria-checked="true" data-pick="org" class="relative z-10 h-10 rounded-full px-4 text-[13.5px] font-medium sm:px-5 sm:text-[14px]">Contrato personas</button>
+      <button type="button" role="radio" aria-checked="false" data-pick="person" class="relative z-10 h-10 rounded-full px-4 text-[13.5px] font-medium sm:px-5 sm:text-[14px]">Busco empleo</button>
+    </div>
+
+    <h1 data-reveal style="--i:1" class="max-w-[1000px] font-head text-[36px] leading-[1.06] font-semibold tracking-[-0.03em] text-ink sm:text-[56px] lg:text-[76px]">
+      <span class="sr-only">Hojas de vida leídas completas, con evidencia y no con palabras clave.</span>
+      <span aria-hidden="true">
+        Hojas de vida leídas con
+        <span data-rotate data-ms="2800" class="rotator relative inline-grid align-bottom">
+          <span class="invisible col-start-1 row-start-1 px-1">{words.reduce((a, b) => (b.length > a.length ? b : a))},</span>
+          {words.map((w) => <span data-word class="col-start-1 row-start-1 justify-self-center px-1"><span class="marker">{w}</span>,</span>)}
+        </span>
+        <br />
+        <span class="struck relative inline-block whitespace-nowrap text-ink-3">no con palabras clave.</span>
+      </span>
+    </h1>
+
+    <div data-reveal style="--i:2" class="swap mt-7 grid max-w-[620px]">
+      <p data-for="org" class="col-start-1 row-start-1 text-[17px] leading-relaxed text-ink-2">
+        Publica tu vacante y recibe un ranking explicado: por cada punto del puntaje, la línea de la hoja de vida que lo prueba. La decisión sigue siendo de tu equipo.
+      </p>
+      <p data-for="person" class="col-start-1 row-start-1 text-[17px] leading-relaxed text-ink-2">
+        Sube tu hoja de vida una vez, en el formato que tengas, y postúlate. Se lee completa, con el mismo criterio para todos, y sabes qué se tuvo en cuenta.
+      </p>
+    </div>
+
+    <div data-reveal style="--i:3" class="swap mt-10 grid">
+      <div data-for="org" class="col-start-1 row-start-1 flex flex-wrap items-center justify-center gap-3">
+        <a href={`${appUrl}/login`} class="btn btn-ink">Publicar una vacante</a>
+        <a href="#como-evalua" class="btn btn-line">Ver cómo evalúa</a>
+      </div>
+      <div data-for="person" class="col-start-1 row-start-1 flex flex-wrap items-center justify-center gap-3">
+        <a href="#vacantes" class="btn btn-ink">Subir mi hoja de vida</a>
+        <a href="#vacantes" class="btn btn-line">Ver vacantes abiertas</a>
+      </div>
+    </div>
+
+    <ReviewedSheet />
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".hero").forEach((hero) => {
+    const pill = hero.querySelector<HTMLElement>(".audience-pill");
+    const buttons = [...hero.querySelectorAll<HTMLButtonElement>("[data-pick]")];
+    const place = (btn: HTMLButtonElement) => {
+      if (!pill) return;
+      pill.style.width = `${btn.offsetWidth}px`;
+      pill.style.transform = `translateX(${btn.offsetLeft - 4}px)`;
+    };
+    const pick = (btn: HTMLButtonElement) => {
+      hero.dataset.audience = btn.dataset.pick;
+      document.documentElement.dataset.audience = btn.dataset.pick;
+      buttons.forEach((b) => b.setAttribute("aria-checked", String(b === btn)));
+      place(btn);
+    };
+    buttons.forEach((b) => b.addEventListener("click", () => pick(b)));
+    requestAnimationFrame(() => place(buttons[0]));
+    window.addEventListener("resize", () => place(buttons.find((b) => b.getAttribute("aria-checked") === "true") ?? buttons[0]));
+  });
+</script>
+
+<style>
+  .audience-pill {
+    transition:
+      transform 600ms var(--ease-spring),
+      width 600ms var(--ease-spring);
+  }
+  .audience button {
+    color: var(--ink-2);
+    transition: color 400ms var(--ease-out-soft);
+  }
+  .audience button[aria-checked="true"] {
+    color: var(--paper);
+  }
+
+  /* Texto y acciones de cada rol: el que no aplica se desvanece en su sitio. */
+  .swap [data-for] {
+    transition:
+      opacity 500ms var(--ease-out-soft),
+      translate 600ms var(--ease-out-soft),
+      filter 500ms var(--ease-out-soft);
+  }
+  .hero[data-audience="org"] .swap [data-for="person"],
+  .hero[data-audience="person"] .swap [data-for="org"] {
+    opacity: 0;
+    translate: 0 8px;
+    filter: blur(3px);
+    pointer-events: none;
+    visibility: hidden;
+    transition-property: opacity, translate, filter, visibility;
+    transition-delay: 0ms, 0ms, 0ms, 500ms;
+  }
+
+  .rotator [data-word] {
+    transition:
+      opacity 700ms var(--ease-out-soft),
+      translate 800ms var(--ease-out-soft);
+    opacity: 0;
+    translate: 0 0.45em;
+  }
+  .rotator [data-word][data-state="on"] {
+    opacity: 1;
+    translate: 0 0;
+  }
+  .rotator [data-word][data-state="out"] {
+    translate: 0 -0.45em;
+  }
+  .rotator [data-word] .marker {
+    --marker-delay: 250ms;
+  }
+  .rotator [data-word][data-state="on"] .marker {
+    background-size: 100% 100%;
+  }
+  .rotator [data-word]:not([data-state="on"]) .marker {
+    transition-duration: 0ms;
+    transition-delay: 0ms;
+  }
+  .struck::after {
+    content: "";
+    position: absolute;
+    left: -0.06em;
+    right: -0.06em;
+    top: 54%;
+    height: 0.07em;
+    border-radius: 99px;
+    background: var(--ink);
+    scale: 0 1;
+    transform-origin: left;
+    transition: scale 900ms var(--ease-in-out-soft) 1100ms;
+  }
+  .is-visible .struck::after {
+    scale: 1 1;
+  }
+</style>

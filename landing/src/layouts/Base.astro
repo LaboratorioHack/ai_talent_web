@@ -1,0 +1,37 @@
+---
+import "@fontsource-variable/funnel-display";
+import "@fontsource-variable/funnel-sans";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
+import "../styles/global.css";
+import Mesh from "../components/Mesh.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Criba, hojas de vida leídas completas",
+  description = "Para empresas, un ranking de candidatos con la prueba de cada punto. Para quien busca empleo, una hoja de vida leída completa y una respuesta clara.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f3f5f1" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" href={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/favicon.svg`} type="image/svg+xml" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <Mesh />
+    <slot />
+    <script src="../scripts/motion.ts"></script>
+  </body>
+</html>
