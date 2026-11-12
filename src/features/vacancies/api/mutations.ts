@@ -21,6 +21,12 @@ export async function publishVacancy(id: string): Promise<void> {
   await browserApi(`/vacancies/${id}/publish`, { method: "POST" });
 }
 
+/** Pasa una vacante abierta a cerrada: nadie más se postula y su ranking se conserva. */
+export async function closeVacancy(id: string): Promise<void> {
+  if (env.useMocks) return delay(undefined, 400);
+  await browserApi(`/vacancies/${id}/close`, { method: "POST" });
+}
+
 export async function deleteVacancy(id: string): Promise<void> {
   if (env.useMocks) return delay(undefined, 700);
   await browserApi(`/vacancies/${id}`, { method: "DELETE" });
