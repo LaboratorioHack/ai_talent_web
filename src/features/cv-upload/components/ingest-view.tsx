@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Clock, Play, X } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
-import { Button, Collapse, EmptyState, ScrollArea, SearchField, Select, useToast } from "@/shared/components/ui";
+import { PdfViewer } from "@/shared/components/pdf/pdf-viewer";
+import { Button, Collapse, EmptyState, Modal, ScrollArea, SearchField, Select, useToast } from "@/shared/components/ui";
+import { resumeToPdf } from "@/shared/lib/resume-pdf";
+import { mockResumeDocs } from "@/shared/mocks";
+import type { ResumeDoc } from "@/shared/types/resume-doc";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { useIngest } from "../hooks/use-ingest";
@@ -52,6 +56,19 @@ const CHANNELS: { value: "all" | IngestSource; label: string }[] = [
   { value: "upload", label: "Subidas por tu equipo" },
 ];
 
+/** Mientras no exista el archivo real en Storage: una hoja de vida de ejemplo con el nombre del archivo. */
+function docFromFile(fileName: string): ResumeDoc {
+  const name = fileName
+    .replace(/\.[a-z0-9]+$/i, "")
+    .replace(/(_cv|_v\d+|_\d+|hv_|cv_)/gi, " ")
+    .split(/[_\s]+/)
+    .filter(Boolean)
+    .map((w) => w[0].toUpperCase() + w.slice(1))
+    .join(" ");
+  const base = mockResumeDocs.a1;
+  return { ...base, name: name || "Hoja de vida", contact: ["correo@ejemplo.com", "300 000 0000", "Colombia"] };
+}
+
 /**
  * Pantalla 07 · Postulaciones de una vacante. Arriba la convocatoria (enlace
  * público y canales); luego qué falta resolver y un tablero con las hojas de
@@ -65,6 +82,13 @@ export function IngestView({ data }: { data: IngestData }) {
   const [source, setSource] = useState<"all" | IngestSource>("all");
   const [query, setQuery] = useState("");
   const [evaluating, setEvaluating] = useState(false);
+  const [preview, setPreview] = useState<{ name: string; bytes: Uint8Array | null } | null>(null);
+
+  async function openFile(f: IngestFile) {
+    setPreview({ name: f.name, bytes: null });
+    const { bytes } = await resumeToPdf(docFromFile(f.name));
+    setPreview((p) => (p && p.name === f.name ? { ...p, bytes } : p));
+  }
   const [uploading, setUploading] = useState(data.files.length === 0 && !data.job.open);
 
   const counts = useMemo(() => {
@@ -218,7 +242,7 @@ export function IngestView({ data }: { data: IngestData }) {
                         {items.length ? (
                           <ul className="flex flex-col gap-2">
                             {items.map((f, i) => (
-                              <FileCard key={f.id} file={f} index={i} onRetry={(id) => read(id)} onRemove={onRemove} onRequestOriginal={onRequest} />
+                              <FileCard key={f.id} file={f} index={i} onRetry={(id) => read(id)} onRemove={onRemove} onRequestOriginal={onRequest} onOpen={openFile} />
                             ))}
                           </ul>
                         ) : (
@@ -260,6 +284,10 @@ export function IngestView({ data }: { data: IngestData }) {
           </div>
         </div>
       </div>
+
+      <Modal open={preview !== null} onClose={() => setPreview(null)} size="lg" title={preview?.name ?? ""} description="El archivo tal como llegó. Criba lo lee completo y quita los datos personales antes de evaluar.">
+        {preview ? <PdfViewer data={preview.bytes} fileName={preview.name.replace(/\.docx?$/i, ".pdf")} className="h-[70vh]" /> : null}
+      </Modal>
 
       <EvaluateModal open={evaluating} onClose={() => setEvaluating(false)} jobId={data.job.id} readable={counts.read} skipped={attention} requirements={data.job.requirements} />
     </div>

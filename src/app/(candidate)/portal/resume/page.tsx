@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Skeleton } from "@/shared/components/ui";
-import { getMyResume } from "@/features/candidates/api/portal";
+import { getMyResume, listMyApplications } from "@/features/candidates/api/portal";
 import { ResumeView } from "@/features/candidates/components/portal/resume-view";
 
 export const metadata: Metadata = { title: "Mi hoja de vida" };
 
 async function Resume() {
-  const resume = await getMyResume();
-  return <ResumeView resume={resume} />;
+  const [resume, applications] = await Promise.all([getMyResume(), listMyApplications()]);
+  return <ResumeView resume={resume} applications={applications} />;
 }
 
 function Loading() {
