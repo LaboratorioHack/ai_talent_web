@@ -212,7 +212,7 @@ export function IngestView({ data }: { data: IngestData }) {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="flex flex-wrap items-center gap-2 font-head text-[20px] font-semibold tracking-[-0.01em]">
                   Tablero de hojas de vida
-                  <CribaAi label="lee, anonimiza y avisa lo que falta" />
+                  <CribaAi label="Lee, anonimiza y avisa lo que falta" />
                 </h2>
                 <div className="flex w-full items-center gap-2 sm:w-auto">
                   <Select aria-label="Canal" options={CHANNELS} value={source} onChange={(v) => setSource(v as "all" | IngestSource)} className="w-[46%] sm:w-[220px]" triggerClassName="field-box h-10 w-full px-3.5 text-[13.5px] text-ink" />

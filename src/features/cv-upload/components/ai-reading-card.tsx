@@ -23,7 +23,7 @@ export function AiReadingCard() {
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-amber/30 bg-amber/5 p-3.5">
       <div className="flex items-center justify-between">
-        <CribaAi label="leyendo" />
+        <CribaAi label="Leyendo" />
         <span className="font-mono text-[11px] text-ink-3">andrea_gomez_cv.pdf</span>
       </div>
       <div className="flex gap-3.5">

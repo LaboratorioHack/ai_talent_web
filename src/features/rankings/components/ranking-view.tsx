@@ -93,7 +93,7 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
         evaluated ? (
           <span className="flex flex-wrap items-center gap-2">
             {evaluated} evaluadas, ordenadas por ajuste al perfil
-            <CribaAi label="evaluó y ordenó; tu equipo decide" />
+            <CribaAi label="Evaluó y ordenó; tu equipo decide" />
           </span>
         ) : (
           "Sin evaluaciones todavía"

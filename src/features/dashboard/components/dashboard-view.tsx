@@ -78,7 +78,7 @@ function FunnelPanel({ data, period: initialPeriod, vacancy: initialVacancy, vac
     <Panel
       title="Embudo de selección"
       subtitle="De todas las que llegan, cuántas avanzan en cada paso"
-      ai="lee y evalúa"
+      ai="Lee y evalúa"
       action={{ label: "Subir hojas de vida", href: routes.candidates }}
       controls={
         <>
@@ -106,7 +106,7 @@ function VacancyPanel({ data, period: initialPeriod }: { data: DashboardData; pe
     <Panel
       title="Resultado por vacante"
       subtitle="Cómo quedaron las evaluadas de cada vacante"
-      ai="evaluó"
+      ai="Evaluó"
       action={{ label: "Ir al ranking", href: routes.rankings }}
       controls={
         <>
@@ -141,7 +141,7 @@ function TopPanel({ data, vacancyOptions }: { data: DashboardData; vacancyOption
     <Panel
       title="Mejores perfiles"
       subtitle="Puntaje más alto, con su evidencia"
-      ai="ordenó"
+      ai="Ordenó"
       action={{ label: "Ranking", href: routes.rankings }}
       controls={
         <>

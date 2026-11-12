@@ -51,7 +51,7 @@ export function EvaluatingPanel({ total, pace = 230, onDone, onCancelled }: Eval
       <div className="flex flex-col gap-2">
         <h2 className="font-head text-[28px] font-semibold tracking-[-0.02em]">{done >= total ? "Listo, ordenando el ranking" : `Evaluando ${total} hojas de vida`}</h2>
         <p className="flex flex-wrap items-center justify-center gap-2 text-[14px] text-ink-2">
-          <CribaAi label="leyendo y comparando" />
+          <CribaAi label="Leyendo y comparando" />
           Puedes salir de esta pantalla; te avisamos al terminar.
         </p>
       </div>
