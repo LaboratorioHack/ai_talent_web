@@ -15,6 +15,17 @@ const DESCRIPTIONS: Record<string, string> = {
   "v-sec": "Cuidarás la seguridad de la plataforma: gestión de vulnerabilidades, respuesta a incidentes y controles en la nube.",
 };
 
+/** Datos de publicación que la vacante aún no guarda en el editor (ver handoff). */
+const LISTING: Record<string, Pick<PublicJob, "location" | "modality" | "contract" | "schedule" | "salary" | "postedAt">> = {
+  "v-cloud": { location: "Medellín", modality: "Híbrido", contract: "Término indefinido", schedule: "Tiempo completo", salary: null, postedAt: "2026-10-20" },
+  "v-data": { location: "Bogotá", modality: "Remoto", contract: "Término indefinido", schedule: "Tiempo completo", salary: null, postedAt: "2026-10-24" },
+  "v-backend": { location: "Medellín", modality: "Remoto", contract: "Término fijo, 1 año", schedule: "Tiempo completo", salary: null, postedAt: "2026-10-27" },
+  "v-ux": { location: "Cali", modality: "Híbrido", contract: "Término indefinido", schedule: "Tiempo completo", salary: null, postedAt: "2026-10-30" },
+  "v-product": { location: "Bogotá", modality: "Remoto", contract: "Término indefinido", schedule: "Tiempo completo", salary: null, postedAt: "2026-11-04" },
+  "v-sec": { location: "Bogotá", modality: "Presencial", contract: "Término indefinido", schedule: "Tiempo completo", salary: null, postedAt: "2026-11-06" },
+};
+const FALLBACK = LISTING["v-cloud"];
+
 /**
  * Vacante pública para postularse. Solo existe si está abierta.
  * Con backend: GET /public/vacancies/{id} (sin sesión).
@@ -24,16 +35,24 @@ export async function getPublicJob(id: string): Promise<PublicJob | null> {
   const job = mockVacancies.find((v) => v.id === id && v.status === "OPEN");
   if (!job) return delay(null);
   const reqs = mockRequirementsOf(job);
+  const toPublic = (r: (typeof reqs)[number]) => ({
+    text: r.description,
+    category: r.category ?? "Otros",
+    alsoCounts: r.equivalences.map((e) => e.label).filter((l) => !/equivalente/i.test(l)),
+  });
   return delay({
+    ...(LISTING[job.id] ?? FALLBACK),
     id: job.id,
     title: job.title,
     company: mockUser.company.name,
+    companySector: "Banca y finanzas",
+    companySize: "1.001 a 5.000 personas",
     area: job.profile.area,
     openings: job.openings,
     closesAt: job.closesAt,
     description: job.profile.description || DESCRIPTIONS[job.id] || "",
-    mandatory: reqs.filter((r) => r.type === "MANDATORY").map((r) => r.description),
-    desirable: reqs.filter((r) => r.type === "NICE_TO_HAVE").map((r) => r.description),
+    mandatory: reqs.filter((r) => r.type === "MANDATORY").map(toPublic),
+    desirable: reqs.filter((r) => r.type === "NICE_TO_HAVE").map(toPublic),
   });
 }
 
