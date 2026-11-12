@@ -9,7 +9,7 @@ import { cn } from "@/shared/lib/cn";
 import { formatShortDate, fromISODate, toISODate } from "@/shared/lib/dates";
 import { mockAreas } from "@/shared/mocks";
 import { roleProfileDraftSchema, type RequirementDraft, type RoleProfileDraft } from "../schemas/role-profile";
-import { proposeRequirements } from "../api/role-profiles";
+import { profileAssistErrorMessage, proposeRequirements, suggestEquivalences } from "../api/role-profiles";
 import { RequirementRow } from "./requirement-row";
 import { ScoringSidebar } from "./scoring-sidebar";
 
@@ -25,6 +25,8 @@ export interface RoleProfileEditorProps {
 
 let seq = 0;
 const newId = () => `req-${Date.now()}-${seq++}`;
+const MIN_DESCRIPTION = 40;
+const keyOf = (text: string) => text.trim().toLowerCase();
 
 export function emptyRequirement(type: RequirementDraft["type"] = "MANDATORY"): RequirementDraft {
   return { id: newId(), description: "", type, weight: type === "DISQUALIFYING" ? null : 10, equivalences: [] };
@@ -39,23 +41,58 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
   const descriptionId = useId();
 
   async function propose() {
-    if (draft.description.trim().length < 40) {
-      toast({ tone: "error", title: "Falta la descripción", description: "Escribe o pega la descripción del cargo y Criba propone los requisitos." });
+    const length = draft.description.trim().length;
+    if (length < MIN_DESCRIPTION) {
+      toast({
+        tone: "error",
+        title: length ? "La descripción es muy corta" : "Falta la descripción del cargo",
+        description: length
+          ? `Escribe al menos ${MIN_DESCRIPTION} caracteres sobre qué hará la persona y qué necesita saber; llevas ${length}.`
+          : "Escríbela o pégala arriba: Criba propone los requisitos a partir de ella.",
+      });
       document.getElementById(descriptionId)?.querySelector("textarea")?.focus();
       return;
     }
     setBusy("propose");
     try {
-      const suggested = await proposeRequirements(draft.description);
-      const known = new Set(draft.requirements.map((r) => r.description.toLowerCase()));
-      const fresh = suggested.filter((r) => !known.has(r.description.toLowerCase()));
-      setDraft((d) => ({ ...d, requirements: [...d.requirements, ...fresh] }));
-      toast({ title: fresh.length ? `Criba propuso ${fresh.length} requisitos` : "No hay requisitos nuevos que proponer", description: fresh.length ? "Revisa su tipo y su peso antes de guardar." : undefined });
-    } catch {
-      // La API aún no expone esta ruta del AI Engine.
-      toast({ tone: "error", title: "Criba no pudo proponer requisitos", description: "Escríbelos con «Añadir requisito»." });
+      const written = draft.requirements.filter((r) => r.description.trim());
+      const suggested = await proposeRequirements(draft, written);
+      const known = new Set(written.map((r) => keyOf(r.description)));
+      const fresh = suggested.filter((r) => !known.has(keyOf(r.description)));
+      // Las filas vacías del borrador inicial dejan su lugar a lo propuesto.
+      if (fresh.length) setDraft((d) => ({ ...d, requirements: [...d.requirements.filter((r) => r.description.trim()), ...fresh] }));
+      toast({ title: fresh.length ? `Criba propuso ${fresh.length} requisitos` : "No hay requisitos nuevos que proponer", description: fresh.length ? "Revisa su tipo, su peso y sus equivalencias antes de guardar." : undefined });
+    } catch (error) {
+      toast({ tone: "error", title: "Criba no pudo proponer requisitos", description: profileAssistErrorMessage(error) });
     } finally {
       setBusy(null);
+    }
+  }
+
+  async function suggestFor(requirement: RequirementDraft) {
+    if (requirement.description.trim().length < 2) {
+      toast({ tone: "error", title: "Escribe primero el requisito", description: "Criba sugiere equivalencias a partir de su nombre." });
+      return;
+    }
+    try {
+      const found = await suggestEquivalences(requirement.description, draft, requirement.equivalences.map((e) => e.label));
+      const seen = new Set(requirement.equivalences.map((e) => keyOf(e.label)));
+      const extra = found.filter((e) => !seen.has(keyOf(e.label)));
+      if (!extra.length) {
+        toast({ title: `Sin equivalencias para «${requirement.description.trim()}»`, description: "Criba no encontró alternativas que lo cubran." });
+        return;
+      }
+      setDraft((d) => ({
+        ...d,
+        requirements: d.requirements.map((r) => {
+          if (r.id !== requirement.id) return r;
+          const current = new Set(r.equivalences.map((e) => keyOf(e.label)));
+          return { ...r, equivalences: [...r.equivalences, ...extra.filter((e) => !current.has(keyOf(e.label)))] };
+        }),
+      }));
+      toast({ title: `Criba sugirió ${extra.length} ${extra.length === 1 ? "equivalencia" : "equivalencias"}`, description: "Revisa el porcentaje; haz clic en una para quitarla." });
+    } catch (error) {
+      toast({ tone: "error", title: "Criba no pudo sugerir equivalencias", description: profileAssistErrorMessage(error) });
     }
   }
   const headingId = useId();
@@ -185,6 +222,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
                 index={i}
                 requirement={r}
                 onChange={(next) => setRequirement(i, next)}
+                onSuggestEquivalences={() => suggestFor(r)}
                 onRemove={() => setDraft((d) => ({ ...d, requirements: d.requirements.filter((_, j) => j !== i) }))}
               />
             ))}
@@ -202,7 +240,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
               Añadir requisito
             </button>
             <Button variant="text" size="sm" icon={<ListPlus />} loading={busy === "propose"} disabled={busy !== null && busy !== "propose"} onClick={propose}>
-              Proponer requisitos con Criba AI
+              {busy === "propose" ? "Criba está leyendo la descripción…" : "Proponer requisitos con Criba AI"}
             </Button>
           </div>
         </section>
