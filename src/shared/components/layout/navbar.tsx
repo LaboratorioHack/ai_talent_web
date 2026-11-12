@@ -31,7 +31,7 @@ export interface NavbarProps {
 const LINKS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: routes.home, label: "Inicio", icon: Home },
   { href: routes.vacancies, label: "Vacantes", icon: Briefcase },
-  { href: routes.candidates, label: "Candidatos", icon: FileText },
+  { href: routes.candidates, label: "Postulaciones", icon: FileText },
   { href: routes.rankings, label: "Ranking", icon: ListOrdered },
   { href: routes.interviews, label: "Entrevistas", icon: MessagesSquare },
   { href: routes.governance, label: "Gobierno", icon: ShieldCheck },

@@ -1,0 +1,81 @@
+"use client";
+
+import { Ban, Check, Copy, FileQuestion, Loader2, Mail, RotateCcw, ScanLine, Trash2, Upload, type LucideIcon } from "lucide-react";
+import { Tooltip } from "@/shared/components/ui";
+import { cn } from "@/shared/lib/cn";
+import type { IngestFile, IngestStatus } from "../types/ingest";
+
+const STATUS: Record<IngestStatus, { label: string; icon: LucideIcon; tone: string }> = {
+  UPLOADING: { label: "Subiendo", icon: Upload, tone: "bg-blue-soft text-blue" },
+  PROCESSING: { label: "Leyendo", icon: Loader2, tone: "bg-blue-soft text-blue" },
+  READ: { label: "Leída", icon: Check, tone: "bg-success-soft text-success" },
+  UNREADABLE: { label: "Ilegible", icon: ScanLine, tone: "bg-danger-soft text-danger" },
+  DUPLICATE: { label: "Duplicada", icon: Copy, tone: "bg-surface-2 text-ink-2" },
+  UNSUPPORTED: { label: "No soportado", icon: Ban, tone: "bg-danger-soft text-danger" },
+  NO_DATA: { label: "No es hoja de vida", icon: FileQuestion, tone: "bg-warning-soft text-warning" },
+};
+
+export interface FileCardProps {
+  file: IngestFile;
+  index: number;
+  onRetry: (id: string) => void;
+  onRemove: (id: string) => void;
+  onRequestOriginal: (id: string) => void;
+}
+
+/** Tarjeta de una postulación en el tablero: archivo, canal, qué se leyó y su acción. */
+export function FileCard({ file, index, onRetry, onRemove, onRequestOriginal }: FileCardProps) {
+  const s = STATUS[file.status];
+  const busy = file.status === "UPLOADING" || file.status === "PROCESSING";
+  const icon = "flex size-8 items-center justify-center rounded-lg text-ink-3 transition-colors hover:bg-hover hover:text-ink";
+
+  return (
+    <li
+      className="group flex flex-col gap-2.5 rounded-xl border border-border bg-surface p-3.5 shadow-[0_1px_2px_rgba(21,32,27,0.04)] transition-[box-shadow,border-color] duration-300 hover:border-border-strong animate-[option-in_380ms_var(--ease-out-soft)_both]"
+      style={{ animationDelay: `${Math.min(index, 10) * 30}ms` }}
+    >
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-8 shrink-0 items-center justify-center rounded-[4px] border border-border bg-surface-2 font-mono text-[9px] font-semibold tracking-wide text-ink-2">{file.kind.slice(0, 4)}</span>
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="truncate text-[13.5px] font-medium">{file.name}</span>
+          <span className="line-clamp-2 text-[12.5px] text-ink-3">{file.detail}</span>
+        </span>
+      </div>
+      {file.status === "UPLOADING" ? (
+        <span className="h-1 w-full overflow-hidden rounded-full bg-surface-2">
+          <span className="block h-full rounded-full bg-blue transition-[width] duration-300 ease-out" style={{ width: `${file.progress ?? 0}%` }} />
+        </span>
+      ) : null}
+      <div className="flex items-center gap-2">
+        <span key={file.status} className={cn("inline-flex items-center gap-1 rounded-full py-[3px] pr-2 pl-1.5 text-[11.5px] font-medium whitespace-nowrap animate-[pop-in_380ms_var(--ease-spring)_both]", s.tone)}>
+          <s.icon aria-hidden className={cn("size-3", file.status === "PROCESSING" && "animate-spin")} />
+          {file.status === "UPLOADING" ? `${file.progress ?? 0} %` : s.label}
+        </span>
+        <span className={cn("truncate text-[11.5px]", file.source === "candidate" ? "text-blue" : "text-ink-3")}>{file.source === "candidate" ? "Se postuló" : "Subida por tu equipo"}</span>
+        <span className="ml-auto flex gap-0.5 opacity-70 transition-opacity group-hover:opacity-100">
+          {file.status === "UNREADABLE" ? (
+            <>
+              <Tooltip content="Pedir el original">
+                <button type="button" aria-label={`Pedir original de ${file.name}`} className={icon} onClick={() => onRequestOriginal(file.id)}>
+                  <Mail aria-hidden className="size-3.5" />
+                </button>
+              </Tooltip>
+              <Tooltip content="Leer de nuevo">
+                <button type="button" aria-label={`Leer de nuevo ${file.name}`} className={icon} onClick={() => onRetry(file.id)}>
+                  <RotateCcw aria-hidden className="size-3.5" />
+                </button>
+              </Tooltip>
+            </>
+          ) : null}
+          {!busy ? (
+            <Tooltip content="Quitar de esta vacante">
+              <button type="button" aria-label={`Quitar ${file.name}`} className={cn(icon, "hover:text-danger")} onClick={() => onRemove(file.id)}>
+                <Trash2 aria-hidden className="size-3.5" />
+              </button>
+            </Tooltip>
+          ) : null}
+        </span>
+      </div>
+    </li>
+  );
+}

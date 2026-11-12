@@ -74,8 +74,8 @@ export function Dropzone({ onFiles, onSample }: DropzoneProps) {
 
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <p className="font-head text-[21px] leading-tight font-semibold tracking-[-0.01em]">{over ? "Suéltalas aquí" : "Arrastra las hojas de vida que tengas"}</p>
-          <p className="max-w-[560px] text-[14px] text-ink-2">PDF, Word, fotos o escaneos, con el orden y el diseño que sea. Criba las lee igual y quita la foto, la edad y los datos de contacto antes de evaluar.</p>
+          <p className="font-head text-[21px] leading-tight font-semibold tracking-[-0.01em]">{over ? "Suéltalas aquí" : "Sube las hojas de vida que te llegaron por otros medios"}</p>
+          <p className="max-w-[560px] text-[14px] text-ink-2">Correo, carpetas o ferias: arrástralas aquí en bloque. PDF, Word, fotos o escaneos; Criba quita la foto, la edad y los datos de contacto antes de evaluar.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" icon={<FolderOpen />} onClick={() => input.current?.click()}>

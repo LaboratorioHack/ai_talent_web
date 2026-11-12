@@ -5,7 +5,7 @@ import { Skeleton } from "@/shared/components/ui";
 import { getIngest } from "@/features/cv-upload/api/ingest";
 import { IngestView } from "@/features/cv-upload/components/ingest-view";
 
-export const metadata: Metadata = { title: "Hojas de vida" };
+export const metadata: Metadata = { title: "Postulaciones" };
 
 async function Ingest({ searchParams }: { searchParams: Promise<{ job?: string | string[] }> }) {
   const { job } = await searchParams;
