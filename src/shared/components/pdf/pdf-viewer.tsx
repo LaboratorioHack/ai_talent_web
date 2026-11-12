@@ -245,3 +245,33 @@ function PdfCanvas({ pdf, page, scale }: { pdf: PDFDocumentProxy; page: number; 
 
   return <canvas ref={ref} className="block h-full w-full" style={{ width: "100%" }} />;
 }
+
+/** Primera página de un PDF como miniatura nítida (sin barra ni controles). */
+export function PdfFirstPage({ data, width, className }: { data: Uint8Array | null; width: number; className?: string }) {
+  const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
+  const [size, setSize] = useState<{ w: number; h: number } | null>(null);
+
+  useEffect(() => {
+    if (!data) return;
+    let cancelled = false;
+    loadPdfjs()
+      .then((pdfjs) => pdfjs.getDocument({ data: data.slice() }).promise)
+      .then(async (doc) => {
+        const v = (await doc.getPage(1)).getViewport({ scale: 1 });
+        if (cancelled) return;
+        setPdf(doc);
+        setSize({ w: v.width, h: v.height });
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [data]);
+
+  const height = size ? (size.h * width) / size.w : width * 1.414;
+  return (
+    <div className={cn("relative overflow-hidden bg-white", className)} style={{ width, height }}>
+      {pdf && size ? <PdfCanvas pdf={pdf} page={0} scale={width / size.w} /> : <span className="skeleton absolute inset-0" />}
+    </div>
+  );
+}

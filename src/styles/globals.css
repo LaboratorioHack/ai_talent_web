@@ -817,3 +817,39 @@
     0 1px 2px rgb(0 0 0 / 0.04),
     0 18px 40px -30px rgb(0 0 0 / 0.4);
 }
+
+/*
+ * Textura de la app de empresa, hermana de los contornos del postulante:
+ * arcos concéntricos que barren desde arriba a la derecha, fijos al viewport.
+ */
+:root {
+  --rings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000' viewBox='0 0 1600 1000' preserveAspectRatio='xMaxYMin slice'%3E%3Cg fill='none' stroke='%2315201b' stroke-opacity='0.06' stroke-width='1'%3E%3Ccircle cx='1500' cy='-180' r='120'/%3E%3Ccircle cx='1500' cy='-180' r='154'/%3E%3Ccircle cx='1500' cy='-180' r='188'/%3E%3Ccircle cx='1500' cy='-180' r='222'/%3E%3Ccircle cx='1500' cy='-180' r='256'/%3E%3Ccircle cx='1500' cy='-180' r='290'/%3E%3Ccircle cx='1500' cy='-180' r='324'/%3E%3Ccircle cx='1500' cy='-180' r='358'/%3E%3Ccircle cx='1500' cy='-180' r='392'/%3E%3Ccircle cx='1500' cy='-180' r='426'/%3E%3Ccircle cx='1500' cy='-180' r='460'/%3E%3Ccircle cx='1500' cy='-180' r='494'/%3E%3Ccircle cx='1500' cy='-180' r='528'/%3E%3Ccircle cx='1500' cy='-180' r='562'/%3E%3Ccircle cx='1500' cy='-180' r='596'/%3E%3Ccircle cx='1500' cy='-180' r='630'/%3E%3Ccircle cx='1500' cy='-180' r='664'/%3E%3Ccircle cx='1500' cy='-180' r='698'/%3E%3Ccircle cx='1500' cy='-180' r='732'/%3E%3Ccircle cx='1500' cy='-180' r='766'/%3E%3Ccircle cx='1500' cy='-180' r='800'/%3E%3Ccircle cx='1500' cy='-180' r='834'/%3E%3Ccircle cx='1500' cy='-180' r='868'/%3E%3Ccircle cx='1500' cy='-180' r='902'/%3E%3Ccircle cx='1500' cy='-180' r='936'/%3E%3Ccircle cx='1500' cy='-180' r='970'/%3E%3Ccircle cx='1500' cy='-180' r='1004'/%3E%3Ccircle cx='1500' cy='-180' r='1038'/%3E%3Ccircle cx='1500' cy='-180' r='1072'/%3E%3Ccircle cx='1500' cy='-180' r='1106'/%3E%3Ccircle cx='1500' cy='-180' r='1140'/%3E%3Ccircle cx='1500' cy='-180' r='1174'/%3E%3Ccircle cx='1500' cy='-180' r='1208'/%3E%3Ccircle cx='1500' cy='-180' r='1242'/%3E%3Ccircle cx='1500' cy='-180' r='1276'/%3E%3Ccircle cx='1500' cy='-180' r='1310'/%3E%3Ccircle cx='1500' cy='-180' r='1344'/%3E%3Ccircle cx='1500' cy='-180' r='1378'/%3E%3Ccircle cx='1500' cy='-180' r='1412'/%3E%3Ccircle cx='1500' cy='-180' r='1446'/%3E%3Ccircle cx='1500' cy='-180' r='1480'/%3E%3Ccircle cx='1500' cy='-180' r='1514'/%3E%3Ccircle cx='1500' cy='-180' r='1548'/%3E%3Ccircle cx='1500' cy='-180' r='1582'/%3E%3Ccircle cx='1500' cy='-180' r='1616'/%3E%3Ccircle cx='1500' cy='-180' r='1650'/%3E%3Ccircle cx='1500' cy='-180' r='1684'/%3E%3Ccircle cx='1500' cy='-180' r='1718'/%3E%3Ccircle cx='1500' cy='-180' r='1752'/%3E%3Ccircle cx='1500' cy='-180' r='1786'/%3E%3Ccircle cx='1500' cy='-180' r='1820'/%3E%3Ccircle cx='1500' cy='-180' r='1854'/%3E%3Ccircle cx='1500' cy='-180' r='1888'/%3E%3Ccircle cx='1500' cy='-180' r='1922'/%3E%3Ccircle cx='1500' cy='-180' r='1956'/%3E%3Ccircle cx='1500' cy='-180' r='1990'/%3E%3Ccircle cx='1500' cy='-180' r='2024'/%3E%3Ccircle cx='1500' cy='-180' r='2058'/%3E%3Ccircle cx='1500' cy='-180' r='2092'/%3E%3Ccircle cx='1500' cy='-180' r='2126'/%3E%3Ccircle cx='1500' cy='-180' r='2160'/%3E%3Ccircle cx='1500' cy='-180' r='2194'/%3E%3C/g%3E%3C/svg%3E");
+}
+:root.dark {
+  --rings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000' viewBox='0 0 1600 1000' preserveAspectRatio='xMaxYMin slice'%3E%3Cg fill='none' stroke='%23edf2ee' stroke-opacity='0.05' stroke-width='1'%3E%3Ccircle cx='1500' cy='-180' r='120'/%3E%3Ccircle cx='1500' cy='-180' r='154'/%3E%3Ccircle cx='1500' cy='-180' r='188'/%3E%3Ccircle cx='1500' cy='-180' r='222'/%3E%3Ccircle cx='1500' cy='-180' r='256'/%3E%3Ccircle cx='1500' cy='-180' r='290'/%3E%3Ccircle cx='1500' cy='-180' r='324'/%3E%3Ccircle cx='1500' cy='-180' r='358'/%3E%3Ccircle cx='1500' cy='-180' r='392'/%3E%3Ccircle cx='1500' cy='-180' r='426'/%3E%3Ccircle cx='1500' cy='-180' r='460'/%3E%3Ccircle cx='1500' cy='-180' r='494'/%3E%3Ccircle cx='1500' cy='-180' r='528'/%3E%3Ccircle cx='1500' cy='-180' r='562'/%3E%3Ccircle cx='1500' cy='-180' r='596'/%3E%3Ccircle cx='1500' cy='-180' r='630'/%3E%3Ccircle cx='1500' cy='-180' r='664'/%3E%3Ccircle cx='1500' cy='-180' r='698'/%3E%3Ccircle cx='1500' cy='-180' r='732'/%3E%3Ccircle cx='1500' cy='-180' r='766'/%3E%3Ccircle cx='1500' cy='-180' r='800'/%3E%3Ccircle cx='1500' cy='-180' r='834'/%3E%3Ccircle cx='1500' cy='-180' r='868'/%3E%3Ccircle cx='1500' cy='-180' r='902'/%3E%3Ccircle cx='1500' cy='-180' r='936'/%3E%3Ccircle cx='1500' cy='-180' r='970'/%3E%3Ccircle cx='1500' cy='-180' r='1004'/%3E%3Ccircle cx='1500' cy='-180' r='1038'/%3E%3Ccircle cx='1500' cy='-180' r='1072'/%3E%3Ccircle cx='1500' cy='-180' r='1106'/%3E%3Ccircle cx='1500' cy='-180' r='1140'/%3E%3Ccircle cx='1500' cy='-180' r='1174'/%3E%3Ccircle cx='1500' cy='-180' r='1208'/%3E%3Ccircle cx='1500' cy='-180' r='1242'/%3E%3Ccircle cx='1500' cy='-180' r='1276'/%3E%3Ccircle cx='1500' cy='-180' r='1310'/%3E%3Ccircle cx='1500' cy='-180' r='1344'/%3E%3Ccircle cx='1500' cy='-180' r='1378'/%3E%3Ccircle cx='1500' cy='-180' r='1412'/%3E%3Ccircle cx='1500' cy='-180' r='1446'/%3E%3Ccircle cx='1500' cy='-180' r='1480'/%3E%3Ccircle cx='1500' cy='-180' r='1514'/%3E%3Ccircle cx='1500' cy='-180' r='1548'/%3E%3Ccircle cx='1500' cy='-180' r='1582'/%3E%3Ccircle cx='1500' cy='-180' r='1616'/%3E%3Ccircle cx='1500' cy='-180' r='1650'/%3E%3Ccircle cx='1500' cy='-180' r='1684'/%3E%3Ccircle cx='1500' cy='-180' r='1718'/%3E%3Ccircle cx='1500' cy='-180' r='1752'/%3E%3Ccircle cx='1500' cy='-180' r='1786'/%3E%3Ccircle cx='1500' cy='-180' r='1820'/%3E%3Ccircle cx='1500' cy='-180' r='1854'/%3E%3Ccircle cx='1500' cy='-180' r='1888'/%3E%3Ccircle cx='1500' cy='-180' r='1922'/%3E%3Ccircle cx='1500' cy='-180' r='1956'/%3E%3Ccircle cx='1500' cy='-180' r='1990'/%3E%3Ccircle cx='1500' cy='-180' r='2024'/%3E%3Ccircle cx='1500' cy='-180' r='2058'/%3E%3Ccircle cx='1500' cy='-180' r='2092'/%3E%3Ccircle cx='1500' cy='-180' r='2126'/%3E%3Ccircle cx='1500' cy='-180' r='2160'/%3E%3Ccircle cx='1500' cy='-180' r='2194'/%3E%3C/g%3E%3C/svg%3E");
+}
+.org-light {
+  background:
+    var(--rings) right top / cover no-repeat,
+    radial-gradient(900px 520px at 0% 0%, rgb(26 138 90 / 0.07), transparent 70%),
+    radial-gradient(800px 520px at 100% 100%, rgb(242 169 59 / 0.07), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+}
+:root.dark .org-light {
+  background:
+    var(--rings) right top / cover no-repeat,
+    radial-gradient(1200px 700px at 15% -10%, rgb(95 210 155 / 0.14), transparent 70%),
+    radial-gradient(1100px 560px at 50% 115%, rgb(242 169 59 / 0.08), transparent 70%),
+    linear-gradient(180deg, #0f1814 0%, #0b120f 100%);
+  background-attachment: fixed;
+}
+
+/* Color de la marca Criba AI: ámbar oscuro en claro, ámbar en oscuro. */
+:root {
+  --ai-ink: #8a5300;
+}
+:root.dark,
+.dark-scope {
+  --ai-ink: #f4bb5a;
+}

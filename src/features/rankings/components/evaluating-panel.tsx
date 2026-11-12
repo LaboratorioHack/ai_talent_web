@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Square, X } from "lucide-react";
-import { Button, LogoMark, Modal } from "@/shared/components/ui";
+import { Button, LogoMark, Modal, CribaAi } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 
 
@@ -50,7 +50,10 @@ export function EvaluatingPanel({ total, pace = 230, onDone, onCancelled }: Eval
       </div>
       <div className="flex flex-col gap-2">
         <h2 className="font-head text-[28px] font-semibold tracking-[-0.02em]">{done >= total ? "Listo, ordenando el ranking" : `Evaluando ${total} hojas de vida`}</h2>
-        <p className="text-[14px] text-ink-2">Puedes salir de esta pantalla; te avisamos al terminar.</p>
+        <p className="flex flex-wrap items-center justify-center gap-2 text-[14px] text-ink-2">
+          <CribaAi label="leyendo y comparando" />
+          Puedes salir de esta pantalla; te avisamos al terminar.
+        </p>
       </div>
       <div className="flex w-[440px] flex-col gap-2">
         <span className="h-2 overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={done} aria-label="Hojas de vida evaluadas">

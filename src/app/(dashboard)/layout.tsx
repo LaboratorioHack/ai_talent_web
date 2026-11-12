@@ -12,7 +12,7 @@ async function SessionNavbar() {
 /** --app-header: alto de la barra fija; los encabezados sticky se pegan debajo. */
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-1 flex-col [--app-header:65px] lg:[--app-header:69px]">
+    <div className="org-light flex flex-1 flex-col [--app-header:65px] lg:[--app-header:69px]">
       <Suspense fallback={<NavbarSkeleton />}>
         <SessionNavbar />
       </Suspense>

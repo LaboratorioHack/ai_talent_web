@@ -72,7 +72,7 @@ export function GovernanceView({ data }: { data: GovernanceData }) {
   return (
     <div className="flex flex-1 flex-col">
       <PageTop
-        title="Qué usó y qué no usó la IA"
+        title="Qué usó y qué no usó Criba AI"
         description={`${PERIOD_TEXT[period]} en ${data.organization}. Toda salida de la IA pasa por una persona.`}
         actions={
           <>

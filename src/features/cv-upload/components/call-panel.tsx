@@ -53,7 +53,7 @@ export function CallPanel({ jobId, open, closesAt, applied, uploaded, uploading,
         </div>
         <div className="flex flex-col gap-1">
           <h2 className="font-head text-[21px] leading-tight font-semibold tracking-[-0.01em]">Las personas se postulan con este enlace</h2>
-          <p className="text-[13.5px] text-ink-2">Ven el cargo, suben su hoja de vida y autorizan el uso de sus datos. Cada postulación aparece abajo y Criba la lee sola.</p>
+          <p className="text-[13.5px] text-ink-2">Ven el cargo, suben su hoja de vida y autorizan el uso de sus datos. Cada postulación aparece abajo y Criba AI la lee sola.</p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <span className="field-box flex h-11 min-w-0 flex-1 items-center px-3.5 text-[13.5px] text-ink-2">

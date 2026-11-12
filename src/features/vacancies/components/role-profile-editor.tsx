@@ -196,7 +196,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
               Añadir requisito
             </button>
             <Button variant="text" size="sm" icon={<ListPlus />} loading={busy === "propose"} disabled={busy !== null && busy !== "propose"} onClick={propose}>
-              Proponer requisitos desde la descripción
+              Proponer requisitos con Criba AI
             </Button>
           </div>
         </section>

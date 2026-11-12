@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Play } from "lucide-react";
-import { Button, Modal } from "@/shared/components/ui";
+import { Button, CribaAiNote, Modal } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 
 export interface EvaluateModalProps {
@@ -39,7 +39,7 @@ export function EvaluateModal({ open, onClose, jobId, readable, skipped, require
       onClose={onClose}
       dismissible={!busy}
       title={`Evaluar ${readable} hojas de vida`}
-      description={`Criba leerá cada archivo y lo comparará con los ${requirements} requisitos del perfil. Puedes salir mientras tanto; te avisamos al terminar.`}
+      description={`Puedes salir mientras tanto; te avisamos al terminar.`}
       footer={
         <>
           <Button variant="text" onClick={onClose} disabled={busy}>
@@ -51,6 +51,7 @@ export function EvaluateModal({ open, onClose, jobId, readable, skipped, require
         </>
       }
     >
+      <CribaAiNote>Compara cada hoja de vida con los {requirements} requisitos del perfil y cita la línea que prueba cada uno. Ordena el ranking; la decisión es de tu equipo.</CribaAiNote>
       <dl className="overflow-hidden rounded-xl border border-border">
         {rows.map((r) => (
           <div key={r.label} className="flex items-center justify-between gap-4 border-b border-border px-4 py-3 text-[13.5px] last:border-0">
