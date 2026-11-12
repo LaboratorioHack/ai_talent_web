@@ -48,7 +48,7 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 39 | `feat/criba-ai` | 38 | lista | Textura de arcos para empresa (`.org-light`), filtro propio en cada gráfico del Inicio, marca Criba AI en ambos portales, recomendaciones al postulante y tarjeta de hoja de vida con miniatura del PDF |
 | 40 | `fix/jobs-list-spacing` | 39 | lista | Más aire alrededor de las flechas en la lista de vacantes del postulante |
 | 41 | `feat/criba-ai-live` | 40 | lista | Criba AI trabajando a la vista: registro en vivo en el Inicio, tarjeta "leyendo" en Postulaciones, barrido de la hoja de vida del postulante y "comparó tu hoja de vida con N vacantes"; sombras del bloque ámbar más suaves; landing en el pen.dev |
-| 42 | `fix/apply-sticky-casing` | `develop` | lista | Formulario Postúlate fijo al bajar en la vacante pública, fecha de publicación destacada con "Hace N días", "Perfil de la vacante" y etiquetas de Criba AI con mayúscula inicial (`CribaAi` la pone sola); Mi hoja de vida sin scroll de página, PDF al 75 % (`initialZoom`), zoom suave, `Segmented` con iconos y panel lateral que entra al cambiar de herramienta |
+| 42 | `fix/apply-sticky-casing` | `develop` | lista | Formulario Postúlate fijo al bajar en la vacante pública, fecha de publicación destacada con "Hace N días", "Perfil de la vacante" y etiquetas de Criba AI con mayúscula inicial (`CribaAi` la pone sola); Mi hoja de vida sin scroll de página, PDF al 75 % (`initialZoom`), zoom suave, `Segmented` con iconos y panel lateral que entra al cambiar de herramienta; Vacantes con título que se encoge (`PortalTitle`), "Para ti" (`ForYou`) con "Recomiéndame otras" y "No me interesa", y "Todas las vacantes" debajo; 9 vacantes más de otras empresas |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -209,6 +209,8 @@ Astro 7 + Tailwind v4, estática y en oscuro (tinta verde de la marca, resaltado
 - `pnpm dev` → `http://localhost:4321`. `PUBLIC_APP_URL` apunta a la app Next.
 
 ## Pendiente
+
+- Supabase Auth en el proyecto alojado: en Authentication → URL Configuration, poner el dominio de producción como Site URL y agregar `https://<dominio>/**` y `http://localhost:3000/**` en Redirect URLs. Si `emailRedirectTo` no está en esa lista, Supabase usa el Site URL (hoy apunta a localhost) en el correo del enlace mágico.
 
 - Conectar las `api/` de cada feature a los endpoints reales cuando existan (cada función indica su ruta en el comentario).
 - Anon key de Supabase en `.env.local` (`NEXT_PUBLIC_SUPABASE_ANON_KEY`); hoy está vacía y la app corre en modo mock.
