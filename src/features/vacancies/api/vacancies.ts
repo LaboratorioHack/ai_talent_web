@@ -1,21 +1,30 @@
 import "server-only";
 
 import { env } from "@/config/env";
-import { apiFetch } from "@/shared/lib/api-client";
+import { ApiError } from "@/shared/lib/api-client";
+import { serverApi } from "@/shared/lib/api-server";
 import { delay, mockApplications, mockCandidatesOf, mockRequirementsOf, mockVacancies } from "@/shared/mocks";
 import type { Fulfillment, JobOpening, PipelineStage } from "@/shared/types/domain";
 import type { RoleProfileDraft } from "../schemas/role-profile";
+import { toJobOpening, toPipelineStage, vacanciesPath, type ApiVacancyApplication, type ApiVacancyDetail, type ApiVacancyPage } from "@/shared/lib/vacancy-api";
 
 /** Vacantes de la organización activa. Con backend: GET /vacancies. */
 export async function listVacancies(): Promise<JobOpening[]> {
-  if (!env.useMocks) return apiFetch<JobOpening[]>("/vacancies");
-  return delay(mockVacancies);
+  if (env.useMocks) return delay(mockVacancies);
+  const page = await serverApi<ApiVacancyPage>(vacanciesPath);
+  return page.items.map((v) => toJobOpening(v));
 }
 
 /** Una vacante; null si no existe o es de otra organización. Con backend: GET /vacancies/{id}. */
 export async function getVacancy(id: string): Promise<JobOpening | null> {
-  if (!env.useMocks) return apiFetch<JobOpening>(`/vacancies/${id}`).catch(() => null);
-  return delay(mockVacancies.find((v) => v.id === id) ?? null);
+  if (env.useMocks) return delay(mockVacancies.find((v) => v.id === id) ?? null);
+  try {
+    return toJobOpening(await serverApi<ApiVacancyDetail>(`/vacancies/${id}`));
+  } catch (error) {
+    // La API responde 404 tanto si no existe como si es de otra organización.
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
 }
 
 /** Tarjeta del tablero: lo justo para decidir si mover a alguien de etapa. */
@@ -30,11 +39,32 @@ export interface PipelineCard {
   source: "Se postuló";
 }
 
+/** La API aún no evalúa: solo hay postulaciones con el estado de lectura de su hoja de vida. */
+function resumeNote(a: ApiVacancyApplication): string | undefined {
+  if (a.processingStatus === "FAILED") return "No se pudo leer la hoja de vida";
+  if (a.processingStatus === "PENDING" || a.processingStatus === "PROCESSING") return "Leyendo la hoja de vida";
+  return undefined;
+}
+
+async function livePipeline(id: string): Promise<PipelineCard[]> {
+  try {
+    const applications = await serverApi<ApiVacancyApplication[]>(`/vacancies/${id}/applications`);
+    return applications.flatMap((a) => {
+      const stage = toPipelineStage(a.selectionStatus);
+      return stage ? [{ id: a.applicationId, name: a.candidateName, stage, note: resumeNote(a), source: "Se postuló" as const }] : [];
+    });
+  } catch (error) {
+    // La página ya muestra el 404 de la vacante; el tablero solo queda vacío.
+    if (error instanceof ApiError && error.status === 404) return [];
+    throw error;
+  }
+}
+
 const NEW_NAMES = ["Martín Quiroga", "Ximena Patiño", "Óscar Lozano", "Renata Gómez", "Samuel Ibarra", "Antonia Vélez", "Iván Becerra", "Luisa Chaparro"];
 
 /** Tablero de una vacante: todas sus postulaciones por etapa. Con backend: GET /vacancies/{id}/applications. */
 export async function getPipeline(id: string): Promise<PipelineCard[]> {
-  if (!env.useMocks) return apiFetch<PipelineCard[]>(`/vacancies/${id}/applications`);
+  if (!env.useMocks) return livePipeline(id);
   const job = mockVacancies.find((v) => v.id === id);
   if (!job || !job.stats.received) return delay([]);
 
