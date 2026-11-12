@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ArrowUpRight, MessageSquareText } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { Button, Modal, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import type { PortalApplication } from "../../types/portal";
+import { NextStep } from "./next-step";
 import { outcomeLabel, StageTrack, STAGES } from "./stage-track";
 
 const day = (iso?: string) => {
@@ -39,7 +40,7 @@ export function ApplicationDetail({ application }: { application: PortalApplicat
 
       <header className="flex flex-col gap-3 animate-rise">
         <p className={cn("text-[14px] font-medium", status.text)}>{status.label}</p>
-        <h1 className="font-head text-[34px] leading-[1.05] font-semibold tracking-[-0.02em] sm:text-[44px]">{a.jobTitle}</h1>
+        <h1 className="font-head text-[36px] leading-[1.02] font-semibold tracking-[-0.025em] sm:text-[52px]">{a.jobTitle}</h1>
         <p className="text-[14px] text-ink-3">
           {a.company} · {a.location}, {a.modality.toLowerCase()} · te postulaste el {day(a.appliedAt)}
         </p>
@@ -50,17 +51,9 @@ export function ApplicationDetail({ application }: { application: PortalApplicat
       </div>
 
       {a.interviewToken && a.outcome === "open" ? (
-        <Link
-          href={routes.candidateInterview(a.interviewToken)}
-          className="group flex items-center gap-4 rounded-2xl bg-amber px-5 py-4 text-[#1a211d] transition-[filter] duration-300 hover:brightness-105 animate-rise [animation-delay:100ms]"
-        >
-          <MessageSquareText aria-hidden className="size-5 shrink-0" />
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="text-[15px] font-semibold">Responde la entrevista</span>
-            <span className="text-[13px] opacity-75">Hasta el {day(a.interviewDue)} · unos 15 minutos por chat</span>
-          </span>
-          <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-        </Link>
+        <div className="animate-rise [animation-delay:100ms]">
+          <NextStep application={a} />
+        </div>
       ) : null}
 
       <section className="flex flex-col animate-rise [animation-delay:140ms]">

@@ -65,7 +65,10 @@ export function JobsBrowser({ jobs }: { jobs: PortalJob[] }) {
             const closes = fromISODate(j.closesAt);
             return (
               <li key={j.id} className="animate-rise" style={{ animationDelay: `${i * 50}ms` }}>
-                <Link href={routes.apply(j.id)} className="group -mx-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-6 gap-y-2 rounded-xl px-3 py-5 transition-colors duration-300 hover:bg-hover md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_150px_auto]">
+                <Link href={routes.apply(j.id)} className="group -mx-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-6 gap-y-2 rounded-xl px-3 py-5 transition-colors duration-300 hover:bg-hover md:grid-cols-[44px_minmax(0,1.2fr)_minmax(0,1fr)_150px_auto]">
+                  <span aria-hidden className="flex size-11 items-center justify-center rounded-xl bg-surface-2 font-head text-[14px] font-semibold text-ink-2 ring-1 ring-border transition-[transform,translate,scale,rotate] duration-500 ease-[var(--ease-spring)] group-hover:-rotate-3 max-md:hidden">
+                    {j.company.split(" ").slice(0, 2).map((w) => w[0]).join("")}
+                  </span>
                   <span className="flex min-w-0 flex-col gap-1">
                     <span className="flex items-center gap-2">
                       <span className="truncate font-head text-[18px] leading-tight font-semibold tracking-[-0.01em]">{j.title}</span>

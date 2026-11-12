@@ -733,3 +733,53 @@
     linear-gradient(180deg, #0f1814 0%, #0b120f 100%);
   background-attachment: fixed;
 }
+
+/*
+ * Portal del postulante: profundidad con luz y movimiento, no con textura.
+ * .portal-light pinta dos luces suaves fijas (verde arriba, ámbar abajo).
+ * .hl es el resaltador ámbar de la landing: se pinta de izquierda a derecha.
+ */
+.portal-light {
+  background:
+    radial-gradient(900px 520px at 12% -8%, rgb(95 210 155 / 0.13), transparent 70%),
+    radial-gradient(700px 480px at 92% 4%, rgb(60 140 110 / 0.1), transparent 70%),
+    radial-gradient(900px 520px at 70% 112%, rgb(242 169 59 / 0.09), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+.hl {
+  background: linear-gradient(transparent 58%, rgb(242 169 59 / 0.55) 58%, rgb(242 169 59 / 0.55) 90%, transparent 90%) no-repeat 0 0 / 0% 100%;
+  box-decoration-break: clone;
+  padding: 0 0.06em;
+  animation: mark-in 1100ms var(--ease-out-soft) 400ms forwards;
+}
+
+/* Chat en bucle: pregunta, escribiendo, respuesta; 7 s por vuelta. */
+@keyframes chat-q {
+  0%, 4% { opacity: 0; translate: 0 8px; }
+  10%, 88% { opacity: 1; translate: 0 0; }
+  96%, 100% { opacity: 0; translate: 0 -4px; }
+}
+@keyframes chat-typing {
+  0%, 18% { opacity: 0; }
+  24%, 44% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes chat-a {
+  0%, 46% { opacity: 0; translate: 0 8px; }
+  54%, 88% { opacity: 1; translate: 0 0; }
+  96%, 100% { opacity: 0; translate: 0 -4px; }
+}
+.chat-q { animation: chat-q 7s var(--ease-out-soft) infinite; }
+.chat-typing { animation: chat-typing 7s linear infinite; }
+.chat-a { animation: chat-a 7s var(--ease-out-soft) infinite; }
+
+@keyframes rail-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.rail-fill {
+  transform-origin: left;
+  animation: rail-fill 900ms var(--ease-out-soft) both;
+}

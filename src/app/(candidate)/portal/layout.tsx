@@ -13,7 +13,7 @@ async function Nav() {
  */
 export default function PortalLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="dark-scope flex min-h-dvh flex-1 flex-col bg-bg [--app-header:64px]">
+    <div className="dark-scope portal-light flex min-h-dvh flex-1 flex-col [--app-header:64px]">
       <Suspense fallback={<div className="h-16 border-b border-border" />}>
         <Nav />
       </Suspense>

@@ -25,7 +25,9 @@ function Loading() {
 export default function PortalJobsPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-8 px-4 pt-10 pb-20 sm:px-6 lg:px-8 lg:pt-14">
-      <h1 className="font-head text-[34px] leading-[1.05] font-semibold tracking-[-0.02em] animate-rise sm:text-[44px]">Vacantes abiertas</h1>
+      <h1 className="font-head text-[34px] leading-[1.05] font-semibold tracking-[-0.02em] animate-rise sm:text-[52px]">
+        Vacantes <span className="hl">abiertas</span>
+      </h1>
       <Suspense fallback={<Loading />}>
         <Jobs />
       </Suspense>
