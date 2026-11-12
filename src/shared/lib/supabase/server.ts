@@ -2,10 +2,13 @@ import "server-only";
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { env } from "@/config/env";
 
 /** Cliente de Supabase en el servidor, con la sesión leída de las cookies. */
 export async function createSupabaseServerClient() {
+  // Auth lee Date.now() para ver si el token venció: nunca en un prerender, ni siquiera en el de prefetch.
+  await connection();
   const cookieStore = await cookies();
   return createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
     cookies: {

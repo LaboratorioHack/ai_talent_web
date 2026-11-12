@@ -107,7 +107,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
               "transition-[background-color,border-color,box-shadow,padding,margin] duration-500 ease-[var(--ease-out-soft)]",
               stuck
                 ? "-mx-3 items-center border-border bg-surface py-3 pr-3 pl-5 shadow-[0_18px_40px_-24px_rgba(21,32,27,0.45)]"
-                : "mx-0 items-end border-transparent px-0 py-2",
+                : "mx-0 items-end border-transparent bg-bg px-0 py-2",
             )}
           >
           <div className={cn("flex min-w-0 flex-col", stuck ? "gap-0.5" : "gap-2")}>

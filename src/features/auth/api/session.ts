@@ -58,10 +58,16 @@ interface ApiNavNotice extends NavNotice {
   occurredAt?: string;
 }
 
-/** Avisos de la campana. Con backend: GET /notifications (hasta 10, en español). */
+/**
+ * Avisos de la campana. Con backend: GET /notifications (hasta 10, en español).
+ * Si la API falla o aún no tiene la ruta, la campana queda vacía en vez de tumbar la barra.
+ */
 export async function getNavNotices(): Promise<NavNotice[]> {
   if (!env.useMocks) {
-    const rows = await serverApi<ApiNavNotice[]>("/notifications");
+    const rows = await serverApi<ApiNavNotice[]>("/notifications").catch((error: unknown) => {
+      if (error instanceof ApiError) return [];
+      throw error;
+    });
     return rows.map((row): NavNotice => ({ id: row.id, text: row.text, when: row.when, href: row.href, tone: row.tone }));
   }
   return delay(
