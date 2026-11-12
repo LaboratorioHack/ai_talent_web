@@ -44,7 +44,7 @@ export function FunnelChart({ steps }: FunnelChartProps) {
                   style={{ height: h, opacity: dim ? undefined : 1 - i * 0.13, animationDelay: `${120 + i * 80}ms` }}
                 />
                 {hover === i ? (
-                  <span role="tooltip" className="absolute bottom-[calc(100%+6px)] left-1/2 z-20 w-max max-w-[220px] -translate-x-1/2 rounded-lg bg-panel px-3 py-2 text-left text-[12px] leading-snug text-ink-inverse shadow-[0_12px_30px_-12px_rgba(21,32,27,0.6)] animate-[fade-in_160ms_ease-out]">
+                  <span role="tooltip" className="absolute bottom-[calc(100%+6px)] left-1/2 z-20 w-max max-w-[220px] -translate-x-1/2 rounded-lg bg-tip px-3 py-2 text-left text-[12px] leading-snug text-tip-ink shadow-[0_12px_30px_-12px_rgba(21,32,27,0.6)] animate-[fade-in_160ms_ease-out]">
                     <strong className="block font-semibold">
                       {s.value.toLocaleString("es-CO")} {s.label.toLowerCase()}
                     </strong>

@@ -21,7 +21,7 @@ export function Tooltip({ content, children, side = "top", className, style }: T
       <span
         role="tooltip"
         className={cn(
-          "pointer-events-none absolute left-1/2 z-40 w-max max-w-[240px] -translate-x-1/2 rounded-lg bg-panel px-3 py-2 text-left text-[12px] leading-snug text-ink-inverse shadow-[0_12px_30px_-12px_rgba(21,32,27,0.6)]",
+          "pointer-events-none absolute left-1/2 z-40 w-max max-w-[240px] -translate-x-1/2 rounded-lg bg-tip px-3 py-2 text-left text-[12px] leading-snug text-tip-ink shadow-[0_12px_30px_-12px_rgba(21,32,27,0.6)]",
           "opacity-0 transition-[opacity,translate] duration-200 ease-[var(--ease-out-soft)] group-focus-within/tip:opacity-100 group-hover/tip:opacity-100",
           side === "top" ? "bottom-[calc(100%+8px)] translate-y-1 group-focus-within/tip:translate-y-0 group-hover/tip:translate-y-0" : "top-[calc(100%+8px)] -translate-y-1 group-focus-within/tip:translate-y-0 group-hover/tip:translate-y-0",
         )}
