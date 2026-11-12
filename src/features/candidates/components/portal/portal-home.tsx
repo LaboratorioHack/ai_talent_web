@@ -65,7 +65,7 @@ export function PortalHome({ applicant, applications, resume, newJobs }: { appli
             <h2 className="text-[13px] font-medium tracking-[0.08em] text-ink-3 uppercase">En curso</h2>
             <span className="text-[12.5px] text-ink-3">{open.length}</span>
           </div>
-          <ul className="flex flex-col divide-y divide-border border-y border-border">
+          <ul className="panel flex flex-col divide-y divide-border overflow-hidden px-4">
             {open.map((a, i) => (
               <ApplicationRow key={a.id} application={a} index={i} />
             ))}
@@ -76,7 +76,7 @@ export function PortalHome({ applicant, applications, resume, newJobs }: { appli
                 <h2 className="text-[13px] font-medium tracking-[0.08em] text-ink-3 uppercase">Terminadas</h2>
                 <span className="text-[12.5px] text-ink-3">{ended.length}</span>
               </div>
-              <ul className="flex flex-col divide-y divide-border border-y border-border">
+              <ul className="panel flex flex-col divide-y divide-border overflow-hidden px-4">
                 {ended.map((a, i) => (
                   <ApplicationRow key={a.id} application={a} index={i} />
                 ))}
@@ -112,13 +112,13 @@ export function PortalHome({ applicant, applications, resume, newJobs }: { appli
           </Link>
         </section>
 
-        <section className="flex flex-col gap-4 animate-rise [animation-delay:200ms]">
+        <section className="panel flex flex-col gap-4 p-5 animate-rise [animation-delay:200ms]">
           <h2 className="text-[13px] font-medium tracking-[0.08em] text-ink-3 uppercase">Últimos movimientos</h2>
           <ol className="flex flex-col">
             {moves.map((m, i) => (
               <li key={m.id} className="relative flex gap-3.5 pb-5 last:pb-0">
                 {i < moves.length - 1 ? <span aria-hidden className="absolute top-3 left-[4px] h-full w-px bg-border-strong" /> : null}
-                <span aria-hidden className={cn("relative mt-1.5 size-[9px] shrink-0 rounded-full ring-4 ring-bg", m.tone)} />
+                <span aria-hidden className={cn("relative mt-1.5 size-[9px] shrink-0 rounded-full ring-4 ring-surface", m.tone)} />
                 <span className="flex min-w-0 flex-col gap-0.5">
                   <span className="text-[13.5px] text-ink">{m.text}</span>
                   <span className="truncate text-[12.5px] text-ink-3">

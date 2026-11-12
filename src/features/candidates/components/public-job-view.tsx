@@ -48,7 +48,7 @@ export function PublicJobView({ job }: { job: PublicJob }) {
 
   return (
     <div className="mx-auto grid w-full max-w-[1120px] grid-cols-1 gap-12 px-4 pt-10 pb-20 sm:px-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-16 lg:px-8 lg:pt-14">
-      <article className="stagger flex min-w-0 flex-col gap-12 [&>*]:animate-rise">
+      <article className="stagger flex min-w-0 flex-col gap-5 [&>*]:animate-rise">
         <header className="flex flex-col gap-6" style={{ "--i": 0 } as React.CSSProperties}>
           <div className="flex flex-col gap-3">
             <p className="text-[14px] text-ink-3">
@@ -57,7 +57,7 @@ export function PublicJobView({ job }: { job: PublicJob }) {
             </p>
             <h1 className="font-head text-[36px] leading-[1.02] font-semibold tracking-[-0.02em] text-balance sm:text-[52px]">{job.title}</h1>
           </div>
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-4 border-y border-border py-5 sm:grid-cols-3">
+          <dl className="panel grid grid-cols-2 gap-x-6 gap-y-5 px-6 py-5 sm:grid-cols-3">
             {facts.map((f) => (
               <div key={f.label} className="flex items-start gap-2.5">
                 <f.icon aria-hidden className="mt-0.5 size-4 shrink-0 text-amber" />
@@ -71,13 +71,13 @@ export function PublicJobView({ job }: { job: PublicJob }) {
         </header>
 
         {job.description ? (
-          <section className="flex flex-col gap-3" style={{ "--i": 1 } as React.CSSProperties}>
+          <section className="panel flex flex-col gap-3 p-6" style={{ "--i": 1 } as React.CSSProperties}>
             <h2 className="text-[13px] text-ink-3">El cargo</h2>
             <p className="max-w-[640px] text-[17px] leading-relaxed text-ink">{job.description}</p>
           </section>
         ) : null}
 
-        <section className="flex flex-col gap-3" style={{ "--i": 2 } as React.CSSProperties}>
+        <section className="panel flex flex-col gap-3 p-6" style={{ "--i": 2 } as React.CSSProperties}>
           <h2 className="text-[13px] text-ink-3">El perfil en corto</h2>
           <p className="flex flex-wrap items-baseline gap-x-6 gap-y-2 text-[15px]">
             {profile.map((p) => (
@@ -89,9 +89,9 @@ export function PublicJobView({ job }: { job: PublicJob }) {
           </p>
         </section>
 
-        <section className="flex flex-col gap-4" style={{ "--i": 3 } as React.CSSProperties}>
+        <section className="panel flex flex-col gap-3 px-6 pt-6 pb-2" style={{ "--i": 3 } as React.CSSProperties}>
           <h2 className="text-[13px] text-ink-3">Lo que buscamos</h2>
-          <dl className="flex flex-col divide-y divide-border border-y border-border">
+          <dl className="flex flex-col divide-y divide-border">
             {grouped(job.mandatory).map(({ group, items }) => (
               <div key={group} className="grid grid-cols-1 gap-2 py-4 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-6">
                 <dt className="text-[13.5px] text-ink-3">{group}</dt>
@@ -117,11 +117,11 @@ export function PublicJobView({ job }: { job: PublicJob }) {
           </dl>
         </section>
 
-        <section className="flex flex-col gap-4" style={{ "--i": 4 } as React.CSSProperties}>
+        <section className="mt-4 flex flex-col gap-3" style={{ "--i": 4 } as React.CSSProperties}>
           <h2 className="text-[13px] text-ink-3">Cómo es el proceso</h2>
-          <ol className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+          <ol className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {STEPS.map((s, i) => (
-              <li key={s.title} className="flex flex-col gap-1.5 border-t-2 border-border-strong pt-3 first:border-amber">
+              <li key={s.title} className="panel flex flex-col gap-1.5 border-t-2 border-t-border-strong p-4 first:border-t-amber">
                 <span className="font-mono text-[12px] text-ink-3">0{i + 1}</span>
                 <span className="text-[14.5px] font-medium">{s.title}</span>
                 <span className="text-[13px] leading-snug text-ink-3">{s.detail}</span>

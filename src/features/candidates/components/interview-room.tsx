@@ -140,7 +140,7 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
           <h1 className="font-head text-[30px] leading-[1.1] font-semibold tracking-[-0.01em] sm:text-[36px]">Hola, {first}. Tu entrevista para {iv.jobTitle}</h1>
           <p className="text-[15px] text-ink-2">Las preguntas salen de tu hoja de vida y del cargo. Contesta con calma y con ejemplos de lo que hiciste.</p>
         </div>
-        <ul className="flex flex-col divide-y divide-border border-y border-border" style={{ "--i": 1 } as React.CSSProperties}>
+        <ul className="panel flex flex-col divide-y divide-border px-5" style={{ "--i": 1 } as React.CSSProperties}>
           {points.map((p) => (
             <li key={p.text} className="flex items-start gap-3.5 py-4 text-[14px]">
               <p.icon aria-hidden className="mt-0.5 size-4 shrink-0 text-ink-3" />

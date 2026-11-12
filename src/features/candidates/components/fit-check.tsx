@@ -21,7 +21,7 @@ export function FitCheck({ mandatory }: { mandatory: PublicRequirement[] }) {
         : `Tienes ${n} de ${mandatory.length} obligatorios. Si tu experiencia es parecida, igual cuenta: postúlate y una persona lo revisa.`;
 
   return (
-    <section className="flex flex-col gap-4">
+    <section className="panel flex flex-col gap-4 p-5">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="font-head text-[18px] font-semibold tracking-[-0.01em]">¿Encajas?</h2>
         <span className="text-[12.5px] text-ink-3 tabular-nums">

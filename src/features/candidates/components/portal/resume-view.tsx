@@ -161,9 +161,9 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
           ) : null}
 
           {mode === "edit" ? (
-            <section className="flex flex-col gap-2">
+            <section className="panel flex flex-col gap-2 px-5 pt-4 pb-1">
               <h2 className="text-[12.5px] font-medium tracking-[0.08em] text-ink-3 uppercase">Agregar a una sección</h2>
-              <ul className="flex flex-col divide-y divide-border border-y border-border">
+              <ul className="flex flex-col divide-y divide-border">
                 {doc.sections.map((s, si) => (
                   <li key={s.title} className="flex items-center justify-between py-2.5 text-[14px]">
                     <span>{s.title}</span>
@@ -197,9 +197,9 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
 
           {mode === "view" ? (
             <>
-              <section className="flex flex-col gap-3">
+              <section className="panel flex flex-col gap-3 p-5">
                 <h2 className="text-[12.5px] font-medium tracking-[0.08em] text-ink-3 uppercase">La reciben</h2>
-                <ul className="flex flex-col divide-y divide-border border-y border-border">
+                <ul className="flex flex-col divide-y divide-border">
                   {used.map((a) => (
                     <li key={a.id}>
                       <Link href={routes.portalApplication(a.id)} className="flex items-center justify-between gap-3 py-3 text-[14px] transition-colors hover:text-amber">
@@ -210,7 +210,7 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
                   ))}
                 </ul>
               </section>
-              <section className="flex flex-col gap-3">
+              <section className="panel flex flex-col gap-3 p-5">
                 <h2 className="text-[12.5px] font-medium tracking-[0.08em] text-ink-3 uppercase">Versiones</h2>
                 <ol className="flex flex-col">
                   {VERSIONS.map((v, i) => (
@@ -225,7 +225,7 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
                   ))}
                 </ol>
               </section>
-              <footer className="flex flex-wrap gap-4 border-t border-border pt-4 text-[12.5px] text-ink-3">
+              <footer className="flex flex-wrap gap-4 px-1 text-[12.5px] text-ink-3">
                 <button type="button" className="hover:text-ink" onClick={() => toast({ title: "Preparando tus datos", description: "Te llega un correo con el archivo." })}>
                   Descargar mis datos
                 </button>
