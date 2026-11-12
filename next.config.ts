@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -40,11 +39,8 @@ const nextConfig: NextConfig = {
     },
   },
   // La landing (carpeta landing/, Astro) se construye en el Dockerfile dentro de public/landing.
-  // Si existe, "/" la muestra; si no (desarrollo), "/" sigue llevando a /home.
-  async rewrites() {
-    if (!existsSync("public/landing/index.html")) return { beforeFiles: [] };
-    return { beforeFiles: [{ source: "/", destination: "/landing/index.html" }] };
-  },
+  // Quien la muestra en "/" es Caddy, solo en el dominio raíz (criba.isroot.in); en la app
+  // (app.criba.isroot.in) "/" lleva a /home. Ver ai_talent_back/deploy/Caddyfile.
   async headers() {
     return [
       {
