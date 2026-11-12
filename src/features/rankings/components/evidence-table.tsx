@@ -2,6 +2,7 @@
 
 import { Check, FileText, Flag, Minus, MoreHorizontal, Scale, X } from "lucide-react";
 import { Popover } from "@/shared/components/ui";
+import { CribaAi } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 import type { RequirementResult } from "@/shared/types/domain";
 import type { RankRequirement } from "../types/ranking";
@@ -30,7 +31,10 @@ export function EvidenceTable({ requirements, results, onOpenResume, onAiError, 
       <div className="hidden grid-cols-[28px_minmax(0,1.1fr)_minmax(0,1.5fr)_150px_52px_36px] gap-4 border-b border-border pb-2.5 text-[12px] text-ink-3 md:grid">
         <span />
         <span>Requisito</span>
-        <span>Evidencia en la hoja de vida</span>
+        <span className="flex items-center gap-2">
+          Evidencia en la hoja de vida
+          <CribaAi label="la citó" />
+        </span>
         <span>Dónde</span>
         <span className="text-right">Aporte</span>
         <span />

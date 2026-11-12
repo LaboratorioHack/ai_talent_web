@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Upload } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
-import { ButtonLink, EmptyState, Select, useToast } from "@/shared/components/ui";
+import { ButtonLink, EmptyState, Select, useToast, CribaAi } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { formatShortDate } from "@/shared/lib/dates";
 import type { RankingData } from "../types/ranking";
@@ -89,7 +89,16 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
         </nav>
       }
       title={data.job.title}
-      description={evaluated ? `${evaluated} evaluadas, ordenadas por ajuste al perfil` : "Sin evaluaciones todavía"}
+      description={
+        evaluated ? (
+          <span className="flex flex-wrap items-center gap-2">
+            {evaluated} evaluadas, ordenadas por ajuste al perfil
+            <CribaAi label="evaluó y ordenó; tu equipo decide" />
+          </span>
+        ) : (
+          "Sin evaluaciones todavía"
+        )
+      }
       actions={
         <>
           <Select aria-label="Vacante" options={data.jobs} value={data.job.id} onChange={(id) => router.push(routes.ranking(id))} className="w-full sm:w-[280px]" />
@@ -108,7 +117,7 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
         <div className="flex flex-1 flex-col px-4 sm:px-6 lg:px-12 py-16">
           <EmptyState
             title="Todavía no hay candidatos"
-            description="Sube hojas de vida o comparte el enlace para que las personas se postulen. Criba las evalúa con el perfil de esta vacante."
+            description="Sube hojas de vida o comparte el enlace para que las personas se postulen. Criba AI las evalúa con el perfil de esta vacante."
             action={
               <ButtonLink href={`${routes.candidates}?job=${data.job.id}`} icon={<Upload />}>
                 Subir hojas de vida

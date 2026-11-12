@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PageTop } from "@/shared/components/layout";
+import { CribaAi } from "@/shared/components/ui";
 import { Skeleton } from "@/shared/components/ui";
 import { listInterviews } from "@/features/interviews/api/interviews";
 import { InterviewInbox } from "@/features/interviews/components/interview-inbox";
@@ -16,7 +17,12 @@ async function Interviews() {
 export default function InterviewsPage() {
   return (
     <div className="flex flex-1 flex-col lg:h-[calc(100dvh-var(--app-header,0px))] lg:flex-none">
-      <PageTop sticky={false} title="Entrevistas" description="La IA pregunta por lo que falta validar y marca lo que no coincide con la hoja de vida." />
+      <PageTop sticky={false} title="Entrevistas" description={
+          <span className="flex flex-wrap items-center gap-2">
+            <CribaAi label="entrevista por chat" />
+            Pregunta por lo que falta validar y marca lo que no coincide con la hoja de vida. Decide tu equipo.
+          </span>
+        } />
       <Suspense
         fallback={
           <div className="grid flex-1 grid-cols-1 lg:grid-cols-[400px_1fr]" aria-busy>

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ChevronRight, Clock, Play, X } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
 import { PdfViewer } from "@/shared/components/pdf/pdf-viewer";
-import { Button, Collapse, EmptyState, Modal, ScrollArea, SearchField, Select, useToast } from "@/shared/components/ui";
+import { Button, Collapse, CribaAi, EmptyState, Modal, ScrollArea, SearchField, Select, useToast } from "@/shared/components/ui";
 import { resumeToPdf } from "@/shared/lib/resume-pdf";
 import { mockResumeDocs } from "@/shared/mocks";
 import type { ResumeDoc } from "@/shared/types/resume-doc";
@@ -35,7 +35,7 @@ const ORDER: Record<Group, number> = { busy: 0, unreadable: 1, rejected: 2, dupl
 const GROUP_LABEL: Record<Group, string> = { read: "leídas", busy: "leyendo", unreadable: "ilegibles", duplicate: "duplicadas", rejected: "rechazadas" };
 
 const COLUMNS: { key: Column; title: string; hint: string; dot: string }[] = [
-  { key: "busy", title: "Recibidas", hint: "Criba las está leyendo", dot: "bg-blue" },
+  { key: "busy", title: "Recibidas", hint: "Criba AI las está leyendo", dot: "bg-blue" },
   { key: "attention", title: "Necesitan acción", hint: "Ilegibles, duplicadas o rechazadas", dot: "bg-warning" },
   { key: "read", title: "Listas para evaluar", hint: "Leídas y anonimizadas", dot: "bg-success" },
 ];
@@ -209,7 +209,10 @@ export function IngestView({ data }: { data: IngestData }) {
 
             <section className="flex flex-col gap-4 animate-rise [animation-delay:140ms]">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="font-head text-[20px] font-semibold tracking-[-0.01em]">Tablero de hojas de vida</h2>
+                <h2 className="flex flex-wrap items-center gap-2 font-head text-[20px] font-semibold tracking-[-0.01em]">
+                  Tablero de hojas de vida
+                  <CribaAi label="lee, anonimiza y avisa lo que falta" />
+                </h2>
                 <div className="flex w-full items-center gap-2 sm:w-auto">
                   <Select aria-label="Canal" options={CHANNELS} value={source} onChange={(v) => setSource(v as "all" | IngestSource)} className="w-[46%] sm:w-[220px]" triggerClassName="field-box h-10 w-full px-3.5 text-[13.5px] text-ink" />
                   <SearchField placeholder="Buscar archivo" containerClassName="min-w-0 flex-1 sm:w-[240px] sm:flex-none" value={query} onChange={(e) => setQuery(e.target.value)} />
