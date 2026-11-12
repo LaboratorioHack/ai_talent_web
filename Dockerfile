@@ -8,14 +8,16 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
-# Landing (Astro, carpeta landing/): HTML estático que la app sirve en "/".
+# Landing (Astro, carpeta landing/): HTML estático en public/landing; Caddy lo sirve en el dominio raíz.
 FROM base AS landing
 WORKDIR /landing
 COPY landing/package.json landing/pnpm-lock.yaml landing/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY landing/ .
+# Botones "Entrar"/"Postularme" -> la app; URLs canónicas de la landing -> el dominio raíz.
 ARG LANDING_APP_URL=https://app.criba.isroot.in
-ENV PUBLIC_APP_URL=$LANDING_APP_URL SITE_URL=$LANDING_APP_URL
+ARG LANDING_SITE_URL=https://criba.isroot.in
+ENV PUBLIC_APP_URL=$LANDING_APP_URL SITE_URL=$LANDING_SITE_URL
 RUN pnpm build
 
 FROM base AS build

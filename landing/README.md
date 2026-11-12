@@ -46,4 +46,11 @@ Lo que corre en bucle se pausa fuera de pantalla, y todo respeta `prefers-reduce
 
 ## Despliegue
 
-Vive dentro de `ai_talent_web` y se despliega con su CD: el `Dockerfile` de la app construye la landing (etapa `landing`, `base: /landing`) y la copia a `public/landing`; Next reescribe `/` a `/landing/index.html`. Los enlaces van a `LANDING_APP_URL` (por defecto `https://app.criba.isroot.in`, el mismo dominio). En desarrollo: `pnpm install && pnpm dev` dentro de `landing/`.
+Vive dentro de `ai_talent_web` y se despliega con su CD: el `Dockerfile` de la app construye la landing (etapa `landing`, `base: /landing`) y la copia a `public/landing`.
+
+| Dominio | Qué sirve |
+|---|---|
+| `https://criba.isroot.in` | La landing: Caddy sirve `/` con `/landing/index.html`; cualquier otra ruta redirige a la app |
+| `https://app.criba.isroot.in` | La app Next y la API (`/api`) |
+
+Los botones van a `LANDING_APP_URL` (por defecto `https://app.criba.isroot.in`) y las URLs canónicas usan `LANDING_SITE_URL` (`https://criba.isroot.in`). En desarrollo: `pnpm install && pnpm dev` dentro de `landing/`.
