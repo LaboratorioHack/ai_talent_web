@@ -46,6 +46,8 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 37 | `feat/portal-theme` | 36 | lista | Portal claro/oscuro con interruptor, textura de contornos (`--contours`), pestañas con contador, entrada propia del postulante, lector de PDF compartido (`shared/components/pdf`), hoja de vida como PDF editable (`shared/lib/resume-pdf.ts`) y PDF en ranking y postulaciones |
 | 38 | `feat/portal-panels` | 37 | lista | Tarjetas translúcidas (`.panel`) para que el texto del postulante se lea sobre la textura |
 | 39 | `feat/criba-ai` | 38 | lista | Textura de arcos para empresa (`.org-light`), filtro propio en cada gráfico del Inicio, marca Criba AI en ambos portales, recomendaciones al postulante y tarjeta de hoja de vida con miniatura del PDF |
+| 40 | `fix/jobs-list-spacing` | 39 | lista | Más aire alrededor de las flechas en la lista de vacantes del postulante |
+| 41 | `feat/criba-ai-live` | 40 | lista | Criba AI trabajando a la vista: registro en vivo en el Inicio, tarjeta "leyendo" en Postulaciones, barrido de la hoja de vida del postulante y "comparó tu hoja de vida con N vacantes"; sombras del bloque ámbar más suaves; landing en el pen.dev |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
