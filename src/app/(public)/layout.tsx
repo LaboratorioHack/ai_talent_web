@@ -9,7 +9,7 @@ import { routes } from "@/shared/constants/routes";
  */
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="dark-scope flex min-h-dvh flex-1 flex-col bg-bg [--app-header:64px]">
+    <div className="dark-scope portal-light flex min-h-dvh flex-1 flex-col [--app-header:64px]">
       <header className="sticky top-0 z-30 border-b border-border bg-bg/85 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-full max-w-[1120px] items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href={routes.portalJobs} aria-label="Vacantes">

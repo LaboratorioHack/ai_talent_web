@@ -44,7 +44,9 @@ export function ResumeView({ resume }: { resume: ResumeSummary }) {
     <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-8 px-4 pt-10 pb-20 sm:px-6 lg:px-8 lg:pt-14">
       <header className="flex flex-wrap items-end justify-between gap-4 animate-rise">
         <div className="flex flex-col gap-2">
-          <h1 className="font-head text-[34px] leading-[1.05] font-semibold tracking-[-0.02em] sm:text-[44px]">Mi hoja de vida</h1>
+          <h1 className="font-head text-[36px] leading-[1.02] font-semibold tracking-[-0.025em] sm:text-[52px]">
+            Mi <span className="hl">hoja de vida</span>
+          </h1>
           <p className="text-[14px] text-ink-3">
             {file.name}
             {updated ? ` · actualizada el ${formatLongDate(updated)}` : ""}
