@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Plus, Send, Trash2, UserPlus } from "lucide-react";
+import { PdfViewer } from "@/shared/components/pdf/pdf-viewer";
 import { ResumeSheet } from "@/shared/components/resume/resume-sheet";
-import { Button, DateField, Modal, Select, SelectField, TextArea, TextField, Toggle } from "@/shared/components/ui";
+import { Button, DateField, Modal, Segmented, Select, SelectField, TextArea, TextField, Toggle } from "@/shared/components/ui";
 import { useToday } from "@/shared/hooks/use-today";
 import { cn } from "@/shared/lib/cn";
 import { formatShortDate } from "@/shared/lib/dates";
+import { resumeToPdf } from "@/shared/lib/resume-pdf";
 import { delay } from "@/shared/mocks";
 import type { Equivalence } from "@/shared/types/domain";
 import type { RankedCandidate, RankRequirement } from "../types/ranking";
@@ -277,11 +279,43 @@ export function EquivalencesModal({ requirement, open, onClose, onSaved }: { req
 /* Hoja de vida -------------------------------------------------------- */
 
 export function ResumeModal({ candidate, open, onClose }: { candidate: RankedCandidate | null; open: boolean; onClose: () => void }) {
+  const [view, setView] = useState<"pdf" | "review">("pdf");
+  const [pdf, setPdf] = useState<Uint8Array | null>(null);
+  const doc = candidate?.resume;
+
+  // El PDF original con las líneas que prueban un requisito resaltadas en ámbar.
+  useEffect(() => {
+    if (!open || !doc) return;
+    let cancelled = false;
+    const marked = new Set<string>();
+    doc.sections.forEach((sec, si) => sec.lines.forEach((l, li) => l.note && marked.add(`s${si}-l${li}`)));
+    resumeToPdf(doc, marked).then((r) => !cancelled && setPdf(r.bytes));
+    return () => {
+      cancelled = true;
+    };
+  }, [open, doc]);
+
   return (
-    <Modal open={open} onClose={onClose} size="lg" title={candidate ? `Hoja de vida de ${candidate.name}` : "Hoja de vida"} description="Al margen, qué requisito prueba cada línea y cuántos puntos aporta. Las notas son de Criba; el documento es el original.">
+    <Modal open={open} onClose={onClose} size="lg" title={candidate ? `Hoja de vida de ${candidate.name}` : "Hoja de vida"} description="El PDF tal como llegó, con las líneas que prueban un requisito resaltadas. En la revisión, qué requisito prueba cada línea y cuántos puntos aporta.">
       {candidate ? (
-        <div className="rounded-xl bg-surface-2 p-6">
-          <ResumeSheet doc={candidate.resume} annotated score={candidate.score} reveal />
+        <div className="flex flex-col gap-4">
+          <Segmented
+            aria-label="Vista"
+            size="sm"
+            value={view}
+            onChange={setView}
+            items={[
+              { value: "pdf", label: "PDF original" },
+              { value: "review", label: "Revisión de Criba" },
+            ]}
+          />
+          {view === "pdf" ? (
+            <PdfViewer data={pdf} fileName={`${candidate.name.toLowerCase().replace(/\s+/g, "_")}_cv.pdf`} className="h-[68vh]" />
+          ) : (
+            <div className="rounded-xl bg-surface-2 p-6">
+              <ResumeSheet doc={candidate.resume} annotated score={candidate.score} reveal />
+            </div>
+          )}
         </div>
       ) : null}
     </Modal>

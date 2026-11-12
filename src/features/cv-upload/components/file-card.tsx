@@ -21,10 +21,13 @@ export interface FileCardProps {
   onRetry: (id: string) => void;
   onRemove: (id: string) => void;
   onRequestOriginal: (id: string) => void;
+  /** Abre el archivo en el lector (solo los PDF y Word ya leídos). */
+  onOpen?: (file: IngestFile) => void;
 }
 
 /** Tarjeta de una postulación en el tablero: archivo, canal, qué se leyó y su acción. */
-export function FileCard({ file, index, onRetry, onRemove, onRequestOriginal }: FileCardProps) {
+export function FileCard({ file, index, onRetry, onRemove, onRequestOriginal, onOpen }: FileCardProps) {
+  const openable = Boolean(onOpen) && file.status === "READ" && /^(PDF|DOCX?)$/.test(file.kind);
   const s = STATUS[file.status];
   const busy = file.status === "UPLOADING" || file.status === "PROCESSING";
   const icon = "flex size-8 items-center justify-center rounded-lg text-ink-3 transition-colors hover:bg-hover hover:text-ink";
@@ -37,7 +40,13 @@ export function FileCard({ file, index, onRetry, onRemove, onRequestOriginal }: 
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-8 shrink-0 items-center justify-center rounded-[4px] border border-border bg-surface-2 font-mono text-[9px] font-semibold tracking-wide text-ink-2">{file.kind.slice(0, 4)}</span>
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="truncate text-[13.5px] font-medium">{file.name}</span>
+          {openable ? (
+            <button type="button" onClick={() => onOpen?.(file)} className="truncate text-left text-[13.5px] font-medium underline-offset-4 transition-colors hover:text-amber hover:underline">
+              {file.name}
+            </button>
+          ) : (
+            <span className="truncate text-[13.5px] font-medium">{file.name}</span>
+          )}
           <span className="line-clamp-2 text-[12.5px] text-ink-3">{file.detail}</span>
         </span>
       </div>
