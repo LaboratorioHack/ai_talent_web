@@ -235,7 +235,7 @@ Falta en el back para terminar estas pantallas:
 
 ## Pendiente
 
-- Supabase Auth en el proyecto alojado: en Authentication → URL Configuration, poner el dominio de producción como Site URL y agregar `https://<dominio>/**` y `http://localhost:3000/**` en Redirect URLs. Si `emailRedirectTo` no está en esa lista, Supabase usa el Site URL (hoy apunta a localhost) en el correo del enlace mágico.
+- Supabase Auth en el proyecto alojado: en Authentication → URL Configuration, poner `https://app.criba.isroot.in` como Site URL y agregar `https://app.criba.isroot.in/**`, `http://localhost:3000/**` y `http://127.0.0.1:3000/**` en Redirect URLs. Si `emailRedirectTo` no está en esa lista, Supabase usa el Site URL (hoy apunta a localhost) en el correo del enlace mágico. Desde el front ya está cubierto: el enlace vuelve al dominio desde el que se pidió; si cae en `/` con `?code`, el proxy lo pasa a `/auth/callback`; la cookie `criba-auth-next` recuerda si era el portal de postulantes o el panel; el callback redirige con `X-Forwarded-Host` (no con el host interno del contenedor) y, si el enlace falla, el postulante vuelve a `/portal/sign-in`, no al login de empresas.
 
 - Conectar las `api/` que faltan a los endpoints reales cuando existan (cada función indica su ruta en el comentario). Sesión, onboarding, vacantes, tablero, ingesta y postulación ya usan la API (ver arriba).
 - Anon key de Supabase en `.env.local` (`NEXT_PUBLIC_SUPABASE_ANON_KEY`); hoy está vacía y la app corre en modo mock.
