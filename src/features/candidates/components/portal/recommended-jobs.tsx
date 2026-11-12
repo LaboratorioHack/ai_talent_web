@@ -34,6 +34,12 @@ export function RecommendedJobs({ jobs }: { jobs: PortalJob[] }) {
           <ArrowRight aria-hidden className="size-3.5 transition-transform group-hover:translate-x-0.5" />
         </Link>
       </div>
+      <div className="flex items-center gap-3 text-[12.5px] text-ink-3">
+        <span className="relative h-1 w-24 overflow-hidden rounded-full bg-border-strong">
+          <span className="rail-fill absolute inset-0 rounded-full bg-amber [animation-duration:1600ms]" />
+        </span>
+        <span className="ai-caret">Comparó tu hoja de vida con {jobs.length} vacantes abiertas</span>
+      </div>
       <ul className="panel flex flex-col divide-y divide-border overflow-hidden px-4">
         {picks.map((j, i) => {
           const m = MATCH_LABEL[j.match.level];

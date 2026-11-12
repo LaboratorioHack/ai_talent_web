@@ -792,7 +792,7 @@
   96%, 100% { opacity: 0; translate: 0 -4px; }
 }
 .chat-q { animation: chat-q 7s var(--ease-out-soft) infinite; }
-.chat-typing { animation: chat-typing 7s linear infinite; }
+.chat-typing { opacity: 0; animation: chat-typing 7s linear infinite; }
 .chat-a { animation: chat-a 7s var(--ease-out-soft) infinite; }
 
 @keyframes rail-fill {
@@ -852,4 +852,38 @@
 :root.dark,
 .dark-scope {
   --ai-ink: #f4bb5a;
+}
+
+/*
+ * Criba AI trabajando: una franja ámbar que barre un documento (leer) y un
+ * cursor que parpadea en lo que está escribiendo. En reposo la franja queda a
+ * media hoja, así una captura estática también la muestra trabajando.
+ */
+@keyframes ai-scan {
+  0% { top: -18%; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.ai-scan {
+  position: absolute;
+  inset-inline: 0;
+  top: 38%;
+  height: 18%;
+  background: linear-gradient(180deg, transparent, rgb(242 169 59 / 0.28) 70%, rgb(242 169 59 / 0.85) 96%, transparent);
+  pointer-events: none;
+  animation: ai-scan 3.4s var(--ease-in-out-soft) infinite;
+}
+@keyframes caret {
+  50% { opacity: 0; }
+}
+.ai-caret::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: var(--amber);
+  animation: caret 1s steps(1) infinite;
 }

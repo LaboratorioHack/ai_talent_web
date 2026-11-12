@@ -6,6 +6,7 @@ import { BadgeCheck, Briefcase, MessageSquareText, Timer, Users } from "lucide-r
 import { CribaAi, Segmented, Select, Skeleton } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import type { DashboardData, Period, PeriodStats } from "../api/dashboard";
+import { AiActivity } from "./ai-activity";
 import { FunnelChart } from "./funnel-chart";
 import { KpiCard } from "./kpi-card";
 import { PendingList, TopProfiles } from "./side-panels";
@@ -204,6 +205,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
           <VacancyPanel key={`v-${period}`} data={data} period={period} />
         </div>
         <div className="flex flex-col gap-6">
+          <AiActivity />
           <TopPanel data={data} vacancyOptions={vacancyOptions} />
           <Panel title="Pendientes" subtitle="Lo que necesita tu decisión">
             <PendingList items={data.pending} />

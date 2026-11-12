@@ -33,6 +33,9 @@ export function CvCard({ resume }: { resume: ResumeSummary }) {
         <div className="absolute top-5 left-1/2 -translate-x-1/2 shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_20px_40px_-20px_rgba(0,0,0,0.6)] transition-[transform,translate,scale,rotate] duration-700 ease-[var(--ease-out-soft)] group-hover:-translate-y-1.5 group-hover:scale-[1.02]">
           <PdfFirstPage data={bytes} width={236} />
         </div>
+        <span aria-hidden className="absolute top-5 left-1/2 h-[230px] w-[236px] -translate-x-1/2 overflow-hidden">
+          <span className="ai-scan" />
+        </span>
         <span className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-surface to-transparent" />
         <span className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-[12.5px] font-medium text-bg opacity-0 transition-[opacity,transform,translate] duration-300 group-hover:-translate-y-0.5 group-hover:opacity-100">
           <Eye aria-hidden className="size-3.5" />
@@ -52,10 +55,10 @@ export function CvCard({ resume }: { resume: ResumeSummary }) {
           </Link>
         </div>
         <div className="flex flex-col gap-2.5">
-          <CribaAi label="encontró en tu hoja de vida" className="self-start" />
+          <CribaAi label="leyó tu hoja de vida y encontró" className="self-start" />
           <ul className="flex flex-wrap gap-1.5">
-            {resume.skills.map((s) => (
-              <li key={s} className="rounded-full bg-surface-2 px-2.5 py-1 text-[12px] text-ink-2 ring-1 ring-border">
+            {resume.skills.map((s, i) => (
+              <li key={s} className="rounded-full bg-surface-2 px-2.5 py-1 text-[12px] text-ink-2 ring-1 ring-border animate-[pop-in_420ms_var(--ease-spring)_both]" style={{ animationDelay: `${500 + i * 110}ms` }}>
                 {s}
               </li>
             ))}
