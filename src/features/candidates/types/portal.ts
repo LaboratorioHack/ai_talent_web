@@ -1,3 +1,5 @@
+import type { ResumeDoc } from "@/shared/types/resume-doc";
+
 /**
  * Portal del postulante. Lo que la persona ve de sus procesos: etapa, fechas
  * y lo que sigue. Nunca puntajes, posiciones ni lo que opinó la IA.
@@ -38,10 +40,8 @@ export interface ResumeSummary {
   fileName: string;
   sizeKb: number;
   updatedAt: string;
-  /** Lo que la IA recibe: sin nombre, foto, edad, género, dirección ni nacionalidad. */
-  anonymized: { section: string; lines: string[] }[];
-  /** Datos que se quitan antes de evaluar. */
-  removed: string[];
+  /** La hoja de vida como documento, lista para verse y editarse. */
+  doc: ResumeDoc;
 }
 
 export interface PortalJob {

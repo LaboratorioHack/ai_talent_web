@@ -21,7 +21,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  ink: "bg-ink text-ink-inverse hover:bg-panel-2 hover:shadow-[0_8px_20px_-10px_rgba(21,32,27,0.55)]",
+  ink: "bg-ink text-ink-inverse hover:bg-[color-mix(in_oklab,var(--ink)_86%,var(--bg))] hover:shadow-[0_8px_20px_-10px_rgba(21,32,27,0.55)]",
   outline: "border border-border-strong bg-surface text-ink hover:border-ink-3 hover:bg-hover",
   text: "text-ink-2 hover:bg-hover hover:text-ink",
   danger: "border border-danger text-danger hover:bg-danger-soft",
