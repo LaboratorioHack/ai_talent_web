@@ -1,10 +1,10 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, type ComponentType } from "react";
 import { cn } from "@/shared/lib/cn";
 
 export interface SegmentedProps<T extends string> {
-  items: { value: T; label: string; count?: number }[];
+  items: { value: T; label: string; count?: number; icon?: ComponentType<{ className?: string; "aria-hidden"?: boolean }> }[];
   value: T;
   onChange: (value: T) => void;
   "aria-label": string;
@@ -55,6 +55,7 @@ export function Segmented<T extends string>({ items, value, onChange, size = "md
               active ? "font-medium text-ink" : "text-ink-2 hover:text-ink",
             )}
           >
+            {item.icon ? <item.icon aria-hidden className={cn("size-4 transition-colors duration-300", active ? "text-amber" : "text-ink-3")} /> : null}
             {item.label}
             {item.count !== undefined ? (
               <span
