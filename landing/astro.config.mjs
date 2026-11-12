@@ -3,8 +3,10 @@ import tailwindcss from "@tailwindcss/vite";
 
 // Landing pública de Criba. Estática; la construye el Dockerfile de la app y queda en public/landing.
 export default defineConfig({
-  site: process.env.SITE_URL ?? "https://app.criba.isroot.in",
-  // Vive dentro de la app Next: sus archivos se sirven en /landing y Next reescribe "/" a /landing/index.html.
+  // Dominio raíz de la landing (la app vive en app.criba.isroot.in).
+  site: process.env.SITE_URL ?? "https://criba.isroot.in",
+  // Se empaqueta en la imagen de la app (public/landing); Caddy sirve "/" del dominio raíz
+  // con /landing/index.html y sus archivos bajo /landing.
   base: "/landing",
   output: "static",
   vite: {
