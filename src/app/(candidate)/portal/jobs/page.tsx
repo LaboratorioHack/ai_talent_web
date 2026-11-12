@@ -13,9 +13,9 @@ async function Jobs() {
 
 function Loading() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-busy>
-      {Array.from({ length: 6 }, (_, i) => (
-        <Skeleton key={i} className="h-[230px] rounded-2xl" />
+    <div className="flex flex-col gap-3" aria-busy>
+      {Array.from({ length: 5 }, (_, i) => (
+        <Skeleton key={i} className="h-16 rounded-xl" />
       ))}
     </div>
   );
@@ -24,12 +24,8 @@ function Loading() {
 /** Portal del postulante · Vacantes abiertas. */
 export default function PortalJobsPage() {
   return (
-    <div className="mx-auto flex w-full max-w-[1160px] flex-col gap-6 px-4 pt-8 pb-16 sm:px-6 sm:pt-10 lg:px-8">
-      <header className="flex flex-col gap-2 animate-rise">
-        <p className="eyebrow">Vacantes abiertas</p>
-        <h1 className="font-head text-[30px] leading-[1.1] font-semibold tracking-[-0.02em] sm:text-[36px]">Encuentra tu próximo cargo</h1>
-        <p className="max-w-[620px] text-[15px] text-ink-2">Postúlate con la hoja de vida que ya tienes. Cada empresa la revisa con el mismo criterio que la de los demás.</p>
-      </header>
+    <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-8 px-4 pt-10 pb-20 sm:px-6 lg:px-8 lg:pt-14">
+      <h1 className="font-head text-[34px] leading-[1.05] font-semibold tracking-[-0.02em] animate-rise sm:text-[44px]">Vacantes abiertas</h1>
       <Suspense fallback={<Loading />}>
         <Jobs />
       </Suspense>

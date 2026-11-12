@@ -23,8 +23,7 @@ export const routes = {
   portal: "/portal",
   portalSignIn: "/portal/sign-in",
   portalJobs: "/portal/jobs",
-  portalApplications: "/portal/applications",
   portalApplication: (id: string) => `/portal/applications/${id}`,
-  portalProfile: "/portal/profile",
+  portalResume: "/portal/resume",
   design: "/design",
 } as const;

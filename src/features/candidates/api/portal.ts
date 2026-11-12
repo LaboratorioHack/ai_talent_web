@@ -113,13 +113,42 @@ const RESUME: ResumeSummary = {
   fileName: "sebastian_vega_cv.pdf",
   sizeKb: 196,
   updatedAt: "2026-10-28",
-  removed: ["Nombre", "Foto", "Fecha de nacimiento", "Género", "Dirección y ciudad", "Nacionalidad", "Estado civil", "Correo y teléfono"],
-  anonymized: [
-    { section: "Experiencia", lines: ["Ingeniero de plataforma, sector financiero, 2021 a hoy", "Migración de 30 servicios a AKS con Azure DevOps", "Ingeniero DevOps, empresa de software, 2018 a 2021"] },
-    { section: "Formación", lines: ["Ingeniería de Sistemas", "AWS Solutions Architect Associate", "AZ-305, en curso"] },
-    { section: "Idiomas", lines: ["Inglés B2"] },
-    { section: "Competencias", lines: ["Azure, AKS, Terraform, Kubernetes, GitHub Actions, Grafana"] },
-  ],
+  doc: {
+    name: "Sebastián Vega",
+    headline: "Ingeniero de plataforma cloud",
+    contact: ["sebastian.vega@example.com", "300 000 0000", "Medellín, Colombia"],
+    sections: [
+      {
+        title: "Perfil",
+        lines: [{ kind: "text", text: "Ingeniero de plataforma con 7 años entre DevOps y nube. Me gusta automatizar lo repetitivo y dejar todo documentado." }],
+      },
+      {
+        title: "Experiencia",
+        lines: [
+          { kind: "role", text: "Ingeniero de plataforma — Sector financiero", right: "2021 – hoy" },
+          { kind: "bullet", text: "Migré 30 servicios a AKS en diez meses, con pipelines en Azure DevOps." },
+          { kind: "bullet", text: "Infraestructura como código con Terraform en tres ambientes." },
+          { kind: "role", text: "Ingeniero DevOps — Empresa de software", right: "2018 – 2021" },
+          { kind: "bullet", text: "Monitoreo con Prometheus y Grafana, y despliegues con GitHub Actions." },
+        ],
+      },
+      {
+        title: "Educación",
+        lines: [{ kind: "role", text: "Ingeniería de Sistemas", right: "2018" }],
+      },
+      {
+        title: "Certificaciones",
+        lines: [
+          { kind: "text", text: "AWS Solutions Architect – Associate (2023)" },
+          { kind: "text", text: "AZ-305, en curso" },
+        ],
+      },
+      {
+        title: "Idiomas",
+        lines: [{ kind: "text", text: "Inglés B2, español nativo" }],
+      },
+    ],
+  },
 };
 
 export async function getApplicant(): Promise<Applicant> {

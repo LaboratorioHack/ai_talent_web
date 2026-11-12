@@ -4,26 +4,28 @@ import { Skeleton } from "@/shared/components/ui";
 import { getApplicant, getMyResume, listMyApplications, listOpenJobs } from "@/features/candidates/api/portal";
 import { PortalHome } from "@/features/candidates/components/portal/portal-home";
 
-export const metadata: Metadata = { title: "Mi portal" };
+export const metadata: Metadata = { title: "Mis postulaciones" };
 
 async function Home() {
   const [applicant, applications, jobs, resume] = await Promise.all([getApplicant(), listMyApplications(), listOpenJobs(), getMyResume()]);
-  return <PortalHome applicant={applicant} applications={applications} jobs={jobs} resume={resume} />;
+  return <PortalHome applicant={applicant} applications={applications} resume={resume} newJobs={jobs.filter((j) => !j.applied).length} />;
 }
 
 function Loading() {
   return (
-    <div className="mx-auto flex w-full max-w-[1160px] flex-col gap-6 px-4 pt-10 sm:px-6 lg:px-8" aria-busy>
-      <Skeleton className="h-[200px] rounded-3xl" />
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Skeleton className="h-[260px] rounded-2xl" />
-        <Skeleton className="h-[260px] rounded-2xl" />
+    <div className="mx-auto grid w-full max-w-[1120px] grid-cols-1 gap-12 px-4 pt-14 sm:px-6 lg:grid-cols-[1fr_320px] lg:px-8" aria-busy>
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-12 w-2/3 rounded-lg" />
+        {Array.from({ length: 3 }, (_, i) => (
+          <Skeleton key={i} className="h-16 rounded-xl" />
+        ))}
       </div>
+      <Skeleton className="h-[380px] rounded-[3px]" />
     </div>
   );
 }
 
-/** Portal del postulante · Inicio. */
+/** Portal del postulante · Mis postulaciones. */
 export default function PortalPage() {
   return (
     <Suspense fallback={<Loading />}>
