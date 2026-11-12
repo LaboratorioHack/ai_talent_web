@@ -1,26 +1,889 @@
-@import "tailwindcss";
+/*
+ * Tailwind solo escanea el código de la app (src). Documentación, cachés y
+ * otros archivos del repo nunca deben generar clases.
+ */
+@import "tailwindcss" source(none);
+@source "../";
 
+/* Pantallas bajas (portátiles con barra del navegador): se compacta el espacio vertical. */
+@custom-variant short (@media (max-height: 820px));
+@custom-variant shorter (@media (max-height: 700px));
+
+/*
+ * Tokens de Criba (diseño en pen.dev, frame "Criba · Componentes"): claro,
+ * tinta verde para el texto y las acciones principales, ámbar como acento.
+ * Verde, ámbar y rojo solo para resultados. `.dark-scope` aplica la versión
+ * oscura (la de la landing) a las piezas que en el diseño ya son oscuras.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f6f7f4;
+  --surface: #ffffff;
+  --surface-2: #eef1ec;
+  --surface-3: #e6ebe4;
+  /* Hover y carga: translúcidos, así funcionan sobre cualquier fondo. */
+  --hover: rgb(21 32 27 / 0.055);
+  --skeleton: rgb(21 32 27 / 0.055);
+  --skeleton-hi: rgb(21 32 27 / 0.1);
+  --border: #e1e6df;
+  --border-strong: #cbd3ca;
+
+  /* Curvas de movimiento como variables reales: las clases con valores
+     arbitrarios las leen con var() y @theme inline no las publica. */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --ink: #15201b;
+  --ink-2: #4f5b55;
+  --ink-3: #8a948e;
+  --ink-inverse: #ffffff;
+  --ink-muted-dark: #9aa7a0;
+  --blue: #1f5bd1;
+  --blue-soft: #dce6fa;
+  --success: #1a8a5a;
+  --success-soft: #d4f0e1;
+  --success-deep: #0e5a45;
+  --warning: #d98b0f;
+  --warning-soft: #fbe8c6;
+  --danger: #c8372d;
+  --danger-soft: #f8dad6;
+  --amber: #f2a93b;
+  --amber-2: #ffc266;
+  --panel: #15201b;
+  --panel-2: #22302a;
+}
+
+/*
+ * Modo oscuro de toda la app (clase `dark` en <html>, ver ThemeToggle). Va
+ * fuera de las capas para ganarle a :root. Mismos valores que .dark-scope.
+ */
+:root.dark {
+  color-scheme: dark;
+  --bg: #0d1411;
+  --surface: #141e19;
+  --surface-2: #1b2620;
+  --surface-3: #22302a;
+  --hover: rgb(237 242 238 / 0.07);
+  --skeleton: rgb(237 242 238 / 0.045);
+  --skeleton-hi: rgb(237 242 238 / 0.1);
+  --border: rgb(232 240 234 / 0.09);
+  --border-strong: rgb(232 240 234 / 0.18);
+  --ink: #edf2ee;
+  --ink-2: rgb(237 242 238 / 0.7);
+  --ink-3: rgb(237 242 238 / 0.44);
+  --ink-inverse: #121a16;
+  --ink-muted-dark: rgb(237 242 238 / 0.55);
+  --blue: #86aefc;
+  --blue-soft: rgb(31 91 209 / 0.22);
+  --success: #5fd29b;
+  --success-soft: rgb(26 138 90 / 0.2);
+  --success-deep: #3fb07f;
+  --warning: #f4bb5a;
+  --warning-soft: rgb(217 139 15 / 0.2);
+  --danger: #f2877d;
+  --danger-soft: rgb(200 55 45 / 0.2);
+  --panel: #22302a;
+  --panel-2: #2b3a33;
+}
+
+/*
+ * Cambio de tema (ThemeToggle): el tema nuevo se revela en círculo (el
+ * clip-path lo anima el script); se apagan los fundidos por defecto. La
+ * perilla del interruptor ("theme-knob") se desliza aparte, por encima.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-group(theme-knob) {
+  z-index: 1;
+}
+::view-transition-group(theme-knob) {
+  animation-duration: 520ms;
+  animation-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-hover: var(--hover);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-surface-3: var(--surface-3);
+  --color-amber-2: var(--amber-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-inverse: var(--ink-inverse);
+  --color-ink-muted-dark: var(--ink-muted-dark);
+  --color-blue: var(--blue);
+  --color-blue-soft: var(--blue-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-deep: var(--success-deep);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-amber: var(--amber);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+
+  --font-head: var(--font-display), "Funnel Display", sans-serif;
+  --font-sans: var(--font-text), "Funnel Sans", sans-serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+
+  --text-2xs: 10.5px;
+  --text-2xs--line-height: 1.4;
+  --text-xs: 11.5px;
+  --text-xs--line-height: 1.4;
+  --text-sm: 13px;
+  --text-sm--line-height: 1.45;
+  --text-base: 14px;
+  --text-base--line-height: 1.5;
+  --text-md: 14.5px;
+  --text-md--line-height: 1.5;
+  --text-lg: 16px;
+  --text-lg--line-height: 1.5;
+
+  /* Movimiento: nada es inmediato. Curvas suaves y duraciones generosas. */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --default-transition-duration: 260ms;
+  --default-transition-timing-function: var(--ease-out-soft);
+
+  --animate-fade-in: fade-in 420ms var(--ease-out-soft) both;
+  --animate-rise: rise 560ms var(--ease-out-soft) both;
+  --animate-pop-in: pop-in 320ms var(--ease-spring) both;
+  --animate-toast-in: toast-in 380ms var(--ease-spring) both;
+  --animate-grow-x: grow-x 900ms var(--ease-out-soft) both;
+  --animate-breathe: breathe 2.8s var(--ease-in-out-soft) infinite;
+  --animate-shimmer: shimmer 1.8s linear infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    height: 100%;
+  }
+
+  body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: rgb(242 169 59 / 0.4);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* Etiqueta en mono mayúsculas, como "PASO 2 DE 4" o rutas de navegación */
+  /* Rótulo de contexto sobre un título ("Vacantes · Ingeniero Cloud Senior"): texto normal, discreto. */
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-3);
+  }
+
+  /* Aparición escalonada: el padre pone `stagger`, cada hijo `animate-rise` y `--i`. */
+  .stagger > * {
+    animation-delay: calc(var(--stagger-step, 60ms) * var(--i, 0));
+  }
+
+  /* Tarjeta de contenido: superficie blanca, línea suave y sombra mínima. */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgb(21 32 27 / 0.04);
+  }
+
+  /* Piezas oscuras dentro de la app clara (panel del login, toasts): tokens de la landing. */
+  .dark-scope {
+    color-scheme: dark;
+  --bg: #0d1411;
+  --surface: #141e19;
+  --surface-2: #1b2620;
+  --surface-3: #22302a;
+  --hover: rgb(237 242 238 / 0.07);
+  --skeleton: rgb(237 242 238 / 0.045);
+  --skeleton-hi: rgb(237 242 238 / 0.1);
+  --border: rgb(232 240 234 / 0.09);
+  --border-strong: rgb(232 240 234 / 0.18);
+  --ink: #edf2ee;
+  --ink-2: rgb(237 242 238 / 0.7);
+  --ink-3: rgb(237 242 238 / 0.44);
+  --ink-inverse: #121a16;
+  --ink-muted-dark: rgb(237 242 238 / 0.55);
+  --blue: #86aefc;
+  --blue-soft: rgb(31 91 209 / 0.22);
+  --success: #5fd29b;
+  --success-soft: rgb(26 138 90 / 0.2);
+  --warning: #f4bb5a;
+  --warning-soft: rgb(217 139 15 / 0.2);
+  --danger: #f2877d;
+  --danger-soft: rgb(200 55 45 / 0.2);
+  --panel: #22302a;
+  --panel-2: #2b3a33;
+    color: var(--ink);
+  }
+
+  /* Papel: tokens claros con alcance local, para mostrar hojas de vida como documentos. */
+  .paper {
+    --surface: #f5f1e8;
+    --surface-2: #e9e3d6;
+    --border: rgb(26 33 29 / 0.12);
+    --border-strong: rgb(26 33 29 / 0.22);
+    --ink: #1a211d;
+    --ink-2: #4a524d;
+    --ink-3: #8b8f86;
+    --success: #1a7a50;
+    --success-soft: #dcebdc;
+    --warning: #b8740b;
+    --warning-soft: #f3e2bf;
+    --danger: #b3261e;
+    --danger-soft: #f3d9d5;
+    --blue: #1f5bd1;
+    background-color: var(--surface);
+    color: var(--ink);
+  }
+  .cv {
+    font-family: Georgia, "Times New Roman", Times, serif;
+  }
+  .cv-heading {
+    display: block;
+    border-bottom: 1px solid color-mix(in oklab, var(--ink) 45%, transparent);
+    padding-bottom: 3px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  /* Resaltador sobre la evidencia, como en la landing. */
+  .marker {
+    background: linear-gradient(transparent 58%, rgb(242 169 59 / 0.45) 58%, rgb(242 169 59 / 0.45) 92%, transparent 92%) no-repeat;
+    background-size: 0% 100%;
+    transition: background-size 1100ms var(--ease-out-soft) var(--marker-delay, 0ms);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .is-on .marker,
+  .marker.is-on,
+  .evidence .marker {
+    background-size: 100% 100%;
+  }
+  /* Hoja que se revisa al montar: resaltador y notas línea a línea. */
+  .reveal-sheet .evidence .marker {
+    animation: mark-in 1000ms var(--ease-out-soft) both;
+    animation-delay: calc(700ms + var(--n, 0) * 420ms);
+  }
+  .reveal-sheet .evidence .note,
+  .reveal-sheet .evidence .leader {
+    animation: rise 600ms var(--ease-out-soft) both;
+    animation-delay: calc(1000ms + var(--n, 0) * 420ms);
+  }
+
+  /* Campo de formulario: misma caja para texto, selector, fecha y número. */
+  .field-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgb(21 32 27 / 0.05);
+    transition:
+      border-color 300ms var(--ease-out-soft),
+      box-shadow 300ms var(--ease-out-soft),
+      width 650ms var(--ease-out-soft);
+  }
+  .field-box:hover {
+    border-color: var(--border-strong);
+  }
+  .field-box:focus-within,
+  .field-box[data-open="true"] {
+    border-color: rgb(217 139 15 / 0.6);
+    box-shadow:
+      0 1px 2px rgb(21 32 27 / 0.05),
+      0 0 0 4px rgb(242 169 59 / 0.18);
+  }
+  .field-box[aria-invalid="true"],
+  .field-box.is-invalid {
+    border-color: var(--danger);
+  }
+  .field-box.is-invalid:focus-within {
+    box-shadow: 0 0 0 4px rgb(200 55 45 / 0.12);
+  }
+  .field-box.is-valid {
+    border-color: var(--success);
+  }
+
+  .grow-y {
+    transform-origin: bottom center;
+    animation: grow-y 900ms var(--ease-out-soft) both;
+  }
+
+  /* Barras que crecen desde la izquierda (puntajes, embudos, pesos). */
+  .grow-x {
+    transform-origin: left center;
+    animation: var(--animate-grow-x);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+}
+
+/* La fila del toast abre y cierra su hueco, para que la pila se deslice. */
+@keyframes toast-expand {
+  from {
+    grid-template-rows: 0fr;
+  }
+  to {
+    grid-template-rows: 1fr;
+  }
+}
+
+@keyframes toast-collapse {
+  from {
+    grid-template-rows: 1fr;
+  }
+  to {
+    grid-template-rows: 0fr;
+  }
+}
+
+@keyframes toast-timer {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Check de "Todo listo": el círculo y la marca se dibujan con un trazo. */
+.done-circle {
+  stroke-dasharray: 190;
+  stroke-dashoffset: 190;
+  animation: draw 900ms var(--ease-out-soft) 200ms forwards;
+}
+.done-check {
+  stroke-dasharray: 44;
+  stroke-dashoffset: 44;
+  animation: draw 500ms var(--ease-out-soft) 900ms forwards;
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ring-fill {
+  from {
+    stroke-dashoffset: var(--ring-from);
+  }
+}
+
+/* Barras que crecen desde la base (columnas). */
+@keyframes grow-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* Escena del login: hoja que viaja a la criba, onda de puntos, resultado y líneas que fluyen. */
+.travel {
+  opacity: 0;
+  animation: travel 1100ms var(--ease-in-out-soft) 100ms both;
+}
+@keyframes travel {
+  0% {
+    opacity: 0;
+    transform: translate(var(--fx), var(--fy)) scale(0.9) rotate(-8deg);
+  }
+  20% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.45) rotate(0deg);
+  }
+}
+.sieve-dot {
+  animation: sieve-wave 700ms var(--ease-spring) both;
+}
+@keyframes sieve-wave {
+  40% {
+    transform: scale(1.45);
+    background: #fff;
+  }
+}
+@keyframes result-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  42% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  55%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.flow-line {
+  animation: flow 1.6s linear infinite;
+}
+@keyframes flow {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+@keyframes float {
+  50% {
+    translate: 0 -6px;
+  }
+}
+
+@keyframes scene-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes scene-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mark-in {
+  from {
+    background-size: 0% 100%;
+  }
+  to {
+    background-size: 100% 100%;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scaleY(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes menu-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scaleY(0.97);
+  }
+}
+
+@keyframes option-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Bloques de carga: barrido suave de luz, no un bloque que se oscurece y aclara. */
+.skeleton {
+  background: linear-gradient(100deg, var(--skeleton) 30%, var(--skeleton-hi) 50%, var(--skeleton) 70%) 0 0 / 200% 100%;
+  animation: shimmer 1.9s var(--ease-in-out-soft) infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Entrada de cada pantalla del panel (app/(dashboard)/template.tsx). Termina sin transform. */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Barras de scroll de la app: finas y en el tono de la tinta (las zonas con
+   ScrollArea dibujan la suya propia). */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--ink) 22%, transparent) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--ink) 22%, transparent) padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in oklab, var(--ink) 40%, transparent);
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* Pulso que sale de la marca en cada turno (login, evaluando). Empieza y termina invisible. */
+@keyframes mark-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  12% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+/* Saludo del inicio: la luna se mece y el atardecer sube y baja apenas. */
+@keyframes moon-rock {
+  0%,
+  100% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+}
+@keyframes sun-dip {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(1.5px);
+  }
+}
+
+/*
+ * Modo oscuro: el fondo lleva el mismo verde profundo de la landing, con luz
+ * verde arriba y un rescoldo ámbar abajo. Fijo al viewport, así se siente un
+ * espacio y no una página que se acaba.
+ */
+:root.dark body {
+  background:
+    radial-gradient(1200px 700px at 15% -10%, rgb(95 210 155 / 0.17), transparent 70%),
+    radial-gradient(1000px 640px at 95% 10%, rgb(60 140 110 / 0.15), transparent 70%),
+    radial-gradient(1100px 560px at 50% 115%, rgb(242 169 59 / 0.09), transparent 70%),
+    linear-gradient(180deg, #0f1814 0%, #0b120f 100%);
+  background-attachment: fixed;
+}
+
+/*
+ * Portal del postulante: profundidad con luz y movimiento, no con textura.
+ * .portal-light pinta dos luces suaves fijas (verde arriba, ámbar abajo).
+ * .hl es el resaltador ámbar de la landing: se pinta de izquierda a derecha.
+ */
+:root {
+  --contours: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='240'%3E%3Cg fill='none' stroke='%2315201b' stroke-opacity='0.07' stroke-width='1'%3E%3Cpath d='M0 12 q75 -10 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-25 36 q75 -14 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-50 60 q75 -18 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M0 84 q75 -22 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-25 108 q75 -18 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-50 132 q75 -14 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M0 156 q75 -10 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-25 180 q75 -6 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-50 204 q75 -8 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M0 228 q75 -12 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3C/g%3E%3C/svg%3E");
+  --portal-base: #f7f5ef;
+}
+:root.dark,
+.dark-scope {
+  --contours: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='240'%3E%3Cg fill='none' stroke='%23edf2ee' stroke-opacity='0.055' stroke-width='1'%3E%3Cpath d='M0 12 q75 -10 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-25 36 q75 -14 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-50 60 q75 -18 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M0 84 q75 -22 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-25 108 q75 -18 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-50 132 q75 -14 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M0 156 q75 -10 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-25 180 q75 -6 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M-50 204 q75 -8 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3Cpath d='M0 228 q75 -12 150 0 t150 0 t150 0 t150 0 t150 0'/%3E%3C/g%3E%3C/svg%3E");
+  --portal-base: #0d1411;
+}
+
+/* Contornos que derivan muy despacio: textura sin ruido ni cuadrícula. */
+@keyframes contour-drift {
+  to {
+    background-position: 600px 120px, 0 0, 0 0, 0 0, 0 0;
+  }
+}
+
+.portal-light {
+  --bg: var(--portal-base);
+  background:
+    var(--contours) 0 0 / 600px 240px,
+    radial-gradient(900px 520px at 12% -8%, rgb(95 210 155 / 0.13), transparent 70%),
+    radial-gradient(700px 480px at 92% 4%, rgb(60 140 110 / 0.1), transparent 70%),
+    radial-gradient(900px 520px at 70% 112%, rgb(242 169 59 / 0.1), transparent 70%),
+    var(--portal-base);
+  background-attachment: fixed;
+  animation: contour-drift 90s linear infinite;
+}
+
+.hl {
+  background: linear-gradient(transparent 58%, rgb(242 169 59 / 0.55) 58%, rgb(242 169 59 / 0.55) 90%, transparent 90%) no-repeat 0 0 / 0% 100%;
+  box-decoration-break: clone;
+  padding: 0 0.06em;
+  animation: mark-in 1100ms var(--ease-out-soft) 400ms forwards;
+}
+
+/* Chat en bucle: pregunta, escribiendo, respuesta; 7 s por vuelta. */
+@keyframes chat-q {
+  0%, 4% { opacity: 0; translate: 0 8px; }
+  10%, 88% { opacity: 1; translate: 0 0; }
+  96%, 100% { opacity: 0; translate: 0 -4px; }
+}
+@keyframes chat-typing {
+  0%, 18% { opacity: 0; }
+  24%, 44% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes chat-a {
+  0%, 46% { opacity: 0; translate: 0 8px; }
+  54%, 88% { opacity: 1; translate: 0 0; }
+  96%, 100% { opacity: 0; translate: 0 -4px; }
+}
+.chat-q { animation: chat-q 7s var(--ease-out-soft) infinite; }
+.chat-typing { opacity: 0; animation: chat-typing 7s linear infinite; }
+.chat-a { animation: chat-a 7s var(--ease-out-soft) infinite; }
+
+@keyframes rail-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.rail-fill {
+  transform-origin: left;
+  animation: rail-fill 900ms var(--ease-out-soft) both;
+}
+
+/*
+ * Tarjeta del lado del candidato: superficie translúcida con desenfoque, así
+ * el texto se lee sobre los contornos sin tapar del todo el fondo.
+ */
+.panel {
+  background: color-mix(in oklab, var(--surface) 84%, transparent);
+  backdrop-filter: blur(12px) saturate(1.1);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 18px 40px -30px rgb(0 0 0 / 0.4);
+}
+
+/*
+ * Textura de la app de empresa, hermana de los contornos del postulante:
+ * arcos concéntricos que barren desde arriba a la derecha, fijos al viewport.
+ */
+:root {
+  --rings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000' viewBox='0 0 1600 1000' preserveAspectRatio='xMaxYMin slice'%3E%3Cg fill='none' stroke='%2315201b' stroke-opacity='0.06' stroke-width='1'%3E%3Ccircle cx='1500' cy='-180' r='120'/%3E%3Ccircle cx='1500' cy='-180' r='154'/%3E%3Ccircle cx='1500' cy='-180' r='188'/%3E%3Ccircle cx='1500' cy='-180' r='222'/%3E%3Ccircle cx='1500' cy='-180' r='256'/%3E%3Ccircle cx='1500' cy='-180' r='290'/%3E%3Ccircle cx='1500' cy='-180' r='324'/%3E%3Ccircle cx='1500' cy='-180' r='358'/%3E%3Ccircle cx='1500' cy='-180' r='392'/%3E%3Ccircle cx='1500' cy='-180' r='426'/%3E%3Ccircle cx='1500' cy='-180' r='460'/%3E%3Ccircle cx='1500' cy='-180' r='494'/%3E%3Ccircle cx='1500' cy='-180' r='528'/%3E%3Ccircle cx='1500' cy='-180' r='562'/%3E%3Ccircle cx='1500' cy='-180' r='596'/%3E%3Ccircle cx='1500' cy='-180' r='630'/%3E%3Ccircle cx='1500' cy='-180' r='664'/%3E%3Ccircle cx='1500' cy='-180' r='698'/%3E%3Ccircle cx='1500' cy='-180' r='732'/%3E%3Ccircle cx='1500' cy='-180' r='766'/%3E%3Ccircle cx='1500' cy='-180' r='800'/%3E%3Ccircle cx='1500' cy='-180' r='834'/%3E%3Ccircle cx='1500' cy='-180' r='868'/%3E%3Ccircle cx='1500' cy='-180' r='902'/%3E%3Ccircle cx='1500' cy='-180' r='936'/%3E%3Ccircle cx='1500' cy='-180' r='970'/%3E%3Ccircle cx='1500' cy='-180' r='1004'/%3E%3Ccircle cx='1500' cy='-180' r='1038'/%3E%3Ccircle cx='1500' cy='-180' r='1072'/%3E%3Ccircle cx='1500' cy='-180' r='1106'/%3E%3Ccircle cx='1500' cy='-180' r='1140'/%3E%3Ccircle cx='1500' cy='-180' r='1174'/%3E%3Ccircle cx='1500' cy='-180' r='1208'/%3E%3Ccircle cx='1500' cy='-180' r='1242'/%3E%3Ccircle cx='1500' cy='-180' r='1276'/%3E%3Ccircle cx='1500' cy='-180' r='1310'/%3E%3Ccircle cx='1500' cy='-180' r='1344'/%3E%3Ccircle cx='1500' cy='-180' r='1378'/%3E%3Ccircle cx='1500' cy='-180' r='1412'/%3E%3Ccircle cx='1500' cy='-180' r='1446'/%3E%3Ccircle cx='1500' cy='-180' r='1480'/%3E%3Ccircle cx='1500' cy='-180' r='1514'/%3E%3Ccircle cx='1500' cy='-180' r='1548'/%3E%3Ccircle cx='1500' cy='-180' r='1582'/%3E%3Ccircle cx='1500' cy='-180' r='1616'/%3E%3Ccircle cx='1500' cy='-180' r='1650'/%3E%3Ccircle cx='1500' cy='-180' r='1684'/%3E%3Ccircle cx='1500' cy='-180' r='1718'/%3E%3Ccircle cx='1500' cy='-180' r='1752'/%3E%3Ccircle cx='1500' cy='-180' r='1786'/%3E%3Ccircle cx='1500' cy='-180' r='1820'/%3E%3Ccircle cx='1500' cy='-180' r='1854'/%3E%3Ccircle cx='1500' cy='-180' r='1888'/%3E%3Ccircle cx='1500' cy='-180' r='1922'/%3E%3Ccircle cx='1500' cy='-180' r='1956'/%3E%3Ccircle cx='1500' cy='-180' r='1990'/%3E%3Ccircle cx='1500' cy='-180' r='2024'/%3E%3Ccircle cx='1500' cy='-180' r='2058'/%3E%3Ccircle cx='1500' cy='-180' r='2092'/%3E%3Ccircle cx='1500' cy='-180' r='2126'/%3E%3Ccircle cx='1500' cy='-180' r='2160'/%3E%3Ccircle cx='1500' cy='-180' r='2194'/%3E%3C/g%3E%3C/svg%3E");
+}
+:root.dark {
+  --rings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000' viewBox='0 0 1600 1000' preserveAspectRatio='xMaxYMin slice'%3E%3Cg fill='none' stroke='%23edf2ee' stroke-opacity='0.05' stroke-width='1'%3E%3Ccircle cx='1500' cy='-180' r='120'/%3E%3Ccircle cx='1500' cy='-180' r='154'/%3E%3Ccircle cx='1500' cy='-180' r='188'/%3E%3Ccircle cx='1500' cy='-180' r='222'/%3E%3Ccircle cx='1500' cy='-180' r='256'/%3E%3Ccircle cx='1500' cy='-180' r='290'/%3E%3Ccircle cx='1500' cy='-180' r='324'/%3E%3Ccircle cx='1500' cy='-180' r='358'/%3E%3Ccircle cx='1500' cy='-180' r='392'/%3E%3Ccircle cx='1500' cy='-180' r='426'/%3E%3Ccircle cx='1500' cy='-180' r='460'/%3E%3Ccircle cx='1500' cy='-180' r='494'/%3E%3Ccircle cx='1500' cy='-180' r='528'/%3E%3Ccircle cx='1500' cy='-180' r='562'/%3E%3Ccircle cx='1500' cy='-180' r='596'/%3E%3Ccircle cx='1500' cy='-180' r='630'/%3E%3Ccircle cx='1500' cy='-180' r='664'/%3E%3Ccircle cx='1500' cy='-180' r='698'/%3E%3Ccircle cx='1500' cy='-180' r='732'/%3E%3Ccircle cx='1500' cy='-180' r='766'/%3E%3Ccircle cx='1500' cy='-180' r='800'/%3E%3Ccircle cx='1500' cy='-180' r='834'/%3E%3Ccircle cx='1500' cy='-180' r='868'/%3E%3Ccircle cx='1500' cy='-180' r='902'/%3E%3Ccircle cx='1500' cy='-180' r='936'/%3E%3Ccircle cx='1500' cy='-180' r='970'/%3E%3Ccircle cx='1500' cy='-180' r='1004'/%3E%3Ccircle cx='1500' cy='-180' r='1038'/%3E%3Ccircle cx='1500' cy='-180' r='1072'/%3E%3Ccircle cx='1500' cy='-180' r='1106'/%3E%3Ccircle cx='1500' cy='-180' r='1140'/%3E%3Ccircle cx='1500' cy='-180' r='1174'/%3E%3Ccircle cx='1500' cy='-180' r='1208'/%3E%3Ccircle cx='1500' cy='-180' r='1242'/%3E%3Ccircle cx='1500' cy='-180' r='1276'/%3E%3Ccircle cx='1500' cy='-180' r='1310'/%3E%3Ccircle cx='1500' cy='-180' r='1344'/%3E%3Ccircle cx='1500' cy='-180' r='1378'/%3E%3Ccircle cx='1500' cy='-180' r='1412'/%3E%3Ccircle cx='1500' cy='-180' r='1446'/%3E%3Ccircle cx='1500' cy='-180' r='1480'/%3E%3Ccircle cx='1500' cy='-180' r='1514'/%3E%3Ccircle cx='1500' cy='-180' r='1548'/%3E%3Ccircle cx='1500' cy='-180' r='1582'/%3E%3Ccircle cx='1500' cy='-180' r='1616'/%3E%3Ccircle cx='1500' cy='-180' r='1650'/%3E%3Ccircle cx='1500' cy='-180' r='1684'/%3E%3Ccircle cx='1500' cy='-180' r='1718'/%3E%3Ccircle cx='1500' cy='-180' r='1752'/%3E%3Ccircle cx='1500' cy='-180' r='1786'/%3E%3Ccircle cx='1500' cy='-180' r='1820'/%3E%3Ccircle cx='1500' cy='-180' r='1854'/%3E%3Ccircle cx='1500' cy='-180' r='1888'/%3E%3Ccircle cx='1500' cy='-180' r='1922'/%3E%3Ccircle cx='1500' cy='-180' r='1956'/%3E%3Ccircle cx='1500' cy='-180' r='1990'/%3E%3Ccircle cx='1500' cy='-180' r='2024'/%3E%3Ccircle cx='1500' cy='-180' r='2058'/%3E%3Ccircle cx='1500' cy='-180' r='2092'/%3E%3Ccircle cx='1500' cy='-180' r='2126'/%3E%3Ccircle cx='1500' cy='-180' r='2160'/%3E%3Ccircle cx='1500' cy='-180' r='2194'/%3E%3C/g%3E%3C/svg%3E");
+}
+.org-light {
+  background:
+    var(--rings) right top / cover no-repeat,
+    radial-gradient(900px 520px at 0% 0%, rgb(26 138 90 / 0.07), transparent 70%),
+    radial-gradient(800px 520px at 100% 100%, rgb(242 169 59 / 0.07), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+}
+:root.dark .org-light {
+  background:
+    var(--rings) right top / cover no-repeat,
+    radial-gradient(1200px 700px at 15% -10%, rgb(95 210 155 / 0.14), transparent 70%),
+    radial-gradient(1100px 560px at 50% 115%, rgb(242 169 59 / 0.08), transparent 70%),
+    linear-gradient(180deg, #0f1814 0%, #0b120f 100%);
+  background-attachment: fixed;
+}
+
+/* Color de la marca Criba AI: ámbar oscuro en claro, ámbar en oscuro. */
+:root {
+  --ai-ink: #8a5300;
+}
+:root.dark,
+.dark-scope {
+  --ai-ink: #f4bb5a;
+}
+
+/*
+ * Criba AI trabajando: una franja ámbar que barre un documento (leer) y un
+ * cursor que parpadea en lo que está escribiendo. En reposo la franja queda a
+ * media hoja, así una captura estática también la muestra trabajando.
+ */
+@keyframes ai-scan {
+  0% { top: -18%; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.ai-scan {
+  position: absolute;
+  inset-inline: 0;
+  top: 38%;
+  height: 18%;
+  background: linear-gradient(180deg, transparent, rgb(242 169 59 / 0.28) 70%, rgb(242 169 59 / 0.85) 96%, transparent);
+  pointer-events: none;
+  animation: ai-scan 3.4s var(--ease-in-out-soft) infinite;
+}
+@keyframes caret {
+  50% { opacity: 0; }
+}
+.ai-caret::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: var(--amber);
+  animation: caret 1s steps(1) infinite;
 }

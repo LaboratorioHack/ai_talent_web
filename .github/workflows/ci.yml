@@ -28,6 +28,28 @@ jobs:
       - run: pnpm test --if-present
       - run: pnpm build
 
+  # Landing (Astro, carpeta landing/): la imagen la construye; aquí se revisa antes.
+  landing:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: landing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: landing/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: landing/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm build
+        env:
+          PUBLIC_APP_URL: https://app.criba.isroot.in
+
   # OWASP A03 (Software Supply Chain): fail PRs that add vulnerable dependencies.
   security:
     runs-on: ubuntu-latest
@@ -44,7 +66,7 @@ jobs:
   # Single required status check for branch protection.
   ci-ok:
     if: always()
-    needs: [quality, security]
+    needs: [quality, landing, security]
     runs-on: ubuntu-latest
     steps:
       - run: |

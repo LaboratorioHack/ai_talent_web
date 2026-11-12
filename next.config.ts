@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -37,6 +38,12 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  // La landing (carpeta landing/, Astro) se construye en el Dockerfile dentro de public/landing.
+  // Si existe, "/" la muestra; si no (desarrollo), "/" sigue llevando a /home.
+  async rewrites() {
+    if (!existsSync("public/landing/index.html")) return { beforeFiles: [] };
+    return { beforeFiles: [{ source: "/", destination: "/landing/index.html" }] };
   },
   async headers() {
     return [

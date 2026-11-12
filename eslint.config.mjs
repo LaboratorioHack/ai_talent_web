@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // La landing (Astro) tiene su propio build y su propio check.
+    "landing/**",
+    // Worker de pdf.js copiado de pdfjs-dist (minificado, no es código nuestro).
+    "public/pdf.worker.min.mjs",
   ]),
 ]);
 
