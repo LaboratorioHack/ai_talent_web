@@ -4,7 +4,7 @@ import { env } from "@/config/env";
 import { routes } from "@/shared/constants/routes";
 
 /** Rutas sin sesión. /jobs y /interview/ son del candidato, que no tiene cuenta de empresa. */
-const PUBLIC_PREFIXES = ["/login", "/auth", "/design", "/jobs", "/interview/", "/portal/sign-in", "/_next", "/favicon.ico"];
+const PUBLIC_PREFIXES = ["/login", "/auth", "/design", "/jobs", "/interview/", "/portal/sign-in", "/landing", "/_next", "/favicon.ico"];
 
 /**
  * Refresca la sesión de Supabase en cada petición y protege el panel.
@@ -12,7 +12,8 @@ const PUBLIC_PREFIXES = ["/login", "/auth", "/design", "/jobs", "/interview/", "
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isPublic = PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
+  // "/" es la landing pública.
+  const isPublic = pathname === "/" || PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
 
   // Sin Supabase configurado (modo mock) no hay sesión que proteger.
   if (!env.supabaseUrl || !env.supabaseAnonKey) return NextResponse.next();
