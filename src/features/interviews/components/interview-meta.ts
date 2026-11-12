@@ -16,8 +16,13 @@ export const RECOMMENDATION = {
 
 const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
-/** "10 nov, 17:40" */
+/**
+ * "10 nov, 17:40". Lee la fecha tal como viene ("2026-11-10T17:40:00") sin
+ * pasar por Date, para que servidor y navegador escriban lo mismo aunque
+ * estén en zonas horarias distintas (si no, la hidratación no coincide).
+ */
 export const when = (iso: string) => {
-  const d = new Date(iso);
-  return `${d.getDate()} ${MONTHS[d.getMonth()]}, ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(iso);
+  if (!m) return iso;
+  return `${Number(m[3])} ${MONTHS[Number(m[2]) - 1]}, ${m[4]}:${m[5]}`;
 };
