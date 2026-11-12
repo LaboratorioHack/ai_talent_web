@@ -47,7 +47,7 @@ export function DeleteVacancy({ id, title, evaluations }: DeleteVacancyProps) {
         }}
         dismissible={!busy}
         title="Eliminar la vacante"
-        description={`Se borrarán ${evaluations} evaluaciones y sus entrevistas. Esta acción no se puede deshacer.`}
+        description={`Deja de aparecer en tus vacantes y su enlace ya no recibe postulaciones. Sus ${evaluations} evaluaciones y la auditoría se conservan. No se puede deshacer desde Criba.`}
         footer={
           <>
             <Button variant="text" disabled={busy} onClick={() => setOpen(false)}>

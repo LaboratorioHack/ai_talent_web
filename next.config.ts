@@ -41,6 +41,12 @@ const nextConfig: NextConfig = {
   // La landing (carpeta landing/, Astro) se construye en el Dockerfile dentro de public/landing.
   // Quien la muestra en "/" es Caddy, solo en el dominio raíz (criba.isroot.in); en la app
   // (app.criba.isroot.in) "/" lleva a /home. Ver ai_talent_back/deploy/Caddyfile.
+  // En local la API (.NET) no tiene CORS: el navegador llama a "/api" en el mismo origen y Next lo
+  // reenvía. En producción Caddy atiende /api/* antes de llegar aquí, así que esto no se usa.
+  async rewrites() {
+    const internal = process.env.API_INTERNAL_URL;
+    return internal ? [{ source: "/api/:path*", destination: `${internal}/:path*` }] : [];
+  },
   async headers() {
     return [
       {

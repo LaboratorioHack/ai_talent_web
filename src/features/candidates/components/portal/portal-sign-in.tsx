@@ -24,6 +24,13 @@ export function PortalSignIn() {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
 
+  // /auth/callback manda aquí con ?error=link si el enlace del correo ya no sirve.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("error") !== "link") return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- lee la URL una sola vez al montar
+    setError("El enlace ya no sirve: venció, ya se usó o se abrió en otro navegador. Pide uno nuevo.");
+  }, []);
+
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const t = window.setInterval(() => setStep((s) => (s + 1) % (STAGES.length + 2)), STEP_MS);

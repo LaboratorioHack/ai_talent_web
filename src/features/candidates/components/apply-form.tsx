@@ -96,14 +96,14 @@ export function ApplyForm({ jobId, company }: { jobId: string; company: string }
                 >
                   <Upload aria-hidden className="size-5 text-ink-3" />
                   <span className="text-[13.5px] font-medium">{over ? "Suéltala aquí" : "Elige o arrastra tu hoja de vida"}</span>
-                  <span className="text-xs text-ink-3">PDF o Word, hasta 10 MB, con el formato que tengas</span>
+                  <span className="text-xs text-ink-3">PDF o Word (.docx), hasta 10 MB, con el formato que tengas</span>
                 </button>
               )}
               <input
                 ref={input}
                 type="file"
                 hidden
-                accept=".pdf,.doc,.docx,application/pdf"
+                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 onChange={(e) => {
                   pick(e.target.files);
                   e.target.value = "";

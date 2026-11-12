@@ -5,6 +5,7 @@ import { useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import type { RoleProfileDraft } from "@/features/vacancies/schemas/role-profile";
 import { RoleProfileEditor } from "@/features/vacancies/components";
+import { publishVacancy } from "@/features/vacancies/api/mutations";
 import { createVacancy } from "@/features/vacancies/api/role-profiles";
 import { useOnboarding } from "../state/onboarding-store";
 
@@ -18,12 +19,30 @@ export function FirstVacancyStep({ initial }: { initial: RoleProfileDraft }) {
   const { toast } = useToast();
   const { update } = useOnboarding();
 
-  async function finish(draft: RoleProfileDraft) {
-    await createVacancy(draft);
+  async function finish(draft: RoleProfileDraft, publish: boolean) {
+    const { id } = await createVacancy(draft);
+    if (publish) {
+      try {
+        await publishVacancy(id);
+      } catch (error) {
+        // Quedó como borrador: se corrige en su editor en vez de crearla otra vez.
+        router.replace(routes.vacancyEdit(id));
+        throw error;
+      }
+    }
     update({ vacancy: { title: draft.title, requirements: draft.requirements.length } });
-    toast({ title: "Vacante creada", description: draft.title });
+    toast({ title: publish ? "Vacante publicada" : "Vacante guardada como borrador", description: draft.title });
     router.push(routes.onboardingDone);
   }
 
-  return <RoleProfileEditor initial={initial} eyebrow="Paso 3 de 3" onSave={finish} onEvaluate={finish} saveLabel="Guardar borrador" evaluateLabel="Crear vacante" />;
+  return (
+    <RoleProfileEditor
+      initial={initial}
+      eyebrow="Paso 3 de 3"
+      onSave={(draft) => finish(draft, false)}
+      onEvaluate={(draft) => finish(draft, true)}
+      saveLabel="Guardar borrador"
+      evaluateLabel="Crear vacante"
+    />
+  );
 }

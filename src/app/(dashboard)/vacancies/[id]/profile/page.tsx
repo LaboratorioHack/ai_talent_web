@@ -11,7 +11,7 @@ async function Profile({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const vacancy = await getVacancy(id);
   if (!vacancy) notFound();
-  return <VacancyProfileForm id={vacancy.id} initial={draftFromVacancy(vacancy)} />;
+  return <VacancyProfileForm id={vacancy.id} status={vacancy.status} initial={draftFromVacancy(vacancy)} />;
 }
 
 /** Pantalla 06 · Perfil de cargo, editar una vacante. */

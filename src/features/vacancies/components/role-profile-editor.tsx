@@ -51,6 +51,9 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
       const fresh = suggested.filter((r) => !known.has(r.description.toLowerCase()));
       setDraft((d) => ({ ...d, requirements: [...d.requirements, ...fresh] }));
       toast({ title: fresh.length ? `Criba propuso ${fresh.length} requisitos` : "No hay requisitos nuevos que proponer", description: fresh.length ? "Revisa su tipo y su peso antes de guardar." : undefined });
+    } catch {
+      // La API aún no expone esta ruta del AI Engine.
+      toast({ tone: "error", title: "Criba no pudo proponer requisitos", description: "Escríbelos con «Añadir requisito»." });
     } finally {
       setBusy(null);
     }
@@ -80,6 +83,9 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
     setBusy(kind);
     try {
       await (kind === "save" ? onSave(draft) : onEvaluate?.(draft));
+    } catch (error) {
+      // La API explica el motivo (p. ej. pesos que no suman 100 al publicar).
+      toast({ tone: "error", title: kind === "save" ? "No se pudo guardar" : "No se pudo publicar", description: error instanceof Error ? error.message : undefined });
     } finally {
       setBusy(null);
     }

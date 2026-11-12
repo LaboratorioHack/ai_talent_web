@@ -1,7 +1,10 @@
 import "server-only";
 
+import { redirect } from "next/navigation";
 import { env } from "@/config/env";
-import { apiFetch } from "@/shared/lib/api-client";
+import { routes } from "@/shared/constants/routes";
+import { serverApi } from "@/shared/lib/api-server";
+import { toJobOpening, vacanciesPath, type ApiVacancyApplication, type ApiVacancyDetail, type ApiVacancyPage } from "@/shared/lib/vacancy-api";
 import { delay, mockVacancies } from "@/shared/mocks";
 import type { IngestData, IngestFile } from "../types/ingest";
 
@@ -49,10 +52,46 @@ function mockFiles(total: number, pending: number): IngestFile[] {
   return [...attention.slice(0, pending), ...read];
 }
 
-/** Archivos de una vacante con su estado de lectura. Con backend: GET /vacancies/{id}/resumes. */
+const FILE_STATUS: Record<NonNullable<ApiVacancyApplication["processingStatus"]>, IngestFile["status"]> = {
+  PENDING: "PROCESSING",
+  PROCESSING: "PROCESSING",
+  PROCESSED: "READ",
+  FAILED: "UNREADABLE",
+};
+
+/**
+ * Postulaciones reales de la vacante (GET /vacancies/{id}/applications). La API
+ * aún no devuelve nombre, tipo, tamaño ni páginas del archivo: se muestra el
+ * nombre de la persona y esos datos quedan vacíos en vez de inventarlos.
+ */
+function toIngestFile(a: ApiVacancyApplication): IngestFile {
+  const status = a.processingStatus ? FILE_STATUS[a.processingStatus] : "PROCESSING";
+  const detail = status === "READ" ? "Hoja de vida leída" : status === "UNREADABLE" ? (a.processingError ?? "No se pudo leer la hoja de vida") : "Leyendo";
+  return { id: a.applicationId, name: a.candidateName, kind: "", sizeKb: 0, pages: 0, status, detail, source: "candidate" };
+}
+
+async function liveIngest(jobId?: string): Promise<IngestData> {
+  const page = await serverApi<ApiVacancyPage>(vacanciesPath);
+  const active = page.items.filter((v) => v.status !== "CLOSED");
+  const target = (jobId && page.items.find((v) => v.id === jobId)) || active[0];
+  // Sin vacantes no hay postulaciones que mostrar: la lista de vacantes invita a crear una.
+  if (!target) redirect(routes.vacancies);
+
+  const [job, applications] = await Promise.all([
+    serverApi<ApiVacancyDetail>(`/vacancies/${target.id}`),
+    serverApi<ApiVacancyApplication[]>(`/vacancies/${target.id}/applications`),
+  ]);
+  return {
+    job: { id: job.id, title: job.title, requirements: job.requirements.length, closesAt: toJobOpening(job).closesAt, open: job.status === "OPEN" },
+    jobs: active.map((v) => ({ value: v.id, label: v.title, hint: `${v.counts.resumes} hojas de vida` })),
+    files: applications.map(toIngestFile),
+  };
+}
+
+/** Postulaciones de una vacante con el estado de lectura de cada hoja de vida. */
 export async function getIngest(jobId?: string): Promise<IngestData> {
+  if (!env.useMocks) return liveIngest(jobId);
   const job = mockVacancies.find((v) => v.id === jobId) ?? mockVacancies[0];
-  if (!env.useMocks) return apiFetch<IngestData>(`/vacancies/${job.id}/resumes`);
 
   return delay({
     job: { id: job.id, title: job.title, requirements: job.profile.requirements.length || 6, closesAt: job.closesAt, open: job.status === "OPEN" },

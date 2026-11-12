@@ -3,8 +3,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/config/env";
 import { routes } from "@/shared/constants/routes";
 
-/** Rutas sin sesión. /jobs y /interview/ son del candidato, que no tiene cuenta de empresa. */
-const PUBLIC_PREFIXES = ["/login", "/auth", "/design", "/jobs", "/interview/", "/portal/sign-in", "/landing", "/_next", "/favicon.ico"];
+/**
+ * Rutas sin sesión. /jobs y /interview/ son del candidato, que no tiene cuenta de empresa.
+ * /api/ es la API .NET reenviada en local: valida el JWT por su cuenta y tiene rutas públicas (postularse).
+ */
+const PUBLIC_PREFIXES = ["/login", "/auth", "/design", "/jobs", "/interview/", "/portal/sign-in", "/landing", "/api/", "/_next", "/favicon.ico"];
 
 /**
  * Refresca la sesión de Supabase en cada petición y protege el panel.
@@ -14,6 +17,15 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   // "/" es la landing pública.
   const isPublic = pathname === "/" || PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
+
+  // Si el dominio no está en las Redirect URLs de Supabase, el enlace del correo cae en el
+  // Site URL ("/") con ?code o ?error. Se pasa al callback, que sabe a qué portal volver.
+  const { searchParams } = request.nextUrl;
+  if (pathname === "/" && (searchParams.has("code") || searchParams.has("error"))) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    return NextResponse.redirect(url);
+  }
 
   // Sin Supabase configurado (modo mock) no hay sesión que proteger.
   if (!env.supabaseUrl || !env.supabaseAnonKey) return NextResponse.next();

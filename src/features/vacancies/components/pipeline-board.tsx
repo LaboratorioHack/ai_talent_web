@@ -3,6 +3,7 @@
 import { useMemo, useState, type DragEvent } from "react";
 import Link from "next/link";
 import { ArrowUpRight, GripVertical } from "lucide-react";
+import { env } from "@/config/env";
 import { Avatar, ScrollArea, SearchField, Segmented, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
@@ -67,7 +68,7 @@ export function PipelineBoard({ jobId, cards }: { jobId: string; cards: Pipeline
         }),
       () => {
         setItems((list) => list.map((c) => (c.id === id ? { ...c, stage: previous } : c)));
-        toast({ tone: "error", title: "No se pudo mover", description: "Revisa tu conexión e inténtalo de nuevo." });
+        toast({ tone: "error", title: "No se pudo mover", description: env.useMocks ? "Revisa tu conexión e inténtalo de nuevo." : "Cambiar de etapa todavía no está disponible con el backend." });
       },
     );
   }
