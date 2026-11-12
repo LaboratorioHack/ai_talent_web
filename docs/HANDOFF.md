@@ -36,6 +36,11 @@ La fuente de verdad del diseño es el archivo de pen.dev `untitled.pen` (frames 
 | 27 | `fix/theme-switch` | 26 | lista | Barrido circular del tema con la perilla deslizándose aparte (`view-transition-name`), sol y luna dibujados; las transiciones con `transform` también animan `translate`, `scale` y `rotate` (Tailwind v4 los usa por separado) |
 | 28 | `feat/responsive` | 27 | lista | Toda la app en celular y tablet: menú propio en el navbar, búsqueda a ancho completo, márgenes 16/24/48 px, paneles de dos columnas que se apilan, tablero con columnas que se desplazan, tablas que pasan a filas |
 | 29 | `feat/mvp-scope` | 28 | lista | Ajuste al documento de alcance del MVP: onboarding sin Fuentes, sin integraciones ni cambio de organización, login sin OAuth, canales empresa/candidato, datos coherentes y páginas del candidato |
+| 30 | `fix/dark-hover-skeleton` | 29 | lista | Hovers translúcidos (`--hover`), esqueletos con barrido y encabezado de carga igual a `PageTop`, fechas de entrevista sin zona horaria |
+| 31 | `feat/applications-board` | 30 | lista | Postulaciones: convocatoria con enlace público y canales, tablero Recibidas / Necesitan acción / Listas; la carga en bloque pasa a secundaria |
+| 32 | `feat/texture` | 31 | lista | Fondo con grano fino y luz suave en claro y oscuro (solo el fondo; las tarjetas quedan limpias) |
+| 33 | `feat/public-job-details` | 32 | lista | Ficha de vacante tipo portal de empleo: datos clave, perfil deducido, requisitos agrupados con equivalencias, ¿Encajas?, proceso |
+| 34 | `feat/applicant-portal` | 33 | lista | Portal del postulante: entrada con enlace mágico, inicio, mis postulaciones con etapas, detalle con retiro, vacantes con filtros, perfil con lo que ve la IA y borrado de datos |
 
 Abrir las PRs en orden: cada una apunta a la anterior como base. Al mergear la 1, la 2 se rebasea sobre `develop`, y así.
 
@@ -135,6 +140,17 @@ Fuente: `AI-Talent-Scout-MVP.docx` (borrador 0.1). Lo marcado como **Fuera** se 
   - Endpoints que esperan (ver comentarios en `features/candidates/api`): `GET /public/vacancies/{id}`, `POST /public/vacancies/{id}/applications` (multipart), `GET /public/interviews/{token}`, `POST /public/interviews/{token}/turns`.
 - **Empresa ↔ candidato**: botón "Enlace de postulación" en el tablero de una vacante abierta (copia `/jobs/{id}`), enlace en el ranking vacío, y "Ver lo que recibe" en una entrevista pendiente. Las entrevistas se movieron a `shared/mocks/interviews.ts` para que ambas vistas lean lo mismo.
 - **Landing** (rama `feat/mvp-scope` sobre `feat/responsive` en `ai_talent_landing`): sin la sección Fuentes; "Postularme" abre `/jobs/{id}` de la app y "Subir mi hoja de vida" baja a las vacantes.
+
+
+## 30 a 34 · Pulido, postulaciones, textura y portal del postulante
+
+- **Tokens nuevos** en `globals.css`: `--hover` (translúcido, aclara en oscuro y oscurece en claro) y `--skeleton` / `--skeleton-hi` para `.skeleton`. Toda clase `hover:bg-surface-2` pasó a `hover:bg-hover`. `PageTopSkeleton` en `shared/components/layout`.
+- **Hidratación**: `when()` de entrevistas lee la fecha del texto, sin `Date`, para que servidor y navegador coincidan en cualquier zona horaria. Si vuelve a salir, reiniciar `pnpm dev` (un `next build` con el dev corriendo deja chunks mezclados).
+- **Postulaciones** (`/candidates`, pestaña "Postulaciones"): `CallPanel` (enlace público, cierre, canales) y tablero de tres columnas con `FileCard`. `CopyApplyLink` vive ahora en `shared/components/share`.
+- **Textura**: `--grain` (ruido SVG en data URI) como primera capa del fondo de `body`, con luces radiales. Nada de cuadrícula.
+- **Ficha pública** (`/jobs/[id]`): `features/candidates/lib/infer.ts` deduce nivel, experiencia e idioma y escribe las equivalencias ("GCP o AWS también cuentan"). Ubicación, modalidad, contrato y jornada vienen de `LISTING` en el mock: **la vacante aún no guarda esos campos** (hay que sumarlos al editor y al back). Salario muestra "A convenir" cuando no existe.
+- **Portal del postulante** (`app/(candidate)/portal`, `features/candidates/components/portal`): `/portal`, `/portal/applications`, `/portal/applications/[id]`, `/portal/jobs`, `/portal/profile` y `/portal/sign-in` (enlace mágico con `signInWithOtp`). El proxy manda a `/portal/sign-in` si no hay sesión. Etapas para la persona: Recibida, En revisión, Entrevista, Decisión; nunca puntajes. Endpoints esperados: `GET /me/applicant`, `/me/applications`, `/me/applications/{id}`, `/me/resume`, `/public/vacancies`. La separación de roles (candidato vs. reclutador) la debe validar la API.
+- **pen.dev**: tokens actualizados a la paleta y fuentes actuales (Funnel Display / Funnel Sans / IBM Plex Mono, tema claro y oscuro). Tableros nuevos "MVP · Empresa" y "MVP · Postulante" con las pantallas importadas desde la app; Fuentes e Integraciones movidas a "Archivo · fuera del MVP".
 
 ## Landing (repo aparte `ai_talent_landing`)
 
