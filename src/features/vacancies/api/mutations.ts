@@ -1,5 +1,4 @@
 import { env } from "@/config/env";
-import { apiFetch } from "@/shared/lib/api-client";
 import { browserApi } from "@/shared/lib/api-browser";
 import { delay } from "@/shared/mocks";
 import type { PipelineStage } from "@/shared/types/domain";
@@ -32,8 +31,8 @@ export async function deleteVacancy(id: string): Promise<void> {
   await browserApi(`/vacancies/${id}`, { method: "DELETE" });
 }
 
-/** La API aún no expone el cambio de etapa de una postulación. */
+/** La API aún no expone el cambio de etapa de una postulación: con backend se avisa en vez de llamar una ruta que no existe. */
 export async function moveApplication(applicationId: string, stage: PipelineStage): Promise<void> {
   if (env.useMocks) return delay(undefined, 250);
-  await apiFetch(`/applications/${applicationId}/stage`, { method: "PATCH", body: JSON.stringify({ stage }) });
+  throw new Error(`La API todavía no permite mover la postulación ${applicationId} a ${stage}.`);
 }
