@@ -20,7 +20,7 @@ export interface IngestFile {
 }
 
 export interface IngestData {
-  job: { id: string; title: string; requirements: number };
+  job: { id: string; title: string; requirements: number; closesAt: string; open: boolean };
   jobs: { value: string; label: string; hint?: string }[];
   files: IngestFile[];
 }

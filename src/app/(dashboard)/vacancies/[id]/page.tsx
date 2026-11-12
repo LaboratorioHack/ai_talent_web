@@ -7,7 +7,7 @@ import { PageTop, PageTopSkeleton } from "@/shared/components/layout";
 import { ButtonLink, Skeleton } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { getPipeline, getVacancy } from "@/features/vacancies/api/vacancies";
-import { CopyApplyLink } from "@/features/vacancies/components/copy-apply-link";
+import { CopyApplyLink } from "@/shared/components/share/copy-apply-link";
 import { DeleteVacancy } from "@/features/vacancies/components/delete-vacancy";
 import { PipelineBoard } from "@/features/vacancies/components/pipeline-board";
 

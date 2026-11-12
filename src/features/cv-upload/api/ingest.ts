@@ -55,7 +55,7 @@ export async function getIngest(jobId?: string): Promise<IngestData> {
   if (!env.useMocks) return apiFetch<IngestData>(`/vacancies/${job.id}/resumes`);
 
   return delay({
-    job: { id: job.id, title: job.title, requirements: job.profile.requirements.length || 6 },
+    job: { id: job.id, title: job.title, requirements: job.profile.requirements.length || 6, closesAt: job.closesAt, open: job.status === "OPEN" },
     jobs: mockVacancies.filter((v) => v.status !== "CLOSED").map((v) => ({ value: v.id, label: v.title, hint: `${v.stats.received} hojas de vida` })),
     files: job.stats.received ? mockFiles(job.stats.read, job.stats.received - job.stats.read) : [],
   });
