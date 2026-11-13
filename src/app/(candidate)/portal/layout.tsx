@@ -1,6 +1,7 @@
 import { Suspense, type ReactNode } from "react";
 import { getApplicant, listMyApplications } from "@/features/candidates/api/portal";
 import { PortalNav } from "@/features/candidates/components/portal/portal-nav";
+import { CribaAssistant } from "@/features/assistant/components/criba-assistant";
 
 async function Nav() {
   const [me, applications] = await Promise.all([getApplicant(), listMyApplications()]);
@@ -19,6 +20,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
         <Nav />
       </Suspense>
       <main className="flex flex-1 flex-col">{children}</main>
+      <CribaAssistant audience="applicant" />
     </div>
   );
 }
