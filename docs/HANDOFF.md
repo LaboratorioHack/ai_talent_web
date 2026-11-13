@@ -247,8 +247,8 @@ Sigue sin existir en el back:
 Lo que Manuel va pidiendo; se hace en este orden y se tacha al cerrarlo.
 
 1. ~~Actualizar este handoff con lo que ya tiene `develop` del back.~~
-2. Quitar todos los datos de prueba del front (`shared/mocks`, `NEXT_PUBLIC_USE_MOCKS`, datos fijos en componentes). Lo que falte en la API se hace en el back con su migración, endpoint y seed. Usar los `.env` de Descargas (`frontend.download` → `.env.local`, `backend.development` → `.env.development`).
-3. Logins según el MVP: que el de empresas y el del portal del postulante sean consistentes; quitar el botón de atrás en el onboarding de la organización y el "Paso 1 de 3" del login de empresas.
+2. ~~Quitar todos los datos de prueba del front (`shared/mocks`, `NEXT_PUBLIC_USE_MOCKS`, datos fijos en componentes). Lo que falte en la API se hace en el back con su migración, endpoint y seed. Usar los `.env` de Descargas (`frontend.download` → `.env.local`, `backend.development` → `.env.development`).~~
+3. ~~Logins según el MVP: que el de empresas y el del portal del postulante sean consistentes; quitar el botón de atrás en el onboarding de la organización y el "Paso 1 de 3" del login de empresas.~~
 4. Revisar `Errores.pdf` (QA del 12/11): textos del Inicio ("las evaluaciones", leyenda "Recibidas y fecha de cierre a la derecha" sobra, embudo desalineado, "Mostrando los últimos 30 días en 1 vacantes"), horas ahorradas en verde, límite de envíos del enlace mágico (es el límite de correos de Supabase: hay que configurar SMTP propio en Auth), guardar borrador y crear con pesos que no suman 100, enlace de postulación que da 404.
 5. Probar la build de producción en Docker en local; PR a `develop`, esperar CI y mergear; PR a `main`, esperar CI, CD y lint, mergear y comprobar el sitio desplegado.
 6. Video con todo el flujo de ambos lados; un personaje para Criba AI (en la línea del de Claude) cuando la IA actúa; pruebas exhaustivas de la IA real (Anthropic, embeddings Nemotron y Voyage por OpenRouter, RAG) y un archivo con capturas de todo funcionando.
