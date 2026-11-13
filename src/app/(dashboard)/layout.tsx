@@ -2,6 +2,7 @@ import { Suspense, type ReactNode } from "react";
 import { Navbar, NavbarSkeleton } from "@/shared/components/layout";
 import { getCurrentUser, getNavNotices, getSearchIndex } from "@/features/auth/api/session";
 import { AccountMenu } from "@/features/auth/components/account-menu";
+import { CribaAssistant } from "@/features/assistant/components/criba-assistant";
 
 /** La barra depende de la sesión (dato no cacheado): se streamea bajo Suspense. */
 async function SessionNavbar() {
@@ -17,6 +18,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <SessionNavbar />
       </Suspense>
       <main className="flex flex-1 flex-col overflow-x-clip">{children}</main>
+      <CribaAssistant audience="company" />
     </div>
   );
 }
