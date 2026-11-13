@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { FileSearch, FileX, ListOrdered, MessageSquareText, type LucideIcon } from "lucide-react";
-import { CribaAi } from "@/shared/components/ui";
+import { CribaCharacter } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 import type { AiActivityItem } from "../api/dashboard";
 
@@ -68,8 +68,8 @@ export function AiActivity({ events }: { events: AiActivityItem[] }) {
     <section className="card flex min-w-0 flex-col gap-5 px-5 py-5 sm:px-6 sm:py-6">
       <header className="flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 font-head text-[19px] font-semibold tracking-[-0.01em]">
-          <CribaAi />
-          ahora
+          <CribaCharacter mood={recent ? "thinking" : "idle"} size={28} />
+          Criba AI <span className="font-normal text-ink-3">ahora</span>
         </h2>
         <span className={cn("flex items-center gap-1.5 text-[12.5px]", recent ? "text-success" : "text-ink-3")}>
           <span aria-hidden className="relative flex size-2">

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRight, Clock, MessageSquareText, Send, UserCheck } from "lucide-react";
-import { Button, ButtonLink, Collapse, CribaAi, LogoMark, ProgressSegments } from "@/shared/components/ui";
+import { Button, ButtonLink, Collapse, CribaAi, CribaCharacter, LogoMark, ProgressSegments } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import { cn } from "@/shared/lib/cn";
@@ -165,6 +165,7 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
     return (
       <div className="stagger mx-auto flex w-full max-w-[600px] flex-col gap-8 px-4 pt-12 pb-16 sm:px-6 sm:pt-16 [&>*]:animate-rise">
         <div className="flex flex-col gap-3" style={{ "--i": 0 } as React.CSSProperties}>
+          <CribaCharacter size={56} announce className="mb-1" />
           <p className="flex flex-wrap items-center gap-2">
             <span className="eyebrow">{iv.company}</span>
             <CribaAi label="Te entrevista por chat" />
@@ -190,6 +191,8 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
   }
 
   const current = Math.min(index, total - 1);
+  // Solo la última pregunta lleva al personaje vivo; las anteriores, la marca quieta.
+  const lastAi = messages.findLastIndex((m) => m.from === "ai");
   return (
     <div className="mx-auto flex w-full max-w-[760px] flex-1 flex-col px-4 sm:px-6">
       <div className="sticky top-[var(--app-header)] z-10 -mx-4 flex flex-col gap-2 bg-bg/90 px-4 pt-4 pb-3 backdrop-blur-md sm:-mx-6 sm:px-6">
@@ -206,11 +209,11 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
       </div>
 
       <ol className="flex flex-1 flex-col gap-4 py-6" aria-live="polite">
-        {messages.map((m) => (
+        {messages.map((m, i) => (
           <li key={m.id} className={cn("flex items-end gap-2.5 animate-[option-in_360ms_var(--ease-out-soft)_both]", m.from === "me" && "justify-end")}>
             {m.from === "ai" ? (
               <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-2 ring-1 ring-border">
-                <LogoMark size={15} />
+                {i === lastAi && !typing ? <CribaCharacter size={16} /> : <LogoMark size={15} />}
               </span>
             ) : null}
             <p
@@ -226,7 +229,7 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
         {typing ? (
           <li className="flex items-end gap-2.5 animate-[option-in_300ms_var(--ease-out-soft)_both]" aria-label="La entrevista está escribiendo">
             <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-2 ring-1 ring-border">
-              <LogoMark size={15} />
+              <CribaCharacter mood="talking" size={16} />
             </span>
             <span className="flex gap-1 rounded-2xl rounded-bl-md bg-surface px-4 py-4 ring-1 ring-border">
               {[0, 1, 2].map((d) => (

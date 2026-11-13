@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCribaWork } from "@/shared/lib/criba-work";
 import { rejectApplication, requestOriginal as askForOriginal } from "@/shared/lib/application-api";
 import type { IngestFile } from "../types/ingest";
 
@@ -24,6 +25,8 @@ export function useIngest(jobId: string, initial: IngestFile[]) {
   }
 
   const reading = files.some((f) => f.status === "PROCESSING");
+  const inReading = files.filter((f) => f.status === "PROCESSING").length;
+  useCribaWork(reading, `Lee ${inReading === 1 ? "una hoja de vida" : `${inReading} hojas de vida`}: texto, anonimización y datos`, "reading");
   useEffect(() => {
     if (!reading) return;
     const t = window.setInterval(() => router.refresh(), REFRESH_MS);
