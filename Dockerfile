@@ -1,5 +1,5 @@
 # Requires `output: "standalone"` in next.config.ts
-FROM node:22-alpine AS base
+FROM node:25-alpine AS base
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH NEXT_TELEMETRY_DISABLED=1
 RUN npm install -g pnpm@12.5.1
 
@@ -30,7 +30,7 @@ COPY . .
 COPY --from=landing /landing/dist ./public/landing
 RUN pnpm build
 
-FROM node:22-alpine
+FROM node:25-alpine
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
 COPY --from=build --chown=node:node /app/public ./public
