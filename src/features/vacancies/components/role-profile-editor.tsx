@@ -2,14 +2,15 @@
 
 import { useId, useState, type ReactNode } from "react";
 import { ListPlus, Plus } from "lucide-react";
-import { Button, Collapse, CribaCharacter, DateField, NumberField, SelectField, TextArea, TextField, useToast } from "@/shared/components/ui";
+import { Button, Collapse, CribaCharacter, CribaThinking, DateField, NumberField, SelectField, TextArea, TextField, useToast } from "@/shared/components/ui";
 import { useStuck } from "@/shared/hooks/use-stuck";
 import { useToday } from "@/shared/hooks/use-today";
 import { cn } from "@/shared/lib/cn";
-import { withCriba } from "@/shared/lib/criba-work";
+import { startCribaWork } from "@/shared/lib/criba-work";
+import { pause, revealEach } from "@/shared/lib/reveal";
 import { formatShortDate, fromISODate, toISODate } from "@/shared/lib/dates";
 import { AREAS, CONTRACTS, MODALITIES, SCHEDULES } from "@/shared/constants/vacancy";
-import { roleProfileDraftSchema, weightTotals, type ListingDraft, type RequirementDraft, type RoleProfileDraft } from "../schemas/role-profile";
+import { REQUIREMENT_TYPE_LABEL, roleProfileDraftSchema, weightTotals, type ListingDraft, type RequirementDraft, type RoleProfileDraft } from "../schemas/role-profile";
 import { vacancyErrorMessage } from "../api/errors";
 import { profileAssistErrorMessage, proposeRequirements, suggestEquivalences } from "../api/role-profiles";
 import { RequirementRow } from "./requirement-row";
@@ -39,6 +40,10 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
   const [draft, setDraft] = useState<RoleProfileDraft>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<"save" | "evaluate" | "propose" | null>(null);
+  // Lo que Criba va pensando mientras propone requisitos (pasos reales y lo que devolvió).
+  const [thoughts, setThoughts] = useState<string[]>([]);
+  const [thinking, setThinking] = useState(false);
+  const think = (line: string) => setThoughts((t) => [...t, line]);
   const { toast } = useToast();
   const descriptionId = useId();
 
@@ -56,17 +61,46 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
       return;
     }
     setBusy("propose");
+    setThinking(true);
+    setThoughts(["Leo la descripción del cargo"]);
+    const done = startCribaWork("Lee la descripción y propone los requisitos", "reading");
+    // Mientras responde, cuenta lo que está haciendo (son los pasos que de verdad sigue la propuesta).
+    const steps = [
+      window.setTimeout(() => think("Separo lo que es obligatorio de lo que solo suma puntos"), 1800),
+      window.setTimeout(() => think("Reparto los pesos para que sumen 100"), 3800),
+    ];
     try {
       const written = draft.requirements.filter((r) => r.description.trim());
-      const suggested = await withCriba("Lee la descripción y propone los requisitos", proposeRequirements(draft, written), "reading");
+      const suggested = await proposeRequirements(draft, written);
+      steps.forEach(window.clearTimeout);
       const known = new Set(written.map((r) => keyOf(r.description)));
       const fresh = suggested.filter((r) => !known.has(keyOf(r.description)));
-      // Las filas vacías del borrador inicial dejan su lugar a lo propuesto.
-      if (fresh.length) setDraft((d) => ({ ...d, requirements: [...d.requirements.filter((r) => r.description.trim()), ...fresh] }));
-      toast({ title: fresh.length ? `Criba propuso ${fresh.length} requisitos` : "No hay requisitos nuevos que proponer", description: fresh.length ? "Revisa su tipo, su peso y sus equivalencias antes de guardar." : undefined });
+      if (!fresh.length) {
+        think("No encontré requisitos nuevos: los que escribiste ya cubren la descripción");
+        return;
+      }
+      think(`Encontré ${fresh.length} requisitos en la descripción`);
+      await pause(900);
+      // Las filas vacías del borrador inicial dejan su lugar a lo propuesto, que entra de a uno.
+      setDraft((d) => ({ ...d, requirements: d.requirements.filter((r) => r.description.trim()) }));
+      await revealEach(
+        fresh,
+        (r) => {
+          const weight = r.type === "DISQUALIFYING" ? "" : ` · peso ${r.weight}`;
+          const also = r.equivalences.length ? ` (también vale ${r.equivalences.map((e) => e.label).join(", ")})` : "";
+          think(`${REQUIREMENT_TYPE_LABEL[r.type]}${weight}: ${r.description}${also}`);
+          setDraft((d) => ({ ...d, requirements: [...d.requirements, r] }));
+        },
+        1300,
+      );
+      await pause(1100);
+      think("Listo. Revisa el tipo, el peso y las equivalencias antes de guardar");
     } catch (error) {
+      steps.forEach(window.clearTimeout);
+      setThinking(false);
       toast({ tone: "error", title: "Criba no pudo proponer requisitos", description: profileAssistErrorMessage(error) });
     } finally {
+      done();
       setBusy(null);
     }
   }
@@ -76,25 +110,27 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
       toast({ tone: "error", title: "Escribe primero el requisito", description: "Criba sugiere equivalencias a partir de su nombre." });
       return;
     }
+    const done = startCribaWork(`Busca equivalencias para «${requirement.description.trim()}»`);
     try {
-      const found = await withCriba(`Busca equivalencias para «${requirement.description.trim()}»`, suggestEquivalences(requirement.description, draft, requirement.equivalences.map((e) => e.label)));
+      const found = await suggestEquivalences(requirement.description, draft, requirement.equivalences.map((e) => e.label));
       const seen = new Set(requirement.equivalences.map((e) => keyOf(e.label)));
       const extra = found.filter((e) => !seen.has(keyOf(e.label)));
       if (!extra.length) {
         toast({ title: `Sin equivalencias para «${requirement.description.trim()}»`, description: "Criba no encontró alternativas que lo cubran." });
         return;
       }
-      setDraft((d) => ({
-        ...d,
-        requirements: d.requirements.map((r) => {
-          if (r.id !== requirement.id) return r;
-          const current = new Set(r.equivalences.map((e) => keyOf(e.label)));
-          return { ...r, equivalences: [...r.equivalences, ...extra.filter((e) => !current.has(keyOf(e.label)))] };
-        }),
-      }));
+      // Entran de a una, como las va encontrando.
+      await revealEach(extra, (eq) =>
+        setDraft((d) => ({
+          ...d,
+          requirements: d.requirements.map((r) => (r.id !== requirement.id || r.equivalences.some((e) => keyOf(e.label) === keyOf(eq.label)) ? r : { ...r, equivalences: [...r.equivalences, eq] })),
+        })),
+      );
       toast({ title: `Criba sugirió ${extra.length} ${extra.length === 1 ? "equivalencia" : "equivalencias"}`, description: "Revisa el porcentaje; haz clic en una para quitarla." });
     } catch (error) {
       toast({ tone: "error", title: "Criba no pudo sugerir equivalencias", description: profileAssistErrorMessage(error) });
+    } finally {
+      done();
     }
   }
   const headingId = useId();
@@ -259,6 +295,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
           <Collapse open={Boolean(errors.requirements)}>
             <p className="px-7 pt-3 text-xs text-danger">{errors.requirements}</p>
           </Collapse>
+          {thinking ? <CribaThinking thoughts={thoughts} working={busy === "propose"} mood="reading" title="Criba AI está leyendo el cargo" className="mx-4 my-4 sm:mx-7" /> : null}
           <div className="flex flex-wrap items-center gap-3 border-t border-border px-7 py-4">
             <button
               type="button"
@@ -269,7 +306,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
               Añadir requisito
             </button>
             <Button variant="text" size="sm" icon={busy === "propose" ? <CribaCharacter mood="reading" size={18} /> : <ListPlus />} disabled={busy !== null && busy !== "propose"} onClick={propose}>
-              {busy === "propose" ? "Criba está leyendo la descripción…" : "Proponer requisitos con Criba AI"}
+              {busy === "propose" ? "Criba está pensando…" : "Proponer requisitos con Criba AI"}
             </Button>
           </div>
         </section>
