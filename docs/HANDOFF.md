@@ -225,13 +225,31 @@ Con `NEXT_PUBLIC_USE_MOCKS=false` y Supabase configurado, estas partes usan la A
 - **Tablero e ingesta**: `GET /api/vacancies/{id}/applications`. Etapas: `APPLIED` → recibidas, `SHORTLISTED` → cumplen, `INTERVIEW` → entrevista, `HIRED` → finalistas; descartados y retirados no se muestran.
 - **Postulación pública**: `POST /api/vacancies/{id}/applications` (multipart con `name`, `email`, `consent`, `file`). Solo PDF y DOCX de hasta 10 MB.
 
-Falta en el back para terminar estas pantallas:
+Desde el 12/11 `develop` del back ya tiene (PRs #24 a #32):
 
-- Nombre, tipo, tamaño y páginas del archivo en `GET /vacancies/{id}/applications`: la ingesta muestra el nombre de la persona y deja vacío el tipo.
-- `GET` público de una vacante abierta: `/jobs/[id]` aún no puede cargarla sin sesión.
-- Cambio de etapa de una postulación (`moveApplication`), conteos reales por vacante (hoy en 0), avisos, panel, ranking, entrevistas y gobierno.
-- Evaluación, ranking, comparación y evidencias (RAG de Andrés): existen en el AI Engine (`/v1/evaluate`, `/v1/rank`, `/v1/compare`, `/v1/evidence`), pero la API .NET solo llama a la ingesta al postularse. El front no llama al engine (red interna y clave interna): faltan endpoints en la API.
+- `GET /vacancies/{id}/public` (vacante abierta sin sesión) y conteos reales por vacante (`counts`).
+- `PATCH /vacancies/{id}/applications/{applicationId}`: cambio de etapa (APPLIED → SHORTLISTED → INTERVIEW → HIRED; REJECTED o WITHDRAWN desde cualquier etapa abierta), con motivo opcional en la auditoría.
+- `GET /dashboard` (7, 30 y 90 días, mejores perfiles y pendientes) y `GET /notifications` (avisos calculados al vuelo).
+- `POST /vacancies/{id}/applications/{applicationId}/evaluate`, `POST /vacancies/{id}/rank`, `/compare` y `/applications/{applicationId}/evidence` (la API .NET llama al AI Engine), y `GET /vacancies/{id}/ranking`.
+- `GET /rankings`, `/rankings/top`, `GET /governance/audit`, `GET /interviews` y `/interviews/{id}`.
+- `POST /role-profiles/propose` y `/role-profiles/equivalences` (Criba AI en el editor, PR #60 del front).
+- Correo saliente por SMTP (Gmail, MailKit).
+
+Sigue sin existir en el back:
+
+- Lista pública de vacantes, entrevista del candidato por token (`/public/interviews/{token}` y sus turnos) y crear una entrevista al invitar.
+- Todo el portal del postulante (`/me/applicant`, `/me/applications`, `/me/resume`).
+- Nombre, tipo, tamaño y páginas del archivo en `GET /vacancies/{id}/applications`.
 - Equipo (`GET/PATCH /api/staff`) y códigos de invitación (`POST /api/companies/current/invite-codes`) exigen admin con MFA (`aal2`); el front no tiene MFA ni pantalla de equipo, que quedaron fuera del MVP. `/api/health` y `/api/health/engine` son para monitoreo y no se muestran.
+
+## Cola de pedidos (en orden de llegada)
+
+Lo que Manuel va pidiendo; se hace en este orden y se tacha al cerrarlo.
+
+1. ~~Actualizar este handoff con lo que ya tiene `develop` del back.~~
+2. Quitar todos los datos de prueba del front (`shared/mocks`, `NEXT_PUBLIC_USE_MOCKS`, datos fijos en componentes). Lo que falte en la API se hace en el back con su migración, endpoint y seed. Usar los `.env` de Descargas (`frontend.download` → `.env.local`, `backend.development` → `.env.development`).
+3. Logins según el MVP: que el de empresas y el del portal del postulante sean consistentes; quitar el botón de atrás en el onboarding de la organización y el "Paso 1 de 3" del login de empresas.
+4. Revisar `Errores.pdf` (QA del 12/11): textos del Inicio ("las evaluaciones", leyenda "Recibidas y fecha de cierre a la derecha" sobra, embudo desalineado, "Mostrando los últimos 30 días en 1 vacantes"), horas ahorradas en verde, límite de envíos del enlace mágico (es el límite de correos de Supabase: hay que configurar SMTP propio en Auth), guardar borrador y crear con pesos que no suman 100, enlace de postulación que da 404.
 
 ## Pendiente
 
