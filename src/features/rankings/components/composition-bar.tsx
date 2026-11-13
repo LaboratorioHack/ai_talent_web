@@ -22,7 +22,8 @@ export function CompositionBar({ score, requirements, results }: CompositionBarP
     .filter((r) => r.type !== "DISQUALIFYING")
     .map((r) => ({ req: r, res: results.find((x) => x.requirementId === r.id) }))
     .filter((p) => (p.res?.score ?? 0) > 0);
-  const missing = Math.max(0, 100 - score);
+  // Lo que le falta para 100, con un decimal como el puntaje.
+  const missing = Math.max(0, Math.round((100 - score) * 10) / 10);
 
   return (
     <figure className="flex flex-col gap-2.5">
