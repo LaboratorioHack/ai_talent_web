@@ -15,7 +15,7 @@ function publicOrigin(request: NextRequest): string {
 }
 
 /**
- * Destino de los enlaces que envía Criba por su propio correo (p. ej. el del portal del postulante):
+ * Destino de enlaces con `token_hash` (plantillas de correo de Supabase que no usan PKCE):
  * verifica el token de un solo uso con Supabase y deja la sesión en las cookies.
  */
 export async function GET(request: NextRequest) {

@@ -14,7 +14,7 @@ function publicOrigin(request: NextRequest): string {
   return host ? `${proto}://${host}` : url.origin;
 }
 
-/** Destino del enlace mágico del postulante, del cambio de contraseña y de los OAuth de Supabase. */
+/** Destino del enlace mágico de Supabase Auth (`?code`, PKCE): empresas y postulantes. */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
@@ -29,7 +29,9 @@ export async function GET(request: NextRequest) {
   }
   if (!exchanged) {
     // El postulante vuelve a su propia entrada, nunca al login de empresas.
-    target = next.startsWith(routes.portal) ? `${routes.portalSignIn}?error=link` : `${routes.login}?error=auth`;
+    // Con ?error vuelve de Google/Microsoft (cancelado o rechazado); sin código, el enlace del correo ya no sirve.
+    const reason = searchParams.has("error") ? "oauth" : null;
+    target = next.startsWith(routes.portal) ? `${routes.portalSignIn}?error=${reason ?? "link"}` : `${routes.login}?error=${reason ?? "auth"}`;
   }
 
   const response = NextResponse.redirect(`${publicOrigin(request)}${target}`);
