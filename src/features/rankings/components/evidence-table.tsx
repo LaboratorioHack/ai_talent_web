@@ -28,7 +28,7 @@ export interface EvidenceTableProps {
 /** Cada requisito con la cita textual de la hoja de vida que lo respalda y cuánto aporta. */
 export function EvidenceTable({ requirements, results, onOpenResume, onAiError, onEquivalences }: EvidenceTableProps) {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col has-[[aria-expanded=true]]:[&>div:not(:has([aria-expanded=true]))]:hover:bg-transparent">
       <div className="hidden grid-cols-[28px_minmax(0,1.1fr)_minmax(0,1.5fr)_150px_52px_36px] gap-4 border-b border-border pb-2.5 text-[12px] text-ink-3 md:grid">
         <span />
         <span>Requisito</span>
@@ -40,6 +40,7 @@ export function EvidenceTable({ requirements, results, onOpenResume, onAiError, 
         <span className="text-right">Aporte</span>
         <span />
       </div>
+      {/* La fila con su menú abierto queda marcada, para que se vea de qué requisito es el menú. */}
       {requirements.map((req, i) => {
         const res = results.find((r) => r.requirementId === req.id);
         if (!res) return null;
@@ -49,7 +50,7 @@ export function EvidenceTable({ requirements, results, onOpenResume, onAiError, 
         return (
           <div
             key={req.id}
-            className="group grid grid-cols-[28px_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2 md:grid-cols-[28px_minmax(0,1.1fr)_minmax(0,1.5fr)_150px_52px_36px] md:items-center md:gap-4 max-md:[&>*:nth-child(3)]:col-span-2 max-md:[&>*:nth-child(3)]:col-start-2 max-md:[&>*:nth-child(4)]:col-span-2 max-md:[&>*:nth-child(4)]:col-start-2 max-md:[&>*:nth-child(5)]:col-start-3 max-md:[&>*:nth-child(5)]:row-start-1 max-md:[&>*:nth-child(6)]:hidden border-b border-border py-3.5 transition-colors duration-300 last:border-0 hover:bg-hover animate-[option-in_380ms_var(--ease-out-soft)_both]"
+            className="group grid grid-cols-[28px_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2 md:grid-cols-[28px_minmax(0,1.1fr)_minmax(0,1.5fr)_150px_52px_36px] md:items-center md:gap-4 max-md:[&>*:nth-child(3)]:col-span-2 max-md:[&>*:nth-child(3)]:col-start-2 max-md:[&>*:nth-child(4)]:col-span-2 max-md:[&>*:nth-child(4)]:col-start-2 max-md:[&>*:nth-child(5)]:col-start-3 max-md:[&>*:nth-child(5)]:row-start-1 max-md:[&>*:nth-child(6)]:hidden border-b border-border py-3.5 transition-colors duration-300 last:border-0 hover:bg-hover has-[[aria-expanded=true]]:bg-hover animate-[option-in_380ms_var(--ease-out-soft)_both]"
             style={{ animationDelay: `${i * 45}ms` }}
           >
             <span className={cn("flex size-7 items-center justify-center rounded-full", disq ? "bg-surface-2 text-ink-3" : r.tone)}>
@@ -75,7 +76,7 @@ export function EvidenceTable({ requirements, results, onOpenResume, onAiError, 
             <Popover
               label={`Acciones de ${req.description}`}
               width={240}
-              triggerClassName="flex size-8 items-center justify-center rounded-lg text-ink-3 opacity-0 transition-[opacity,background-color] group-hover:opacity-100 hover:bg-hover hover:text-ink focus-visible:opacity-100 aria-expanded:opacity-100"
+              triggerClassName="flex size-8 items-center justify-center rounded-lg text-ink-3 select-none opacity-0 transition-[opacity,background-color] group-hover:opacity-100 hover:bg-hover hover:text-ink focus-visible:opacity-100 aria-expanded:opacity-100"
               trigger={<MoreHorizontal aria-hidden className="size-4" />}
             >
               {(close) => (

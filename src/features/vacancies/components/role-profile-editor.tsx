@@ -142,11 +142,12 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
   const setRequirement = (i: number, next: RequirementDraft) =>
     setDraft((d) => ({ ...d, requirements: d.requirements.map((r, j) => (j === i ? next : r)) }));
 
-  function validate(): boolean {
+  /** null si el borrador es válido; si no, el primer error (para avisarlo aunque el campo no esté a la vista). */
+  function validate(): string | null {
     const result = roleProfileDraftSchema.safeParse(draft);
     if (result.success) {
       setErrors({});
-      return true;
+      return null;
     }
     const next: Record<string, string> = {};
     for (const issue of result.error.issues) {
@@ -155,11 +156,16 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
       next[issue.path.join(".")] = issue.message;
     }
     setErrors(next);
-    return false;
+    return result.error.issues[0]?.message ?? "Revisa los campos marcados";
   }
 
   async function run(kind: "save" | "evaluate") {
-    if (!validate()) return;
+    const invalid = validate();
+    if (invalid) {
+      // Sin este aviso el botón parecía no hacer nada cuando el error quedaba fuera de la vista.
+      toast({ tone: "error", title: kind === "save" ? "Falta algo para guardar" : "Falta algo para publicar", description: invalid });
+      return;
+    }
     // Un borrador se guarda con cualquier suma; publicar exige 100, y se avisa antes de llamar a la API.
     const { total } = weightTotals(draft.requirements);
     if (kind === "evaluate" && total !== 100) {

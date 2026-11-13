@@ -105,7 +105,17 @@ export function ReadingGauge({ stats, minutesPerResume, index = 0 }: { stats: Pe
           <span className="text-[14px] text-ink-3">de {stats.received} hojas de vida</span>
         </p>
         <p className="text-[12.5px] text-ink-3">
-          {hours > 0 ? `Unas ${hours} ${hours === 1 ? "hora" : "horas"} de lectura que tu equipo no tuvo que hacer` : "Aún no suma una hora de lectura ahorrada"}
+          {/* El ahorro va en verde: es lo que la persona gana con Criba AI. */}
+          {hours > 0 ? (
+            <>
+              <span className="font-semibold text-success">
+                Unas {hours} {hours === 1 ? "hora" : "horas"} ahorradas
+              </span>{" "}
+              de lectura que tu equipo no tuvo que hacer
+            </>
+          ) : (
+            "Aún no suma una hora de lectura ahorrada"
+          )}
           {pending > 0 ? ` · ${pending} ${pending === 1 ? "falta" : "faltan"} por leer o piden el original` : ""}.
         </p>
       </div>

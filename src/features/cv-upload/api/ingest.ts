@@ -3,7 +3,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { routes } from "@/shared/constants/routes";
 import { serverApi } from "@/shared/lib/api-server";
-import { toJobOpening, vacanciesPath, type ApiVacancyApplication, type ApiVacancyDetail, type ApiVacancyPage } from "@/shared/lib/vacancy-api";
+import { acceptsApplications, toJobOpening, vacanciesPath, type ApiVacancyApplication, type ApiVacancyDetail, type ApiVacancyPage } from "@/shared/lib/vacancy-api";
 import type { IngestData, IngestFile } from "../types/ingest";
 
 const kindOf = (fileName: string | null, contentType: string | null): string => {
@@ -51,7 +51,7 @@ export async function getIngest(jobId?: string): Promise<IngestData> {
     serverApi<ApiVacancyApplication[]>(`/vacancies/${target.id}/applications`),
   ]);
   return {
-    job: { id: job.id, title: job.title, requirements: job.requirements.length, closesAt: toJobOpening(job).closesAt, open: job.status === "OPEN" },
+    job: { id: job.id, title: job.title, requirements: job.requirements.length, closesAt: toJobOpening(job).closesAt, open: acceptsApplications(job.status, job.closingAt) },
     jobs: active.map((v) => ({ value: v.id, label: v.title, hint: `${v.counts.resumes} hojas de vida` })),
     // Descartadas y retiradas ya no esperan nada de esta pantalla.
     files: applications.filter((a) => a.selectionStatus !== "REJECTED" && a.selectionStatus !== "WITHDRAWN").map(toIngestFile),

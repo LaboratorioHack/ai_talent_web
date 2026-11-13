@@ -3,7 +3,7 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Briefcase, FileText, Home, LayoutGrid, ListOrdered, MessagesSquare, ShieldCheck, type LucideIcon } from "lucide-react";
+import { Bell, Briefcase, FileText, Home, ListOrdered, MessagesSquare, ShieldCheck, type LucideIcon } from "lucide-react";
 import { Logo, Popover } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
@@ -56,8 +56,6 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
 
   const activeLink = LINKS.find((l) => pathname === l.href || pathname.startsWith(`${l.href}/`));
   const activeHref = activeLink?.href;
-  const activeLabel = activeLink?.label;
-  const ActiveIcon = activeLink?.icon ?? LayoutGrid;
 
   // La píldora se mueve hasta el enlace activo; se escribe en el DOM para que la transición sea continua.
   useLayoutEffect(() => {
@@ -87,9 +85,9 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
         </div>
 
         {/*
-          Mientras se busca, la píldora de secciones se recoge en un solo botón
-          redondo con el icono de la sección actual; al salir de la búsqueda se
-          vuelve a abrir. Nada desaparece.
+          Mientras se busca, la píldora de secciones se recoge para darle espacio al buscador y
+          vuelve a abrirse al salir. Antes quedaba un botón redondo con el icono de la sección,
+          que parecía un control más y confundía.
         */}
         <nav aria-label="Principal" ref={nav} className="relative hidden min-w-0 items-center rounded-full bg-surface-2 p-1 ring-1 ring-border lg:flex">
           <div
@@ -125,28 +123,6 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
               })}
             </div>
           </div>
-          <span
-            aria-hidden={!searching || undefined}
-            className={cn(
-              "grid transition-[grid-template-columns,opacity] duration-[650ms] ease-[var(--ease-out-soft)]",
-              searching ? "grid-cols-[1fr] opacity-100" : "pointer-events-none grid-cols-[0fr] opacity-0",
-            )}
-          >
-            <span className="-m-1 min-w-0 overflow-hidden p-1">
-              <button
-                type="button"
-                tabIndex={searching ? undefined : -1}
-                aria-label={`Volver a las secciones${activeLabel ? `, estás en ${activeLabel}` : ""}`}
-                title={activeLabel}
-                className={cn(
-                  "flex size-10 items-center justify-center rounded-full bg-surface text-ink shadow-[0_1px_2px_rgba(21,32,27,0.08),0_4px_12px_-6px_rgba(21,32,27,0.25)] ring-1 ring-border/60 transition-transform duration-500 ease-[var(--ease-spring)]",
-                  searching ? "scale-100 rotate-0" : "scale-50 -rotate-90",
-                )}
-              >
-                <ActiveIcon aria-hidden className="size-[18px]" />
-              </button>
-            </span>
-          </span>
         </nav>
 
         <div className="flex items-center justify-end gap-1 sm:gap-2">
@@ -169,9 +145,14 @@ export function Navbar({ user, notices = [], searchItems = [], accountMenu }: Na
               <div className="flex flex-col">
                 <div className="flex items-center justify-between border-b border-border px-4 py-3">
                   <p className="text-[14px] font-semibold">Avisos</p>
-                  <span className="text-xs text-ink-3">{notices.length} pendientes</span>
+                  <span className="text-xs text-ink-3">{notices.length ? `${notices.length} de los últimos 7 días` : "Al día"}</span>
                 </div>
-                <ul className="flex max-h-[360px] flex-col overflow-y-auto p-1.5">
+                {notices.length ? null : (
+                  <p className="px-4 py-6 text-center text-[13px] leading-relaxed text-ink-3">
+                    Sin avisos nuevos. Aquí te contamos cuando llegan postulaciones, cuando Criba AI termina de evaluarlas o cuando una hoja de vida no se puede leer.
+                  </p>
+                )}
+                <ul className="flex max-h-[360px] flex-col overflow-y-auto p-1.5 empty:hidden">
                   {notices.map((n, i) => (
                     <li key={n.id} className="animate-[option-in_300ms_var(--ease-out-soft)_both]" style={{ animationDelay: `${i * 40}ms` }}>
                       <Link href={n.href} onClick={close} className="flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-hover">
