@@ -1,5 +1,4 @@
 import { env } from "@/config/env";
-import { apiFetch } from "@/shared/lib/api-client";
 import { browserApi } from "@/shared/lib/api-browser";
 import { delay, mockVacancies } from "@/shared/mocks";
 import type { RequirementDraft, RoleProfileDraft } from "../schemas/role-profile";
@@ -40,7 +39,7 @@ export async function createVacancy(draft: RoleProfileDraft): Promise<{ id: stri
  * POST /role-profiles/propose (AI Engine). Mientras tanto devuelve sugerencias fijas.
  */
 export async function proposeRequirements(description: string): Promise<RequirementDraft[]> {
-  if (!env.useMocks) return apiFetch<RequirementDraft[]>("/role-profiles/propose", { method: "POST", body: JSON.stringify({ description }) });
+  if (!env.useMocks) return browserApi<RequirementDraft[]>("/role-profiles/propose", { method: "POST", body: JSON.stringify({ description }) });
   const stamp = Date.now();
   return delay(
     [

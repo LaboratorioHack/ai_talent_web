@@ -1,13 +1,13 @@
 import "server-only";
 
 import { env } from "@/config/env";
-import { apiFetch } from "@/shared/lib/api-client";
+import { serverApi } from "@/shared/lib/api-server";
 import { delay, mockCandidatesOf, mockRequirementsOf, mockVacancies } from "@/shared/mocks";
 import type { RankingData, RankingSummary, TopPerson } from "../types/ranking";
 
 /** Ranking de una vacante con el detalle de cada evaluación. Con backend: GET /vacancies/{id}/ranking. */
 export async function getRanking(jobId: string): Promise<RankingData | null> {
-  if (!env.useMocks) return apiFetch<RankingData>(`/vacancies/${jobId}/ranking`).catch(() => null);
+  if (!env.useMocks) return serverApi<RankingData>(`/vacancies/${jobId}/ranking`).catch(() => null);
   const job = mockVacancies.find((v) => v.id === jobId);
   if (!job) return delay(null);
   const requirements = mockRequirementsOf(job);
@@ -21,7 +21,7 @@ export async function getRanking(jobId: string): Promise<RankingData | null> {
 
 /** Resumen de todos los rankings para la portada de Ranking. Con backend: GET /rankings. */
 export async function listRankings(): Promise<RankingSummary[]> {
-  if (!env.useMocks) return apiFetch<RankingSummary[]>("/rankings");
+  if (!env.useMocks) return serverApi<RankingSummary[]>("/rankings");
   return delay(
     mockVacancies
       .filter((v) => v.status === "OPEN")
@@ -43,7 +43,7 @@ export async function listRankings(): Promise<RankingSummary[]> {
 
 /** Las personas con mejor ajuste en todas las vacantes abiertas. Con backend: GET /rankings/top. */
 export async function listTopPeople(): Promise<TopPerson[]> {
-  if (!env.useMocks) return apiFetch<TopPerson[]>("/rankings/top");
+  if (!env.useMocks) return serverApi<TopPerson[]>("/rankings/top");
   const people: TopPerson[] = [];
   for (const v of mockVacancies.filter((x) => x.status === "OPEN" && x.stats.received)) {
     const reqs = mockRequirementsOf(v);

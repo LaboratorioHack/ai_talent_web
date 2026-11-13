@@ -1,7 +1,7 @@
 import "server-only";
 
 import { env } from "@/config/env";
-import { apiFetch } from "@/shared/lib/api-client";
+import { serverApi } from "@/shared/lib/api-server";
 import { delay, mockApplications, mockPending, mockUser, mockVacancies } from "@/shared/mocks";
 import type { PendingItem } from "@/shared/types/domain";
 
@@ -29,7 +29,7 @@ const SCALE: Record<Period, number> = { "7d": 0.3, "30d": 1, "90d": 1 };
 
 /** Datos del panel de inicio. Con backend: GET /dashboard (todos los períodos en una respuesta). */
 export async function getDashboard(): Promise<DashboardData> {
-  if (!env.useMocks) return apiFetch<DashboardData>("/dashboard");
+  if (!env.useMocks) return serverApi<DashboardData>("/dashboard");
 
   const open = mockVacancies.filter((v) => v.status === "OPEN");
   const scaled = (s: PeriodStats, p: Period): PeriodStats =>
