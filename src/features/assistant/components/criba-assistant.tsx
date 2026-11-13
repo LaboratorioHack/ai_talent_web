@@ -224,7 +224,8 @@ export function CribaAssistant({ audience }: { audience: AssistantAudience }) {
         </form>
       </section>
 
-      <div className="fixed right-4 bottom-6 z-50 flex items-center gap-3 sm:right-6">
+      {/* El contenedor no recibe clics: el globo oculto ocupaba espacio y tapaba los botones de debajo. */}
+      <div className="pointer-events-none fixed right-4 bottom-6 z-50 flex items-center gap-3 sm:right-6">
         <span
           aria-hidden={!nudge}
           className={cn(
@@ -240,7 +241,7 @@ export function CribaAssistant({ audience }: { audience: AssistantAudience }) {
           aria-expanded={open}
           aria-label={open ? "Cerrar Criba AI" : "Abrir Criba AI"}
           className={cn(
-            "group relative flex size-14 items-center justify-center rounded-full bg-ink shadow-[0_18px_40px_-14px_rgba(21,32,27,0.7)] ring-2 ring-amber/50 transition-transform duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95",
+            "group pointer-events-auto relative flex size-14 items-center justify-center rounded-full bg-ink shadow-[0_18px_40px_-14px_rgba(21,32,27,0.7)] ring-2 ring-amber/50 transition-transform duration-500 ease-[var(--ease-spring)] hover:scale-105 active:scale-95",
             open && "rotate-[-6deg]",
           )}
         >

@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { routes } from "@/shared/constants/routes";
+import { redirectForAccount } from "@/shared/lib/account-type";
+import { ensureAccountType } from "@/shared/lib/account-type-server";
 import { safeNextPath } from "@/shared/lib/auth-redirect";
 import { createSupabaseServerClient } from "@/shared/lib/supabase/server";
 
@@ -25,11 +27,16 @@ export async function GET(request: NextRequest) {
   const next = safeNextPath(params.get("next")) ?? routes.portal;
 
   let ok = false;
+  let destination = next;
   if (tokenHash && type && TYPES.includes(type)) {
     const supabase = await createSupabaseServerClient();
     ok = !(await supabase.auth.verifyOtp({ token_hash: tokenHash, type })).error;
+    if (ok) {
+      const account = await ensureAccountType(supabase, next);
+      if (account) destination = redirectForAccount(account, next) ?? next;
+    }
   }
 
-  const target = ok ? next : next.startsWith(routes.portal) ? `${routes.portalSignIn}?error=link` : `${routes.login}?error=auth`;
+  const target = ok ? destination : next.startsWith(routes.portal) ? `${routes.portalSignIn}?error=link` : `${routes.login}?error=auth`;
   return NextResponse.redirect(`${publicOrigin(request)}${target}`);
 }

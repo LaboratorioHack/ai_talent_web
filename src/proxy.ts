@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/config/env";
 import { routes } from "@/shared/constants/routes";
+import { accountHome, accountTypeOf, redirectForAccount } from "@/shared/lib/account-type";
 
 /**
  * Rutas sin sesión. /jobs y /interview/ son del candidato, que no tiene cuenta de empresa.
@@ -55,8 +56,17 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && pathname === routes.login) {
-    return NextResponse.redirect(new URL(routes.home, request.url));
+  // Una cuenta es de postulante o de empresa. Con sesión, las dos entradas llevan a su propio inicio,
+  // y abrir el lado contrario (el panel o el onboarding siendo postulante, el portal siendo empresa)
+  // devuelve a la persona al suyo. La API aplica la misma regla a los datos.
+  const type = accountTypeOf(user);
+  if (user && (pathname === routes.login || pathname === routes.portalSignIn)) {
+    // Con ?error el enlace falló: se deja ver el mensaje aunque haya una sesión anterior.
+    if (!searchParams.has("error")) return NextResponse.redirect(new URL(type ? accountHome(type) : routes.home, request.url));
+  }
+  if (user && type && !isPublic) {
+    const own = redirectForAccount(type, pathname);
+    if (own) return NextResponse.redirect(new URL(own, request.url));
   }
 
   return response;
