@@ -77,7 +77,7 @@ export const VACANCY_PAGE_SIZE = 100;
 
 export const vacanciesPath = `/vacancies?pageSize=${VACANCY_PAGE_SIZE}`;
 
-const TYPE_FROM_API: Record<ApiRequirementType, RequirementType> = { MANDATORY: "MANDATORY", DESIRABLE: "NICE_TO_HAVE", DISQUALIFYING: "DISQUALIFYING" };
+export const REQUIREMENT_TYPE_FROM_API: Record<ApiRequirementType, RequirementType> = { MANDATORY: "MANDATORY", DESIRABLE: "NICE_TO_HAVE", DISQUALIFYING: "DISQUALIFYING" };
 
 export const REQUIREMENT_TYPE_TO_API: Record<RequirementType, ApiRequirementType> = { MANDATORY: "MANDATORY", NICE_TO_HAVE: "DESIRABLE", DISQUALIFYING: "DISQUALIFYING" };
 
@@ -92,7 +92,7 @@ function toLocalDate(iso: string | null): string {
 }
 
 function toRequirement(r: ApiRequirement, roleProfileId: string): Requirement {
-  const type = TYPE_FROM_API[r.type];
+  const type = REQUIREMENT_TYPE_FROM_API[r.type];
   return {
     id: r.id,
     roleProfileId,
@@ -127,13 +127,12 @@ export function toJobOpening(v: ApiVacancySummary | ApiVacancyDetail, companyId 
     },
     stats: {
       received: v.counts.resumes,
-      // La API todavía no separa leídas de recibidas ni cuenta finalistas.
-      read: v.counts.resumes,
+      // Sin conteo de «leídas» en /vacancies: usamos evaluaciones completadas, no recibidas.
+      read: v.counts.meets + v.counts.partiallyMeets + v.counts.doesNotMeet,
       meets: v.counts.meets,
       partial: v.counts.partiallyMeets,
       doesNotMeet: v.counts.doesNotMeet + v.counts.disqualified,
       interview: v.counts.interviews,
-      finalist: 0,
     },
   };
 }

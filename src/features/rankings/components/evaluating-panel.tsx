@@ -8,8 +8,11 @@ import { cn } from "@/shared/lib/cn";
 
 export interface EvaluatingPanelProps {
   total: number;
-  /** ms por hoja de vida en la simulación. */
+  /** ms por hoja de vida en la simulación (solo con mocks). */
   pace?: number;
+  /** Llamada real a la API: la barra avanza cuando llega `done`. */
+  live?: boolean;
+  done?: number;
   onDone: () => void;
   onCancelled: (done: number) => void;
 }
@@ -18,27 +21,35 @@ export interface EvaluatingPanelProps {
  * Pantalla 14 · Evaluando. La marca "criba" en bucle, una barra que avanza y
  * cuánto falta. Se puede salir; cancelar conserva lo ya evaluado.
  */
-export function EvaluatingPanel({ total, pace = 230, onDone, onCancelled }: EvaluatingPanelProps) {
-  const [done, setDone] = useState(0);
+export function EvaluatingPanel({ total, pace = 230, live = false, done: doneProp = 0, onDone, onCancelled }: EvaluatingPanelProps) {
+  const [simDone, setSimDone] = useState(0);
   const [asking, setAsking] = useState(false);
   const [tick, setTick] = useState(0);
+  const done = live ? doneProp : simDone;
 
   useEffect(() => {
-    if (asking) return;
+    if (live || asking) return;
     const t = window.setInterval(() => {
-      setDone((d) => Math.min(total, d + 1 + (d % 3 === 0 ? 1 : 0)));
+      setSimDone((d) => Math.min(total, d + 1 + (d % 3 === 0 ? 1 : 0)));
       setTick((n) => n + 1);
     }, pace);
     return () => window.clearInterval(t);
-  }, [asking, pace, total]);
+  }, [asking, live, pace, total]);
 
   useEffect(() => {
+    if (live) {
+      if (doneProp > 0 && doneProp >= total) {
+        const t = window.setTimeout(onDone, 700);
+        return () => window.clearTimeout(t);
+      }
+      return;
+    }
     if (done < total) return;
     const t = window.setTimeout(onDone, 700);
     return () => window.clearTimeout(t);
-  }, [done, total, onDone]);
+  }, [done, doneProp, live, onDone, total]);
 
-  const pct = Math.round((done / total) * 100);
+  const pct = live ? (doneProp > 0 ? Math.min(100, Math.round((doneProp / total) * 100)) : 8) : Math.round((done / total) * 100);
   const secondsLeft = Math.max(1, Math.round(((total - done) * pace) / 1000 / 1.3));
   const wave = Math.floor(tick / 8);
 
@@ -49,7 +60,9 @@ export function EvaluatingPanel({ total, pace = 230, onDone, onCancelled }: Eval
         <LogoMark size={46} inverse />
       </div>
       <div className="flex flex-col gap-2">
-        <h2 className="font-head text-[28px] font-semibold tracking-[-0.02em]">{done >= total ? "Listo, ordenando el ranking" : `Evaluando ${total} hojas de vida`}</h2>
+        <h2 className="font-head text-[28px] font-semibold tracking-[-0.02em]">
+          {done >= total ? "Listo, ordenando el ranking" : live ? `Criba AI está evaluando ${total} hojas de vida` : `Evaluando ${total} hojas de vida`}
+        </h2>
         <p className="flex flex-wrap items-center justify-center gap-2 text-[14px] text-ink-2">
           <CribaAi label="Leyendo y comparando" />
           Puedes salir de esta pantalla; te avisamos al terminar.
@@ -63,7 +76,7 @@ export function EvaluatingPanel({ total, pace = 230, onDone, onCancelled }: Eval
           <span>
             {done} de {total}
           </span>
-          <span>{done >= total ? "terminado" : `quedan unos ${secondsLeft} s`}</span>
+          <span>{done >= total ? "terminado" : live ? "puede tardar más de un minuto" : `quedan unos ${secondsLeft} s`}</span>
         </span>
       </div>
       {done < total ? (

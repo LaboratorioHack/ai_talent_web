@@ -2,6 +2,7 @@ import "server-only";
 
 import { env } from "@/config/env";
 import { apiFetch } from "@/shared/lib/api-client";
+import { serverApi } from "@/shared/lib/api-server";
 import { delay, mockRequirementsOf, mockUser, mockVacancies } from "@/shared/mocks";
 import type { Applicant, PortalApplication, PortalJob, ResumeSummary } from "../types/portal";
 import { OTHER_COMPANY_JOBS } from "./other-companies";
@@ -154,22 +155,22 @@ const RESUME: ResumeSummary = {
 };
 
 export async function getApplicant(): Promise<Applicant> {
-  if (!env.useMocks) return apiFetch<Applicant>("/me/applicant");
+  if (!env.useMocks) return serverApi<Applicant>("/me/applicant");
   return delay(APPLICANT, 200);
 }
 
 export async function listMyApplications(): Promise<PortalApplication[]> {
-  if (!env.useMocks) return apiFetch<PortalApplication[]>("/me/applications");
+  if (!env.useMocks) return serverApi<PortalApplication[]>("/me/applications");
   return delay(APPLICATIONS);
 }
 
 export async function getMyApplication(id: string): Promise<PortalApplication | null> {
-  if (!env.useMocks) return apiFetch<PortalApplication>(`/me/applications/${id}`).catch(() => null);
+  if (!env.useMocks) return serverApi<PortalApplication>(`/me/applications/${id}`).catch(() => null);
   return delay(APPLICATIONS.find((a) => a.id === id) ?? null);
 }
 
 export async function getMyResume(): Promise<ResumeSummary> {
-  if (!env.useMocks) return apiFetch<ResumeSummary>("/me/resume");
+  if (!env.useMocks) return serverApi<ResumeSummary>("/me/resume");
   return delay(RESUME);
 }
 

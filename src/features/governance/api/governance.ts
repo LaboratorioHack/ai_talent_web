@@ -1,7 +1,7 @@
 import "server-only";
 
 import { env } from "@/config/env";
-import { apiFetch } from "@/shared/lib/api-client";
+import { serverApi } from "@/shared/lib/api-server";
 import { delay, mockAttributes, mockAuditStats, mockDecisions, mockUser, mockVacancies } from "@/shared/mocks";
 import type { AuditDecision } from "@/shared/types/domain";
 
@@ -38,7 +38,7 @@ const MORE: AuditDecision[] = [
 
 /** Auditoría de la IA de la organización. Con backend: GET /governance/audit. */
 export async function getGovernance(): Promise<GovernanceData> {
-  if (!env.useMocks) return apiFetch<GovernanceData>("/governance/audit");
+  if (!env.useMocks) return serverApi<GovernanceData>("/governance/audit");
   return delay({
     organization: mockUser.company.name,
     stats: {

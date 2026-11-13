@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Briefcase, Mail, Plus, Share2, X } from "lucide-react";
+import { env } from "@/config/env";
+import { evaluationErrorMessage } from "@/features/evaluations/api/errors";
+import { compareApplications } from "@/features/evaluations/api/evaluations";
 import { PageTop } from "@/shared/components/layout";
 import { Button, CribaAi, EmptyState, Select, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
@@ -10,7 +13,8 @@ import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import type { TradeoffCandidate, TradeoffMatrix as Matrix, TradeoffStatus } from "../types/tradeoffs";
 
-const MAX = 4;
+const MAX = 3;
+const MIN_COMPARE = 2;
 
 const STATUS: Record<TradeoffStatus, { label: string; dot: string; text: string }> = {
   meets: { label: "Cumple", dot: "bg-success", text: "text-success" },
@@ -23,7 +27,7 @@ const PILL = { blue: "bg-blue-soft text-blue", green: "bg-success-soft text-succ
 const TINT = ["bg-blue-soft/60", "bg-success-soft/60", "bg-amber/10", "bg-danger-soft/50"];
 
 /**
- * Matriz de trade-offs: hasta 4 personas de una vacante, requisito por
+ * Matriz de trade-offs: hasta 3 personas de una vacante, requisito por
  * requisito, con lo que gana la empresa y lo que asume con cada una. No puntúa
  * a nadie: ordena la conversación del equipo antes de invitar.
  */
@@ -31,10 +35,55 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
   const router = useRouter();
   const { toast } = useToast();
   const [shown, setShown] = useState(() => data.candidates.slice(0, MAX).map((c) => c.id));
+  const [overrides, setOverrides] = useState<Record<string, Pick<TradeoffCandidate, "gains" | "assumes">>>({});
+  const [reading, setReading] = useState(data.reading);
+  const [comparing, setComparing] = useState(false);
   const byId = useMemo(() => new Map(data.candidates.map((c) => [c.id, c])), [data.candidates]);
-  const cols = shown.map((id) => byId.get(id)!).filter(Boolean) as TradeoffCandidate[];
+  const cols = shown
+    .map((id) => {
+      const base = byId.get(id);
+      if (!base) return null;
+      const patch = overrides[id];
+      return patch ? { ...base, ...patch } : base;
+    })
+    .filter(Boolean) as TradeoffCandidate[];
   const rest = data.candidates.filter((c) => !shown.includes(c.id));
-  const closes = fromISODate(data.job.closesAt);
+  const closes = data.job.closesAt ? fromISODate(data.job.closesAt) : null;
+
+  const colKey = cols
+    .map((c) => c.id)
+    .sort()
+    .join(",");
+
+  const runCompare = useCallback(
+    async (applicationIds: string[]) => {
+      setComparing(true);
+      try {
+        const result = await compareApplications(data.job.id, applicationIds);
+        const summary = result.comparison.comparativeSummary || result.comparison.headToHeadTradeOff;
+        if (summary) setReading(summary);
+        const next: Record<string, Pick<TradeoffCandidate, "gains" | "assumes">> = {};
+        for (const ref of result.candidates) {
+          const row = result.comparison.sideBySideMatrix.find((item) => item.candidateId === ref.resumeId);
+          if (!row) continue;
+          next[ref.applicationId] = { gains: row.primaryAdvantage, assumes: row.primaryTradeOffOrGap };
+        }
+        setOverrides(next);
+      } catch (error) {
+        toast({ tone: "error", title: "No se pudo comparar", description: evaluationErrorMessage(error) });
+      } finally {
+        setComparing(false);
+      }
+    },
+    [data.job.id, toast],
+  );
+
+  useEffect(() => {
+    if (env.useMocks || cols.length < MIN_COMPARE || cols.length > MAX) return;
+    const applicationIds = colKey ? colKey.split(",") : [];
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- compare async al cambiar la selección
+    void runCompare(applicationIds);
+  }, [colKey, cols.length, runCompare]);
   const grid = { gridTemplateColumns: `260px repeat(${Math.max(cols.length, 1)}, minmax(220px, 1fr))` };
   const invite = Math.min(2, cols.length);
 
@@ -50,7 +99,7 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
   const top = (
     <PageTop
       title="Matriz de trade-offs"
-      description={`Compara hasta ${MAX} candidatos contra el perfil del cargo: qué gana la empresa y qué asume con cada uno.`}
+      description={`Compara de ${MIN_COMPARE} a ${MAX} candidatos contra el perfil del cargo: qué gana la empresa y qué asume con cada uno.`}
       actions={
         <Button icon={<Share2 />} onClick={share} disabled={!cols.length}>
           Compartir con el equipo
@@ -87,7 +136,10 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
                 placeholder="Agregar candidato"
                 options={rest.map((c) => ({ value: c.id, label: c.name, hint: `${c.score} de 100` }))}
                 value=""
-                onChange={(id) => setShown((s) => [...s, id])}
+                onChange={(id) => {
+                  if (shown.length >= MAX) return;
+                  setShown((s) => [...s, id]);
+                }}
                 className="w-[200px]"
                 triggerClassName="flex h-10 w-full items-center justify-between gap-2 rounded-xl bg-ink px-3.5 text-[13.5px] font-medium text-ink-inverse"
               />
@@ -204,10 +256,10 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
               </div>
             </div>
 
-            {data.reading ? (
+            {reading ? (
               <p className="flex flex-wrap items-center gap-3 rounded-2xl bg-amber/8 px-4 py-3 text-[13.5px] leading-snug text-ink-2 ring-1 ring-amber/25 animate-rise [animation-delay:120ms]">
-                <CribaAi label="Lectura" />
-                <span className="min-w-0 flex-1">{data.reading}</span>
+                <CribaAi label={comparing ? "Comparando" : "Lectura"} />
+                <span className="min-w-0 flex-1">{comparing ? "Criba AI está comparando las hojas de vida…" : reading}</span>
               </p>
             ) : null}
 

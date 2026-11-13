@@ -6,7 +6,7 @@ import { ArrowRight, Briefcase, CalendarPlus, Grid2x2, Quote } from "lucide-reac
 import { Avatar, ButtonLink, EmptyState, Segmented, Select } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
-import { formatShortDate } from "@/shared/lib/dates";
+import { formatVacancyClosesAt } from "@/shared/lib/format-closes-at";
 import type { RankingSummary, TopPerson } from "../types/ranking";
 
 const TONE = { MEETS: "text-success", PARTIAL: "text-warning", DOES_NOT_MEET: "text-danger" } as const;
@@ -93,7 +93,7 @@ export function RankingIndex({ people, vacancies }: { people: TopPerson[]; vacan
                   <div className="flex flex-col gap-0.5">
                     <h2 className="font-head text-[24px] leading-tight font-semibold tracking-[-0.015em]">{v.title}</h2>
                     <p className="text-[13px] text-ink-3">
-                      {v.evaluated ? `${v.evaluated} evaluadas, ${v.meets} cumplen el perfil` : "Sin evaluaciones todavía"}, cierra el {formatShortDate(new Date(`${v.closesAt}T12:00:00`))}
+                      {v.evaluated ? `${v.evaluated} evaluadas, ${v.meets} cumplen el perfil` : "Sin evaluaciones todavía"}, {formatVacancyClosesAt(v.closesAt, "long").toLowerCase()}
                     </p>
                   </div>
                 </div>

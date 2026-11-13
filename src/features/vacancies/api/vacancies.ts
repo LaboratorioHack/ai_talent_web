@@ -72,7 +72,7 @@ export async function getPipeline(id: string): Promise<PipelineCard[]> {
   const short = (rid: string) => reqs.find((r) => r.id === rid)?.description ?? "";
   const fixed = new Map(mockApplications.filter((a) => a.jobOpeningId === id).map((a) => [a.id, a.stage]));
   const ranked = mockCandidatesOf(job, reqs);
-  let finalists = job.stats.finalist - [...fixed.values()].filter((s) => s === "finalist").length;
+  let finalists = (job.stats.finalist ?? 0) - [...fixed.values()].filter((s) => s === "finalist").length;
   let interviews = job.stats.interview - [...fixed.values()].filter((s) => s === "interview").length;
 
   const cards: PipelineCard[] = ranked.map((c) => {
