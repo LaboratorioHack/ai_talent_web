@@ -1,8 +1,8 @@
 "use client";
 
 import { Fragment, useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
-import { ArrowUp, X } from "lucide-react";
-import { CribaCharacter, type CribaMood } from "@/shared/components/ui";
+import { ArrowUp, RotateCcw, X } from "lucide-react";
+import { CribaCharacter, CribaText, LogoMark, type CribaMood } from "@/shared/components/ui";
 import { useTypewriter } from "@/shared/hooks/use-typewriter";
 import { cn } from "@/shared/lib/cn";
 import { startCribaWork } from "@/shared/lib/criba-work";
@@ -10,24 +10,32 @@ import { askCriba, type AssistantAudience, type ChatTurn } from "../api/assistan
 
 const COPY: Record<AssistantAudience, { greeting: string; hint: string; suggestions: string[] }> = {
   company: {
-    greeting: "Hola, soy Criba AI. ¿En qué te ayudo? Puedo explicarte el ranking, la evidencia de una persona o qué validar en la entrevista.",
+    greeting: "¡Hola! Soy Criba AI y estoy aquí para echarte una mano. Puedo explicarte el ranking, mostrarte la evidencia de una persona o ayudarte a pensar qué validar en la entrevista. ¿Por dónde empezamos?",
     hint: "Sobre tus vacantes y candidatos",
     suggestions: ["¿Quién encaja mejor en esta vacante?", "¿Qué falta validar en la entrevista?", "Resume cómo van mis vacantes"],
   },
   applicant: {
-    greeting: "Hola, soy Criba AI. ¿En qué te ayudo? Puedo contarte en qué va tu postulación, qué leí de tu hoja de vida o cómo prepararte.",
+    greeting: "¡Hola! Soy Criba AI, qué bueno verte por aquí. Puedo contarte en qué va tu postulación, qué leí de tu hoja de vida o ayudarte a prepararte para lo que sigue. ¿Qué te gustaría saber?",
     hint: "Sobre tus postulaciones",
     suggestions: ["¿En qué va mi postulación?", "¿Qué vacantes me encajan?", "¿Cómo me preparo para la entrevista?"],
   },
 };
 
 const NUDGE_KEY = "criba-assistant-nudged";
-const ERROR_REPLY = "No pude responder ahora. Intenta de nuevo en un momento.";
+const ERROR_REPLY = "Uy, esta vez no pude responderte. Seguro fue algo pasajero: ¿lo intentamos otra vez?";
+
+/** Lo que se ve mientras Criba arma la respuesta, para que la espera no se sienta vacía. */
+const THINKING: Record<AssistantAudience, string[]> = {
+  company: ["Revisando tus vacantes", "Buscando la evidencia", "Armando la respuesta"],
+  applicant: ["Revisando lo que tengo de ti", "Mirando tus postulaciones", "Armando la respuesta"],
+};
 
 interface Bubble extends ChatTurn {
   id: number;
   /** Respuesta que no entra al historial (p. ej. un error). */
   local?: boolean;
+  /** Pregunta que se puede reenviar si la respuesta falló. */
+  retry?: string;
 }
 
 /**
@@ -44,6 +52,7 @@ export function CribaAssistant({ audience }: { audience: AssistantAudience }) {
   const [draft, setDraft] = useState("");
   const [waiting, setWaiting] = useState(false);
   const [typing, setTyping] = useState(false);
+  const [step, setStep] = useState(0);
   const nextId = useRef(1);
   const listRef = useRef<HTMLOListElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -85,9 +94,19 @@ export function CribaAssistant({ audience }: { audience: AssistantAudience }) {
     };
   }, [open]);
 
-  function push(role: ChatTurn["role"], content: string, local = false) {
+  // Mientras piensa, el texto de espera cambia cada tanto.
+  useEffect(() => {
+    if (!waiting) return;
+    const t = window.setInterval(() => setStep((n) => n + 1), 2200);
+    return () => {
+      window.clearInterval(t);
+      setStep(0);
+    };
+  }, [waiting]);
+
+  function push(role: ChatTurn["role"], content: string, local = false, retry?: string) {
     const id = nextId.current++;
-    setBubbles((b) => [...b, { id, role, content, local }]);
+    setBubbles((b) => [...b, { id, role, content, local, retry }]);
     if (role === "assistant") setTyping(true);
   }
 
@@ -98,12 +117,18 @@ export function CribaAssistant({ audience }: { audience: AssistantAudience }) {
     setOpen((o) => !o);
   }
 
-  async function send(text: string) {
+  async function send(text: string, again = false) {
     const question = text.trim();
     if (!question || waiting) return;
-    setDraft("");
-    const history: ChatTurn[] = [...bubbles.filter((b) => !b.local).map(({ role, content }) => ({ role, content })), { role: "user", content: question }];
-    push("user", question);
+    // Al reintentar, la pregunta ya está en pantalla: se quita el aviso de error y no se repite la burbuja.
+    const kept = again ? bubbles.filter((b) => !b.retry) : bubbles;
+    if (again) setBubbles(kept);
+    else setDraft("");
+    const history: ChatTurn[] = kept.filter((b) => !b.local).map(({ role, content }) => ({ role, content }));
+    if (!again) {
+      history.push({ role: "user", content: question });
+      push("user", question);
+    }
     setWaiting(true);
     const done = startCribaWork("Responde tu pregunta");
     try {
@@ -111,7 +136,7 @@ export function CribaAssistant({ audience }: { audience: AssistantAudience }) {
       const firstUser = history.findIndex((t) => t.role === "user");
       push("assistant", await askCriba(audience, history.slice(firstUser)));
     } catch {
-      push("assistant", ERROR_REPLY, true);
+      push("assistant", ERROR_REPLY, true, question);
     } finally {
       done();
       setWaiting(false);
@@ -162,26 +187,57 @@ export function CribaAssistant({ audience }: { audience: AssistantAudience }) {
 
         <ol ref={listRef} aria-live="polite" className="flex flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-4 py-4">
           {bubbles.map((b) => (
-            <li key={b.id} className={cn("flex animate-[option-in_320ms_var(--ease-out-soft)_both]", b.role === "user" ? "justify-end" : "justify-start")}>
-              <p
-                className={cn(
-                  "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-relaxed",
-                  b.role === "user" ? "rounded-br-md bg-ink text-ink-inverse" : "rounded-bl-md bg-surface-2 text-ink",
-                  b.local && "text-danger",
-                )}
-              >
-                {b.role === "assistant" && b.id === lastId ? <Typed text={b.content} onDone={() => setTyping(false)} /> : b.role === "assistant" ? <Reply text={b.content} /> : b.content}
-              </p>
+            <li
+              key={b.id}
+              className={cn(
+                "flex items-end gap-2",
+                b.role === "user" ? "justify-end animate-[bubble-out_380ms_var(--ease-spring)_both]" : "justify-start animate-[bubble-in_420ms_var(--ease-out-soft)_both]",
+              )}
+            >
+              {b.role === "assistant" ? (
+                <span aria-hidden className="mb-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-2 ring-1 ring-border">
+                  <LogoMark size={12} />
+                </span>
+              ) : null}
+              <div className={cn("flex max-w-[85%] flex-col gap-1.5", b.role === "user" ? "items-end" : "items-start")}>
+                <p
+                  className={cn(
+                    "rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-relaxed",
+                    b.role === "user" ? "rounded-br-md bg-ink text-ink-inverse" : "rounded-bl-md bg-surface-2 text-ink",
+                    b.local && "bg-danger/8 ring-1 ring-danger/25",
+                  )}
+                >
+                  {b.role === "assistant" && b.id === lastId ? <Typed text={b.content} onDone={() => setTyping(false)} /> : b.role === "assistant" ? <Reply text={b.content} /> : b.content}
+                </p>
+                {b.retry ? (
+                  <button
+                    type="button"
+                    onClick={() => void send(b.retry!, true)}
+                    disabled={waiting}
+                    className="group inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12.5px] text-ink-2 ring-1 ring-border transition-[color,box-shadow,scale] duration-300 animate-[option-in_360ms_var(--ease-out-soft)_400ms_both] hover:text-ink hover:ring-amber/60 active:scale-95"
+                  >
+                    <RotateCcw aria-hidden className="size-3.5 transition-transform duration-500 group-hover:-rotate-180" />
+                    Reintentar
+                  </button>
+                ) : null}
+              </div>
             </li>
           ))}
           {waiting ? (
-            <li className="flex items-center gap-2 text-[12.5px] text-ink-3" aria-label="Criba AI está pensando">
-              <span className="flex gap-1 rounded-2xl rounded-bl-md bg-surface-2 px-3.5 py-3">
-                {[0, 1, 2].map((d) => (
-                  <span key={d} className="size-1.5 rounded-full bg-ink-3 animate-breathe" style={{ animationDelay: `${d * 180}ms` }} />
-                ))}
+            <li className="flex items-end gap-2 animate-[bubble-in_360ms_var(--ease-out-soft)_both]" aria-label="Criba AI está pensando">
+              <span aria-hidden className="mb-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-2 ring-1 ring-border">
+                <CribaCharacter mood="thinking" size={13} />
               </span>
-              Revisando lo que tengo de ti
+              <span className="flex flex-col gap-1">
+                <span className="flex w-fit gap-1 rounded-2xl rounded-bl-md bg-surface-2 px-3.5 py-3">
+                  {[0, 1, 2].map((d) => (
+                    <span key={d} className="typing-dot size-1.5 rounded-full bg-ink-3" style={{ animationDelay: `${d * 140}ms` }} />
+                  ))}
+                </span>
+                <span key={step} className="animate-fade-in text-[12px] text-ink-3">
+                  {THINKING[audience][step % THINKING[audience].length]}…
+                </span>
+              </span>
             </li>
           ) : null}
           {onlyGreeting && !typing ? (
@@ -217,9 +273,12 @@ export function CribaAssistant({ audience }: { audience: AssistantAudience }) {
             type="submit"
             disabled={!draft.trim() || waiting}
             aria-label="Enviar pregunta"
-            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-ink text-ink-inverse transition-[opacity,transform] duration-300 hover:scale-105 disabled:opacity-35 disabled:hover:scale-100"
+            className={cn(
+              "group flex size-10 shrink-0 items-center justify-center rounded-full transition-[opacity,background-color,color,scale] duration-300 ease-[var(--ease-spring)] hover:scale-105 active:scale-90 disabled:opacity-35 disabled:hover:scale-100",
+              draft.trim() && !waiting ? "bg-amber text-[#1a211d]" : "bg-ink text-ink-inverse",
+            )}
           >
-            <ArrowUp aria-hidden className="size-4" />
+            <ArrowUp aria-hidden className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5" />
           </button>
         </form>
       </section>
@@ -269,7 +328,7 @@ function Typed({ text, onDone }: { text: string; onDone: () => void }) {
 
 /** **negrita** dentro de una línea. Solo texto: nada del modelo se interpreta como HTML. */
 function inline(line: string): ReactNode[] {
-  return line.split(/(\*\*[^*]+\*\*)/g).map((part, i) => (part.startsWith("**") && part.endsWith("**") && part.length > 4 ? <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong> : <Fragment key={i}>{part.replace(/\*\*/g, "")}</Fragment>));
+  return line.split(/(\*\*[^*]+\*\*)/g).map((part, i) => (part.startsWith("**") && part.endsWith("**") && part.length > 4 ? <strong key={i} className="font-semibold"><CribaText text={part.slice(2, -2)} /></strong> : <Fragment key={i}><CribaText text={part.replace(/\*\*/g, "")} /></Fragment>));
 }
 
 /** Lo que escribe Criba, legible: párrafos, listas con guion y negritas; el resto, texto plano. */
