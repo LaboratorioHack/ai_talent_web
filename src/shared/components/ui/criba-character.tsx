@@ -2,9 +2,9 @@ import { cn } from "@/shared/lib/cn";
 import type { CribaMood } from "@/shared/lib/criba-work";
 
 /**
- * Qué está haciendo Criba AI. Cada estado se ve distinto, para que se entienda
- * sin leer: parpadea en reposo, baja la franja ámbar al leer, mira a los lados
- * al comparar, mueve el resaltador al hablar y sonríe al terminar.
+ * Qué está haciendo Criba AI. Solo se mueven los ojos, y cada estado se ve
+ * distinto: en reposo parpadea y mira de reojo; al leer recorre líneas; al
+ * comparar mira hacia arriba, pensando; al escribir asiente; al terminar sonríe.
  */
 export type { CribaMood };
 
@@ -28,7 +28,7 @@ export interface CribaCharacterProps {
 }
 
 /**
- * El personaje de Criba AI: la misma hoja de la marca, con ojos. Aparece donde
+ * El personaje de Criba AI: la hoja de la marca, con ojos y nada más. Aparece donde
  * la IA actúa (leer, evaluar, entrevistar) y nunca donde decide una persona.
  * Solo SVG y CSS (globals.css, `.criba-char`); respeta prefers-reduced-motion.
  */
@@ -52,22 +52,17 @@ export function CribaCharacter({ mood = "idle", size = 40, inverse = false, anno
         <path d="M15.2 1v4.3a2.5 2.5 0 0 0 2.5 2.5H22" fill={fold} />
         <g className="criba-char__eyes">
           {mood === "done" ? (
-            <g fill="none" stroke={eye} strokeWidth="1.5" strokeLinecap="round">
-              <path d="M5.6 9.6q1.5-1.8 3 0" />
-              <path d="M11.4 9.6q1.5-1.8 3 0" />
+            <g fill="none" stroke={eye} strokeWidth="1.7" strokeLinecap="round">
+              <path d="M6.6 15.6q2-2.6 4 0" />
+              <path d="M13.4 15.6q2-2.6 4 0" />
             </g>
           ) : (
             <g fill={eye}>
-              <ellipse className="criba-char__eye" cx="7.1" cy="9" rx="1.35" ry="1.7" />
-              <ellipse className="criba-char__eye" cx="12.9" cy="9" rx="1.35" ry="1.7" />
+              <ellipse className="criba-char__eye" cx="8.6" cy="15" rx="1.9" ry="2.5" />
+              <ellipse className="criba-char__eye" cx="15.4" cy="15" rx="1.9" ry="2.5" />
             </g>
           )}
         </g>
-        <g className="criba-char__marker">
-          <rect x="3.6" y="14.6" width="15.2" height="4.4" rx="1.3" fill="#f2a93b" />
-          <rect x="5" y="15.8" width="12" height="2" rx="1" fill="#15201b" />
-        </g>
-        <rect className="criba-char__line" x="5" y="21.2" width="7" height="2" rx="1" fill={eye} opacity="0.5" />
       </g>
     </svg>
   );
