@@ -72,7 +72,8 @@ export interface JobOpening {
     partial: number;
     doesNotMeet: number;
     interview: number;
-    finalist: number;
+    /** Solo cuando la API expone el dato (p. ej. mocks o dashboard agregado). */
+    finalist?: number;
   };
 }
 

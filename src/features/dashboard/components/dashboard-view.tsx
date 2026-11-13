@@ -177,6 +177,14 @@ export function DashboardView({ data }: { data: DashboardData }) {
   const t = totalsOf(scope, period);
   const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : 0);
   const vacancyOptions = [{ value: "all", label: "Todas las vacantes abiertas" }, ...data.vacancies.map((v) => ({ value: v.id, label: v.title }))];
+  const closingSoon = scope.filter((v) => {
+    if (!v.closesAt.trim()) return false;
+    const [y, m, d] = v.closesAt.split("-").map(Number);
+    const close = new Date(y, m - 1, d);
+    const limit = new Date();
+    limit.setDate(limit.getDate() + 30);
+    return close >= new Date() && close <= limit;
+  }).length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -192,7 +200,13 @@ export function DashboardView({ data }: { data: DashboardData }) {
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <KpiCard index={0} label="Vacantes abiertas" value={scope.length} detail={`${scope.filter((v) => v.closesAt <= "2026-11-22").length} cierran antes del 22 nov`} icon={Briefcase} />
+        <KpiCard
+          index={0}
+          label="Vacantes abiertas"
+          value={scope.length}
+          detail={closingSoon ? `${closingSoon} ${closingSoon === 1 ? "cierra" : "cierran"} en los próximos 30 días` : `${scope.filter((v) => v.closesAt.trim()).length} con fecha de cierre`}
+          icon={Briefcase}
+        />
         <KpiCard index={1} label="Hojas de vida recibidas" value={t.received} detail={`${pct(t.read, t.received)} % leídas sin problema`} icon={Users} />
         <KpiCard index={2} label="Cumplen el perfil" value={t.meets} detail={`${pct(t.meets, t.received)} % de las recibidas`} icon={BadgeCheck} tone="success" />
         <KpiCard index={3} label="Entrevistas IA" value={t.interview} detail="Las hace Criba AI; decide tu equipo" icon={MessageSquareText} />
