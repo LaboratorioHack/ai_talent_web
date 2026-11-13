@@ -6,6 +6,7 @@ import { Button, ButtonLink, Collapse, CribaAi, CribaCharacter, LogoMark, Progre
 import { routes } from "@/shared/constants/routes";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import { cn } from "@/shared/lib/cn";
+import { useTypewriter } from "@/shared/hooks/use-typewriter";
 import { sendInterviewAnswer } from "../api/submit";
 import type { CandidateInterview } from "../types/public";
 
@@ -222,7 +223,7 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
                 m.from === "ai" ? "rounded-bl-md bg-surface ring-1 ring-border" : "rounded-br-md bg-ink text-ink-inverse",
               )}
             >
-              {m.text}
+              {i === lastAi ? <Typed text={m.text} /> : m.text}
             </p>
           </li>
         ))}
@@ -272,4 +273,10 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
       </form>
     </div>
   );
+}
+
+/** La pregunta de Criba se escribe palabra por palabra, como en un chat; con «reducir movimiento», entera. */
+function Typed({ text }: { text: string }) {
+  const { shown, done } = useTypewriter(text, 38);
+  return <span className={done ? undefined : "ai-caret"}>{shown}</span>;
 }

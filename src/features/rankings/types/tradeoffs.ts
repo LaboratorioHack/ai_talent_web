@@ -2,7 +2,10 @@ export type TradeoffStatus = "meets" | "partial" | "missing" | "unknown";
 
 export interface TradeoffCell {
   status: TradeoffStatus;
+  /** Una frase legible (la justificación de la IA). */
   text: string;
+  /** La línea textual de la hoja de vida, si la hay; se ve al pedirla. */
+  quote?: string;
 }
 
 export interface TradeoffRow {
@@ -19,7 +22,8 @@ export interface TradeoffCandidate {
   name: string;
   initials: string;
   score: number;
-  pill: { label: string; tone: "blue" | "green" | "neutral" };
+  /** Confianza de la evaluación, 0–100. */
+  confidence: number;
   /** Qué gana la empresa con esta persona. */
   gains: string;
   /** Qué asume (lo que hay que validar o ceder). */

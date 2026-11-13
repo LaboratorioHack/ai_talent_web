@@ -28,3 +28,4 @@ export { Collapse, type CollapseProps } from "./collapse";
 export { CribaAi, CribaAiNote } from "./criba-ai";
 export { CribaCharacter, type CribaMood, type CribaCharacterProps } from "./criba-character";
 export { CribaPresence } from "./criba-presence";
+export { CribaThinking, type CribaThinkingProps } from "./criba-thinking";
