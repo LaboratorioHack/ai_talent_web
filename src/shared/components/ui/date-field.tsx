@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useDismiss } from "@/shared/hooks/use-dismiss";
 import { usePresence } from "@/shared/hooks/use-presence";
@@ -23,6 +24,9 @@ export interface DateFieldProps {
   className?: string;
 }
 
+/** Alto aproximado del calendario, para decidir si se abre hacia arriba. */
+const CALENDAR_HEIGHT = 340;
+
 /** Campo de fecha: abre el calendario en un popover; no se puede escribir. */
 export function DateField({
   label,
@@ -38,35 +42,79 @@ export function DateField({
   className,
 }: DateFieldProps) {
   const [open, setOpen] = useState(false);
+  const [portal, setPortal] = useState<{ host: HTMLElement; style: CSSProperties; up: boolean } | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
 
   const close = useCallback(() => setOpen(false), []);
-  useDismiss(rootRef, open, close);
+  useDismiss(rootRef, open, close, popRef);
   const { mounted, state } = usePresence(open, 160);
+
+  /**
+   * El calendario vive en un portal (body, o el <dialog> del modal), como el menú de Select:
+   * así ninguna tarjeta con transform o z-index lo tapa. Se abre hacia arriba si no cabe.
+   */
+  const place = useCallback(() => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+    const host = (trigger.closest("dialog") as HTMLElement | null) ?? document.body;
+    const r = trigger.getBoundingClientRect();
+    const origin = host === document.body ? { top: 0, left: 0 } : host.getBoundingClientRect();
+    const up = r.bottom + CALENDAR_HEIGHT > window.innerHeight && r.top > CALENDAR_HEIGHT;
+    const style: CSSProperties = {
+      position: "fixed",
+      left: r.left - origin.left,
+      ...(up ? { bottom: (host === document.body ? window.innerHeight : origin.top + host.offsetHeight) - r.top + 6 } : { top: r.bottom - origin.top + 6 }),
+    };
+    setPortal({ host, style, up });
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    let raf = 0;
+    const onMove = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(place);
+    };
+    window.addEventListener("scroll", onMove, true);
+    window.addEventListener("resize", onMove);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onMove, true);
+      window.removeEventListener("resize", onMove);
+    };
+  }, [open, place]);
 
   return (
     <Field label={label} kind={kind} help={help} error={error} className={className}>
       {({ id, describedBy }) => (
         <div ref={rootRef} className="relative">
           <button
+            ref={triggerRef}
             id={id}
             type="button"
             disabled={disabled}
             aria-haspopup="dialog"
             aria-expanded={open}
             aria-describedby={describedBy}
-            onClick={() => setOpen((o) => !o)}
+            onClick={() => {
+              if (!open) place();
+              setOpen((o) => !o);
+            }}
             data-open={open} className={cn(inputBoxClass, inputBorderClass(Boolean(error)), "justify-between text-left", disabled && "opacity-45")}
           >
             <span className={cn(!value && "text-ink-3")}>{value ? formatDateDisplay(value) : placeholder}</span>
             <CalendarIcon aria-hidden className={cn("size-[15px] shrink-0 transition-colors duration-300", open ? "text-ink" : "text-ink-3")} />
           </button>
-          {mounted ? (
+          {mounted && portal ? createPortal(
             <div
+              ref={popRef}
               role="dialog"
               aria-label={label}
               data-state={state}
-              className="absolute top-[calc(100%+6px)] left-0 z-30 origin-top-left rounded-lg shadow-[0_18px_40px_-20px_rgba(21,32,27,0.45)] data-[state=closed]:animate-[menu-out_160ms_var(--ease-in-out-soft)_both] data-[state=open]:animate-[menu-in_240ms_var(--ease-out-soft)_both]"
+              style={portal.style}
+              className={cn(portal.up ? "origin-bottom-left" : "origin-top-left", "z-[60] rounded-lg shadow-[0_18px_40px_-20px_rgba(21,32,27,0.45)] data-[state=closed]:animate-[menu-out_160ms_var(--ease-in-out-soft)_both] data-[state=open]:animate-[menu-in_240ms_var(--ease-out-soft)_both]")}
             >
               <Calendar
                 value={value}
@@ -77,7 +125,8 @@ export function DateField({
                   setOpen(false);
                 }}
               />
-            </div>
+            </div>,
+            portal.host,
           ) : null}
         </div>
       )}
