@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FileText, Inbox, LogOut, Search, type LucideIcon } from "lucide-react";
@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/shared/components/layout";
 import { Avatar, Logo, Popover } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
+import { signOut } from "@/features/auth/api/auth";
 
 export interface PortalNavProps {
   name: string;
@@ -34,7 +35,11 @@ export function PortalNav({ name, email, active, pending }: PortalNavProps) {
   const router = useRouter();
   const nav = useRef<HTMLElement>(null);
   const pill = useRef<HTMLSpanElement>(null);
-  const current = LINKS.find((l) => l.match(pathname))?.href;
+  const matched = LINKS.find((l) => l.match(pathname))?.href;
+  // La pestaña tocada se marca al instante; la ruta la confirma al llegar.
+  const [clicked, setClicked] = useState<{ href: string; from: string } | null>(null);
+  const going = clicked && clicked.from === pathname && clicked.href !== matched ? clicked.href : null;
+  const current = going ?? matched;
 
   useLayoutEffect(() => {
     const el = current ? nav.current?.querySelector<HTMLElement>(`[data-href="${current}"]`) : null;
@@ -48,6 +53,7 @@ export function PortalNav({ name, email, active, pending }: PortalNavProps) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg/80 backdrop-blur-xl backdrop-saturate-150">
+      <span aria-hidden className="nav-progress" data-on={Boolean(going)} />
       <div className="mx-auto flex h-[68px] w-full max-w-[1120px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href={routes.portal} aria-label="Mis postulaciones" className="flex items-center gap-2.5">
           <Logo size="lg" />
@@ -67,10 +73,11 @@ export function PortalNav({ name, email, active, pending }: PortalNavProps) {
                 key={l.href}
                 href={l.href}
                 data-href={l.href}
+                onClick={() => setClicked({ href: l.href, from: pathname })}
                 aria-current={on ? "page" : undefined}
-                className={cn("group relative z-10 flex h-10 items-center gap-2 rounded-full px-4 text-[14px] transition-colors duration-300", on ? "font-medium text-ink" : "text-ink-2 hover:text-ink")}
+                className={cn("group relative z-10 flex h-10 items-center gap-2 rounded-full px-4 text-[14px] transition-[color,scale] duration-300 active:scale-[0.96]", on ? "font-medium text-ink" : "text-ink-2 hover:text-ink")}
               >
-                <l.icon aria-hidden className={cn("size-4 transition-[color,transform,translate,scale,rotate] duration-500 ease-[var(--ease-spring)] group-hover:-rotate-6", on ? "text-amber" : "text-ink-3")} />
+                <l.icon aria-hidden className={cn("size-4 transition-[color,transform,translate,scale,rotate] duration-500 ease-[var(--ease-spring)] group-hover:-rotate-6", on ? "text-amber" : "text-ink-3", l.href === going && "scale-110 animate-pulse")} />
                 {l.label}
                 {i === 0 ? (
                   <span className={cn("relative flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11.5px] font-semibold tabular-nums", pending ? "bg-amber text-[#1a211d]" : "bg-surface-3 text-ink-2")}>
@@ -109,9 +116,12 @@ export function PortalNav({ name, email, active, pending }: PortalNavProps) {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       close();
-                      router.push(routes.portalSignIn);
+                      // Cierra la sesión de verdad; si solo navegara, el proxy la devolvería al portal.
+                      await signOut();
+                      router.replace(routes.portalSignIn);
+                      router.refresh();
                     }}
                     className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[14px] text-ink-2 transition-colors hover:bg-hover hover:text-ink"
                   >
@@ -129,7 +139,13 @@ export function PortalNav({ name, email, active, pending }: PortalNavProps) {
         {LINKS.map((l, i) => {
           const on = l.href === current;
           return (
-            <Link key={l.href} href={l.href} aria-current={on ? "page" : undefined} className={cn("flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[13.5px]", on ? "bg-surface font-medium text-ink ring-1 ring-border" : "text-ink-2")}>
+            <Link
+              key={l.href}
+              href={l.href}
+              onClick={() => setClicked({ href: l.href, from: pathname })}
+              aria-current={on ? "page" : undefined}
+              className={cn("flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[13.5px] transition-[background-color,color,box-shadow,scale] duration-300 active:scale-95", on ? "bg-surface font-medium text-ink ring-1 ring-border" : "text-ink-2")}
+            >
               <l.icon aria-hidden className={cn("size-3.5", on ? "text-amber" : "text-ink-3")} />
               {l.label}
               {i === 0 ? <span className={cn("rounded-full px-1.5 text-[11px] font-semibold", pending ? "bg-amber text-[#1a211d]" : "bg-surface-3")}>{active}</span> : null}

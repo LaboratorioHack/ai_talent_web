@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Check } from "lucide-react";
-import { SearchField, Select } from "@/shared/components/ui";
+import { AnimatedNumber, LinkPending, SearchField, Select } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
@@ -43,7 +43,7 @@ export function JobsBrowser({ jobs }: { jobs: PortalJob[] }) {
           <h2 className="font-head text-[22px] font-semibold tracking-[-0.01em]">
             Todas las vacantes{" "}
             <span className="font-sans text-[15px] font-normal text-ink-3 tabular-nums">
-              {visible.length}
+              <AnimatedNumber value={visible.length} duration={500} />
             </span>
           </h2>
           <p className="text-[13.5px] text-ink-3">
@@ -64,7 +64,7 @@ export function JobsBrowser({ jobs }: { jobs: PortalJob[] }) {
                 aria-checked={modality === m}
                 onClick={() => setModality(m)}
                 className={cn(
-                  "h-9 rounded-full px-4 text-[13.5px] transition-[background-color,color,box-shadow] duration-300",
+                  "h-9 rounded-full px-4 text-[13.5px] transition-[background-color,color,box-shadow,scale] duration-300 active:scale-95",
                   modality === m
                     ? "bg-ink text-bg"
                     : "text-ink-2 ring-1 ring-border-strong hover:text-ink hover:ring-ink-3",
@@ -96,14 +96,15 @@ export function JobsBrowser({ jobs }: { jobs: PortalJob[] }) {
         </div>
 
         {visible.length ? (
-          <ul className="panel flex flex-col divide-y divide-border overflow-hidden px-3">
+          // Al cambiar modalidad o área la lista vuelve a entrar escalonada; al escribir no (parpadearía por tecla).
+          <ul key={`${modality}|${area}`} className="panel flex flex-col divide-y divide-border overflow-hidden px-3 animate-fade-in">
             {visible.map((j, i) => {
               const closes = j.closesAt ? fromISODate(j.closesAt) : null;
               return (
                 <li
                   key={j.id}
                   className="animate-rise"
-                  style={{ animationDelay: `${i * 50}ms` }}
+                  style={{ animationDelay: `${Math.min(i, 10) * 45}ms` }}
                 >
                   <Link
                     href={routes.apply(j.id)}
@@ -148,17 +149,16 @@ export function JobsBrowser({ jobs }: { jobs: PortalJob[] }) {
                     <span className="text-[13px] text-ink-3 max-md:hidden">
                       {closes ? `Hasta el ${formatLongDate(closes)}` : ""}
                     </span>
-                    <ArrowUpRight
-                      aria-hidden
-                      className="size-4 text-ink-3 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 max-md:row-start-1 max-md:col-start-2"
-                    />
+                    <LinkPending className="max-md:col-start-2 max-md:row-start-1">
+                      <ArrowUpRight aria-hidden className="size-4 text-ink-3 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </LinkPending>
                   </Link>
                 </li>
               );
             })}
           </ul>
         ) : (
-          <p className="panel py-12 text-center text-[14px] text-ink-3">
+          <p className="panel py-12 text-center text-[14px] text-ink-3 animate-rise">
             No hay vacantes con esos filtros.
           </p>
         )}

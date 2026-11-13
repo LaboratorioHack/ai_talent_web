@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Eye, FileClock, Highlighter, MousePointerClick, PencilLine, Plus, Trash2, Upload } from "lucide-react";
+import { Check, Download, Eye, FileClock, FileText, Highlighter, ImageIcon, Loader2, MousePointerClick, PencilLine, Plus, Trash2, Upload } from "lucide-react";
 import { PdfViewer, type PdfHotspot } from "@/shared/components/pdf/pdf-viewer";
-import { Button, Modal, Segmented, TextArea, TextField, useToast } from "@/shared/components/ui";
+import { Button, CribaText, LogoMark, Modal, Segmented, TextArea, TextField, useToast } from "@/shared/components/ui";
+import { browserFile, type ApiFile } from "@/shared/lib/api-browser";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
@@ -21,6 +22,14 @@ const MODES: { value: Mode; label: string; icon: typeof Eye }[] = [
   { value: "edit", label: "Editar texto", icon: PencilLine },
   { value: "highlight", label: "Resaltar", icon: Highlighter },
 ];
+
+type Source = "original" | "criba";
+
+/** Lo que se puede mostrar del archivo subido: PDF en el lector, imagen tal cual, Word solo para descargar. */
+type Original = { state: "loading" } | { state: "missing" } | { state: "ready"; kind: "pdf" | "image" | "word"; file: ApiFile; url: string };
+
+const kindOf = (f: ApiFile, name: string): "pdf" | "image" | "word" =>
+  f.contentType.includes("pdf") || /\.pdf$/i.test(name) ? "pdf" : f.contentType.startsWith("image/") || /\.(png|jpe?g|webp|heic)$/i.test(name) ? "image" : "word";
 
 const clone = (d: ResumeDoc): ResumeDoc => JSON.parse(JSON.stringify(d));
 const day = (iso: string) => {
@@ -48,6 +57,36 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
   const [file, setFile] = useState({ name: resume.fileName, updatedAt: resume.updatedAt });
   const [confirmErase, setConfirmErase] = useState(false);
   const [typed, setTyped] = useState("");
+  // Primero se ve lo que la persona subió; la versión de Criba es la que se edita.
+  const [source, setSource] = useState<Source>("original");
+  const [loadedOriginal, setOriginal] = useState<Original & { key?: string }>({ state: "loading" });
+  const fileKey = `${file.name}|${file.updatedAt}`;
+  // Mientras llega el archivo de la versión actual, se ve como cargando (sin setState en el efecto).
+  const original: Original = loadedOriginal.key === fileKey ? loadedOriginal : { state: "loading" };
+
+  // El archivo original, cada vez que cambia la versión actual.
+  useEffect(() => {
+    let cancelled = false;
+    let url = "";
+    browserFile("/me/resume/file")
+      .then((f) => {
+        if (cancelled) return;
+        if (!f) return setOriginal({ state: "missing", key: fileKey });
+        const kind = kindOf(f, file.name);
+        url = URL.createObjectURL(new Blob([f.bytes as BlobPart], { type: f.contentType }));
+        setOriginal({ state: "ready", kind, file: f, url, key: fileKey });
+      })
+      .catch(() => !cancelled && setOriginal({ state: "missing", key: fileKey }));
+    return () => {
+      cancelled = true;
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [fileKey, file.name]);
+
+  // Un escaneo (imagen) no tiene texto que editar: se ve, pero no se edita.
+  const scanned = original.state === "ready" && original.kind === "image";
+  const hasText = doc.sections.some((sec) => sec.lines.some((l) => l.text.trim()));
+  const editable = !scanned && hasText;
 
   // Regenera el PDF un momento después de cada cambio.
   useEffect(() => {
@@ -154,14 +193,33 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Segmented
-            aria-label="Herramienta"
-            items={MODES}
-            value={mode}
-            onChange={(m) => {
-              setMode(m);
-              setActive(null);
+            aria-label="Qué hoja ver"
+            items={[
+              { value: "original", label: "La que subiste", icon: FileText },
+              { value: "criba", label: "Versión de Criba", icon: LogoMarkIcon },
+            ]}
+            value={source}
+            onChange={(v) => {
+              setSource(v);
+              if (v === "original") {
+                setMode("view");
+                setActive(null);
+              }
             }}
           />
+          {editable ? (
+            <Segmented
+              aria-label="Herramienta"
+              items={MODES}
+              value={source === "original" ? "view" : mode}
+              onChange={(m) => {
+                // Editar y resaltar trabajan sobre el texto: se pasa a la versión de Criba.
+                if (m !== "view") setSource("criba");
+                setMode(m);
+                setActive(null);
+              }}
+            />
+          ) : null}
           <Button variant="outline" icon={<Upload />} loading={busy === "upload"} disabled={busy !== null} onClick={() => input.current?.click()}>
             Subir otro PDF
           </Button>
@@ -172,15 +230,21 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
       </header>
 
       <div className="grid grid-cols-1 gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <PdfViewer
-          data={pdf?.bytes ?? null}
-          fileName={file.name}
-          hotspots={hotspots}
-          activeKey={active}
-          onHotspot={onHotspot}
-          initialZoom={0.75}
-          className="h-[calc(100dvh-260px)] min-h-[480px] lg:h-full lg:min-h-0 animate-rise [animation-delay:60ms]"
-        />
+        <div key={source} className="flex min-h-0 flex-col animate-[page-in_420ms_var(--ease-out-soft)_backwards]">
+          {source === "criba" ? (
+            <PdfViewer
+              data={pdf?.bytes ?? null}
+              fileName={file.name.replace(/\.[a-z0-9]+$/i, "") + ".pdf"}
+              hotspots={hotspots}
+              activeKey={active}
+              onHotspot={onHotspot}
+              initialZoom={0.75}
+              className="h-[calc(100dvh-260px)] min-h-[480px] lg:h-full lg:min-h-0"
+            />
+          ) : (
+            <OriginalView original={original} fileName={file.name} onCriba={() => setSource("criba")} />
+          )}
+        </div>
 
         <aside key={mode} className="flex flex-col gap-6 [&>*]:animate-rise [&>*:nth-child(2)]:[animation-delay:70ms] [&>*:nth-child(3)]:[animation-delay:140ms]">
           {mode === "edit" ? (
@@ -228,6 +292,16 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
 
           {mode === "view" ? (
             <>
+              <p className="flex items-start gap-2.5 rounded-2xl bg-amber/10 px-4 py-3 text-[13px] leading-snug text-ink-2 ring-1 ring-amber/25">
+                <LogoMark size={14} className="mt-0.5" />
+                <span>
+                  {source === "original" ? (
+                    <CribaText text={scanned ? "Es un escaneo: Criba AI leyó su texto, pero una imagen no se puede editar. Si quieres cambiar algo, sube otra versión." : "Esta es la hoja que subiste, tal cual la reciben las empresas. Criba AI también armó una versión con lo que leyó: esa la puedes editar."} />
+                  ) : (
+                    <CribaText text="Esta es la versión que armó Criba AI con lo que leyó de tu archivo. Si la editas y guardas, queda como tu versión actual." />
+                  )}
+                </span>
+              </p>
               <section className="panel flex flex-col gap-3 p-5">
                 <h2 className="text-[12.5px] font-medium tracking-[0.08em] text-ink-3 uppercase">La reciben</h2>
                 <ul className="flex flex-col divide-y divide-border">
@@ -308,6 +382,60 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
       >
         <TextField label='Escribe "BORRAR" para confirmar' value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" />
       </Modal>
+    </div>
+  );
+}
+
+/** Icono de la marca para el selector (mismo tamaño que los de Lucide). */
+function LogoMarkIcon({ className }: { className?: string }) {
+  return <LogoMark size={14} className={className} />;
+}
+
+/** El archivo tal como lo subió la persona: PDF en el lector, imagen tal cual, Word para descargar. */
+function OriginalView({ original, fileName, onCriba }: { original: Original; fileName: string; onCriba: () => void }) {
+  const frame = "h-[calc(100dvh-260px)] min-h-[480px] lg:h-full lg:min-h-0";
+  if (original.state === "loading") {
+    return (
+      <div className={cn("panel flex flex-col items-center justify-center gap-3 text-[13.5px] text-ink-3", frame)} aria-busy>
+        <Loader2 aria-hidden className="size-5 animate-spin text-amber" />
+        Abriendo tu archivo
+      </div>
+    );
+  }
+  if (original.state === "ready" && original.kind === "pdf") {
+    return <PdfViewer data={original.file.bytes} fileName={fileName} initialZoom={0.75} className={frame} />;
+  }
+  if (original.state === "ready" && original.kind === "image") {
+    return (
+      <div className={cn("panel flex items-start justify-center overflow-auto p-6", frame)}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- archivo local (blob:), next/image no aplica */}
+        <img src={original.url} alt={`Tu hoja de vida: ${fileName}`} className="max-w-full rounded-[3px] shadow-[0_18px_40px_-24px_rgba(0,0,0,0.5)] animate-rise" />
+      </div>
+    );
+  }
+  return (
+    <div className={cn("panel flex flex-col items-center justify-center gap-4 px-6 text-center", frame)}>
+      {original.state === "ready" ? <FileText aria-hidden className="size-8 text-ink-3" /> : <ImageIcon aria-hidden className="size-8 text-ink-3" />}
+      <p className="max-w-[360px] text-[14px] text-ink-2">
+        {original.state === "ready" ? "Subiste un Word: el navegador no lo puede mostrar aquí, pero puedes descargarlo tal cual." : "El archivo original ya no está disponible."}
+      </p>
+      <div className="flex flex-wrap justify-center gap-2">
+        {original.state === "ready" ? (
+          <Button
+            variant="outline"
+            icon={<Download />}
+            onClick={() => {
+              const a = document.createElement("a");
+              a.href = original.url;
+              a.download = fileName;
+              a.click();
+            }}
+          >
+            Descargar
+          </Button>
+        ) : null}
+        <Button onClick={onCriba}>Ver la versión de Criba</Button>
+      </div>
     </div>
   );
 }

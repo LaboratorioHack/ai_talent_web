@@ -267,6 +267,10 @@ Lo que Manuel va pidiendo; se hace en este orden y se tacha al cerrarlo.
 8. ~~Usar Jev (el fast-pass del AI Engine) en el ranking y comprobar que ordena bien.~~ (el evaluate usa Jev como filtro rápido y luego Claude; probado con IA real)
 9. Correos con plantilla propia de Criba (invitación a entrevista, enlace del portal, pedir original, entrevista con el equipo): bonitos y con la estética de la marca. El SMTP de Gmail hoy rechaza la contraseña: hace falta una contraseña de aplicación de 16 letras en `Smtp__Password`.
 10. Al terminar: PR a `develop` y a `main` de lo nuevo y revisar el despliegue.
+11. ~~Portal del postulante y entrevista más suaves y con retroalimentación (rama `feat/applicant-motion`): pestañas que marcan al instante con una línea ámbar mientras llega la sección, fundido entre secciones (`portal/template.tsx`), `LinkPending` en filas y vacantes, filtros con contador animado. Entrevista: la respuesta aparece al instante con «Enviando → Guardada» o «Reintentar», acuses entre preguntas, progreso que se llena, chispas al terminar. Chat de Criba AI más cálido, con avatar, reintento y textos de espera; `CribaText` pone la marca junto a cada «Criba».~~
+12. ~~Mi hoja de vida: ver la que se subió (PDF en el lector, imagen tal cual, Word para descargar) y la versión de Criba, que es la editable; un escaneo no se edita.~~
+13. ~~«Guardar y salir» del onboarding y «Cerrar sesión» del portal cierran la sesión (antes el proxy devolvía al onboarding).~~
+14. Chore: `docs/adrs/` en ambos repos con el manual técnico en PDF y `.md`.
 
 ## Pendiente
 

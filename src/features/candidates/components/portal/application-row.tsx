@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { routes } from "@/shared/constants/routes";
+import { LinkPending } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 import { placeOf, type PortalApplication } from "../../types/portal";
 import { nextStage, outcomeLabel, StageTrack } from "./stage-track";
@@ -27,7 +28,7 @@ export function ApplicationRow({ application: a, index = 0 }: { application: Por
       <Link
         href={routes.portalApplication(a.id)}
         className={cn(
-          "group relative -mx-4 grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-x-4 gap-y-3 overflow-hidden rounded-2xl px-4 py-5 sm:grid-cols-[44px_minmax(0,1fr)_180px_auto] sm:gap-x-6",
+          "group relative -mx-4 grid transition-[scale] duration-300 active:scale-[0.99] grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-x-4 gap-y-3 overflow-hidden rounded-2xl px-4 py-5 sm:grid-cols-[44px_minmax(0,1fr)_180px_auto] sm:gap-x-6",
           ended && "opacity-55 transition-opacity hover:opacity-100",
         )}
       >
@@ -52,7 +53,9 @@ export function ApplicationRow({ application: a, index = 0 }: { application: Por
           <StageTrack application={a} compact delay={300 + index * 120} />
           <span className={cn("text-[12.5px] font-medium", status.text)}>{status.label}</span>
         </span>
-        <ChevronRight aria-hidden className="relative size-4 text-ink-3 transition-[transform,translate,color] duration-300 group-hover:translate-x-1 group-hover:text-ink max-sm:col-start-3 max-sm:row-start-1 sm:col-start-4" />
+        <LinkPending className="max-sm:col-start-3 max-sm:row-start-1 sm:col-start-4">
+          <ChevronRight aria-hidden className="relative size-4 text-ink-3 transition-[transform,translate,color] duration-300 group-hover:translate-x-1 group-hover:text-ink" />
+        </LinkPending>
       </Link>
     </li>
   );

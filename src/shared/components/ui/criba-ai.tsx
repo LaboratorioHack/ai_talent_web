@@ -33,3 +33,26 @@ export function CribaAiNote({ children, className }: { children: ReactNode; clas
     </p>
   );
 }
+
+/**
+ * Texto donde Criba se nombra a sí misma: cada «Criba» o «Criba AI» lleva la
+ * marca de la página al lado, para que se reconozca de un vistazo. Solo texto:
+ * nada se interpreta como HTML.
+ */
+export function CribaText({ text }: { text: string }) {
+  const parts = text.split(/(\bCriba(?: AI)?\b)/g);
+  return (
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <span key={i} className="inline-flex items-baseline gap-[0.3em] font-medium whitespace-nowrap">
+            <LogoMark size={12} className="translate-y-[1px] self-center" />
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+}
