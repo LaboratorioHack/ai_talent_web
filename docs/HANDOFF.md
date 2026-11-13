@@ -216,7 +216,7 @@ Importar la página viva tarda demasiado y se corta (60 s). Lo que funciona: con
 
 ## Conexión con la API de Jean (`feat/connect-back-api`)
 
-Con `NEXT_PUBLIC_USE_MOCKS=false` y Supabase configurado, estas partes usan la API .NET (`ai_talent_back`, rama `develop`):
+Todas las pantallas usan la API .NET (`ai_talent_back`, rama `develop`); ya no existe el modo mock. Lo que venía de antes:
 
 - **Token**: `shared/lib/api-server.ts` (Server Components) y `shared/lib/api-browser.ts` (navegador) ponen el JWT de Supabase en `Authorization`. `apiFetch` lee el `detail` de los ProblemDetails, acepta `FormData` y respuestas 204. Si `NEXT_PUBLIC_API_URL` es relativa, el servidor usa `API_INTERNAL_URL`.
 - **Sesión**: `GET /api/auth/me`. Sin empresa todavía, el panel manda a `/onboarding/2`; con empresa, `/onboarding/2` manda al panel. Campana vacía (la API no calcula avisos) y buscador solo con vacantes.
@@ -250,6 +250,10 @@ Lo que Manuel va pidiendo; se hace en este orden y se tacha al cerrarlo.
 2. Quitar todos los datos de prueba del front (`shared/mocks`, `NEXT_PUBLIC_USE_MOCKS`, datos fijos en componentes). Lo que falte en la API se hace en el back con su migración, endpoint y seed. Usar los `.env` de Descargas (`frontend.download` → `.env.local`, `backend.development` → `.env.development`).
 3. Logins según el MVP: que el de empresas y el del portal del postulante sean consistentes; quitar el botón de atrás en el onboarding de la organización y el "Paso 1 de 3" del login de empresas.
 4. Revisar `Errores.pdf` (QA del 12/11): textos del Inicio ("las evaluaciones", leyenda "Recibidas y fecha de cierre a la derecha" sobra, embudo desalineado, "Mostrando los últimos 30 días en 1 vacantes"), horas ahorradas en verde, límite de envíos del enlace mágico (es el límite de correos de Supabase: hay que configurar SMTP propio en Auth), guardar borrador y crear con pesos que no suman 100, enlace de postulación que da 404.
+5. Probar la build de producción en Docker en local; PR a `develop`, esperar CI y mergear; PR a `main`, esperar CI, CD y lint, mergear y comprobar el sitio desplegado.
+6. Video con todo el flujo de ambos lados; un personaje para Criba AI (en la línea del de Claude) cuando la IA actúa; pruebas exhaustivas de la IA real (Anthropic, embeddings Nemotron y Voyage por OpenRouter, RAG) y un archivo con capturas de todo funcionando.
+7. Auditoría: que toda acción genere un evento real (también las de la IA). Exportes en PDF con plantilla de la estética de Criba (sobria y elegante) y datos reales; CSV opcional.
+8. Usar Jev (el fast-pass del AI Engine) en el ranking y comprobar que ordena bien.
 
 ## Pendiente
 
@@ -264,4 +268,4 @@ Lo que Manuel va pidiendo; se hace en este orden y se tacha al cerrarlo.
 
 - Commits atómicos, en inglés, ≤ 70 caracteres, tipo `feat: …` / `fix: …` / `chore: …`, sin paréntesis ni coautoría.
 - Una feature no importa de otra feature; lo común sube a `shared/`.
-- Mientras no haya backend: `NEXT_PUBLIC_USE_MOCKS=true` en `.env.local` y las `api/` de cada feature devuelven datos de `src/shared/mocks`.
+- No hay datos de prueba en el front: toda pantalla lee la API. Para tener datos en local, cargar el seed del back (`ai_talent_back/scripts/seed-demo.sh`).
