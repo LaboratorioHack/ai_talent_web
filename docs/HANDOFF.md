@@ -254,6 +254,7 @@ Lo que Manuel va pidiendo; se hace en este orden y se tacha al cerrarlo.
 6. Video con todo el flujo de ambos lados; un personaje para Criba AI (en la línea del de Claude) cuando la IA actúa; pruebas exhaustivas de la IA real (Anthropic, embeddings Nemotron y Voyage por OpenRouter, RAG) y un archivo con capturas de todo funcionando.
 7. Auditoría: que toda acción genere un evento real (también las de la IA). Exportes en PDF con plantilla de la estética de Criba (sobria y elegante) y datos reales; CSV opcional.
 8. Usar Jev (el fast-pass del AI Engine) en el ranking y comprobar que ordena bien.
+9. Correos con plantilla propia de Criba (invitación a entrevista, enlace del portal, pedir original, entrevista con el equipo): bonitos y con la estética de la marca.
 
 ## Pendiente
 
