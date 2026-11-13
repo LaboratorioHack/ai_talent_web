@@ -1,7 +1,6 @@
 /**
- * A dónde volver después de un enlace de Supabase (enlace mágico del postulante
- * o cambio de contraseña de la empresa). Si el dominio no está en las Redirect
- * URLs de Supabase, el correo cae en el Site URL sin `next`: la cookie lo recupera.
+ * A dónde volver después del enlace mágico de Supabase. Si el dominio no está en las
+ * Redirect URLs de Supabase, el correo cae en el Site URL sin `next`: la cookie lo recupera.
  */
 export const AUTH_NEXT_COOKIE = "criba-auth-next";
 
@@ -11,7 +10,7 @@ export function safeNextPath(value: string | null | undefined): string | null {
   return value;
 }
 
-/** Se llama en el navegador justo antes de pedir el correo; dura lo mismo que el enlace (1 h). */
+/** Se llama en el navegador justo antes de pedir el enlace; dura lo mismo que el enlace (1 h). */
 export function rememberAuthNext(path: string): void {
   const secure = window.location.protocol === "https:" ? "; Secure" : "";
   document.cookie = `${AUTH_NEXT_COOKIE}=${encodeURIComponent(path)}; Path=/; Max-Age=3600; SameSite=Lax${secure}`;

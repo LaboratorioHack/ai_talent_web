@@ -6,6 +6,7 @@ import { AuthHeading, AuthSwitch } from "@/shared/components/layout/auth-shell";
 import { Button, TextField } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
+import { OAuthButtons } from "@/features/auth/components/oauth-buttons";
 import { sendPortalLink } from "../../api/portal-auth";
 
 const STAGES = ["Recibida", "En revisión", "Entrevista", "Decisión"];
@@ -28,11 +29,12 @@ export function PortalSignInForm() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // /auth/callback manda aquí con ?error=link si el enlace del correo ya no sirve.
+  // /auth/callback manda aquí con ?error=link (enlace vencido) u ?error=oauth (Google/Microsoft).
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("error") !== "link") return;
+    const failure = new URLSearchParams(window.location.search).get("error");
+    if (failure !== "link" && failure !== "oauth") return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- lee la URL una sola vez al montar
-    setError("El enlace ya no sirve: venció, ya se usó o se abrió en otro navegador. Pide uno nuevo.");
+    setError(failure === "oauth" ? "No se completó la entrada con Google o Microsoft. Intenta de nuevo o usa tu correo." : "El enlace ya no sirve: venció, ya se usó o se abrió en otro navegador. Pide uno nuevo.");
   }, []);
 
   async function submit(e: React.FormEvent) {
@@ -64,8 +66,9 @@ export function PortalSignInForm() {
 
   return (
     <div className="stagger flex flex-col gap-7 short:gap-5 shorter:gap-4 [&>*]:animate-rise">
-      <AuthHeading eyebrow="Postulantes" title="Sigue tus postulaciones" description="Entra con el correo con el que te postulaste. Sin contraseña: te mandamos un enlace." />
-      <form onSubmit={submit} noValidate className="flex flex-col gap-6 short:gap-4 shorter:gap-3" style={{ "--i": 1 } as React.CSSProperties}>
+      <AuthHeading eyebrow="Postulantes" title="Sigue tus postulaciones" description="Entra con Google, Microsoft o el correo con el que te postulaste. Sin contraseña." />
+      <OAuthButtons next={routes.portal} onError={setError} />
+      <form onSubmit={submit} noValidate className="flex flex-col gap-6 short:gap-4 shorter:gap-3" style={{ "--i": 2 } as React.CSSProperties}>
         <TextField
           label="Tu correo"
           type="email"

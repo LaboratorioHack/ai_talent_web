@@ -6,10 +6,10 @@ import { AuthShell } from "@/shared/components/layout";
 
 export const metadata: Metadata = { title: "Entrar" };
 
-/** Entrada de empresas: correo y contraseña (sin registro público; las cuentas se crean por invitación). */
+/** Entrada de empresas: solo el correo y un enlace de un solo uso. Entrar y registrarse son el mismo paso. */
 export default function LoginPage() {
   return (
-    <AuthShell scene={<LoginShowcase />} note="Las cuentas de empresa se crean por invitación de tu organización.">
+    <AuthShell scene={<LoginShowcase />} note="¿Te invitaron? Entra con tu correo y escribe el código de tu organización en el siguiente paso.">
       <Suspense fallback={null}>
         <LoginForm />
       </Suspense>

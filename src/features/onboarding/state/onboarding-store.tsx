@@ -77,11 +77,3 @@ export function useOnboarding(): Ctx {
   return ctx;
 }
 
-/** ¿Esta cuenta ya terminó el onboarding en este navegador? */
-export function hasFinishedOnboarding(): boolean {
-  try {
-    return localStorage.getItem(DONE_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
