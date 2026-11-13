@@ -10,15 +10,11 @@ import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import type { Interview, InterviewTurn } from "@/shared/types/domain";
 import { RECOMMENDATION, STATUS, when } from "./interview-meta";
+import { discardAfterInterview } from "../api/actions";
 import { DiscardInterviewModal, ScheduleModal } from "./interview-modals";
 
-/** Lo que "responderá" en vivo la entrevista en curso del mock. */
-const SCRIPT: Record<number, Pick<InterviewTurn, "question" | "answer" | "verdict">> = {
-  6: { question: "¿Cuántos ambientes manejaban con Terraform?", answer: "Tres: desarrollo, pruebas y producción, con módulos compartidos.", verdict: "match" },
-  7: { question: "¿Tienes alguna certificación de Azure en curso?", answer: "Tengo la de AWS Professional; la de Azure Architect la presento en enero.", verdict: "match" },
-  8: { question: "¿Has trabajado con regulación financiera?", answer: "Sí, con auditorías trimestrales sobre cambios en producción.", verdict: "match" },
-  9: { question: "¿Qué te gustaría preguntarnos?", answer: "Cómo se reparte la guardia y qué tanto se automatiza hoy.", verdict: "match" },
-};
+/** Cada cuánto se refresca una entrevista que todavía no termina. */
+const LIVE_REFRESH_MS = 6000;
 
 const VERDICT_ICON = { match: Check, conflict: AlertTriangle, missing: Minus } as const;
 
@@ -46,34 +42,34 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
   const [turns, setTurns] = useState(iv.turns);
   const [status, setStatus] = useState(iv.status);
   const [modal, setModal] = useState<"schedule" | "discard" | null>(null);
+  const [discarding, setDiscarding] = useState(false);
   const [flash, setFlash] = useState<number | null>(null);
   const list = useRef<HTMLOListElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const first = iv.candidate.name.split(" ")[0];
 
-  // Simulación en vivo: cada pocos segundos llega una respuesta y la siguiente pregunta.
+  // Cada recarga del servidor trae la entrevista al día (ajuste durante el render, sin efecto).
+  const [received, setReceived] = useState(iv);
+  if (received !== iv) {
+    setReceived(iv);
+    setTurns(iv.turns);
+    setStatus(iv.status);
+  }
+
+  // Avisa una sola vez cuando una entrevista que se veía en vivo termina.
+  const wasLive = useRef(iv.status === "IN_PROGRESS");
   useEffect(() => {
-    if (status !== "IN_PROGRESS") return;
-    const pending = turns.find((t) => !t.answer);
-    if (!pending) {
-      const t = window.setTimeout(() => {
-        setStatus("DONE");
-        toast({ title: `${first} terminó la entrevista`, description: "Revisa el contraste con la hoja de vida antes de decidir." });
-      }, 1200);
-      return () => window.clearTimeout(t);
-    }
-    const script = SCRIPT[pending.order];
-    const t = window.setTimeout(() => {
-      setTurns((all) =>
-        all.map((x) => {
-          if (x.order === pending.order) return { ...x, question: x.question || script?.question || "", answer: script?.answer ?? "Respuesta registrada.", verdict: script?.verdict ?? "match" };
-          if (x.order === pending.order + 1 && !x.question) return { ...x, question: SCRIPT[x.order]?.question ?? "" };
-          return x;
-        }),
-      );
-    }, 5200);
-    return () => window.clearTimeout(t);
-  }, [turns, status, first, toast]);
+    if (wasLive.current && status === "DONE") toast({ title: `${first} terminó la entrevista`, description: "Revisa el contraste con la hoja de vida antes de decidir." });
+    wasLive.current = status === "IN_PROGRESS";
+  }, [status, first, toast]);
+
+  // Mientras la persona responde, la pantalla vuelve a pedir la entrevista cada pocos segundos.
+
+  useEffect(() => {
+    if (status === "DONE") return;
+    const t = window.setInterval(() => router.refresh(), LIVE_REFRESH_MS);
+    return () => window.clearInterval(t);
+  }, [status, router]);
 
   // El chat abre mostrando lo último y baja solo cuando llega un mensaje nuevo.
   const answeredCount = turns.filter((t) => t.answer).length;
@@ -110,7 +106,7 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
           </nav>
         }
         title={iv.candidate.name}
-        description={status === "SCHEDULED" ? `Invitación enviada, responde hasta el ${when(iv.startedAt).split(",")[0]}` : `${iv.totalQuestions} preguntas, ${iv.durationMin || 14} minutos, empezó el ${when(iv.startedAt)}`}
+        description={status === "SCHEDULED" ? `Invitación enviada, responde hasta el ${when(iv.expiresAt ?? iv.startedAt).split(",")[0]}` : `${iv.totalQuestions} preguntas, ${iv.durationMin || 14} minutos, empezó el ${when(iv.startedAt)}`}
         actions={
           <>
             <span key={status} className={cn("mr-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium animate-[pop-in_400ms_var(--ease-spring)_both]", STATUS[status].tone)}>
@@ -285,6 +281,7 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
       </div>
 
       <ScheduleModal
+        interviewId={iv.id}
         name={iv.candidate.name}
         open={modal === "schedule"}
         onClose={() => setModal(null)}
@@ -296,11 +293,20 @@ export function InterviewView({ interview: iv }: { interview: Interview }) {
       <DiscardInterviewModal
         name={iv.candidate.name}
         open={modal === "discard"}
+        busy={discarding}
         onClose={() => setModal(null)}
-        onDiscard={(reason) => {
-          setModal(null);
-          toast({ title: `Descartaste a ${iv.candidate.name}`, description: `${reason}. Quedó en la auditoría.` });
-          router.push(routes.interviews);
+        onDiscard={async (reason) => {
+          setDiscarding(true);
+          try {
+            await discardAfterInterview(iv.vacancyId, iv.applicationId, reason);
+            setModal(null);
+            toast({ title: `Descartaste a ${iv.candidate.name}`, description: `${reason}. Quedó en la auditoría.` });
+            router.push(routes.interviews);
+          } catch {
+            toast({ tone: "error", title: "No se pudo descartar", description: "La postulación ya está cerrada o no hay conexión." });
+          } finally {
+            setDiscarding(false);
+          }
         }}
       />
     </div>

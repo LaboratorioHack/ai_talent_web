@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarPlus, EyeOff, FileText, RotateCcw, Trash2 } from "lucide-react";
+import { CalendarPlus, EyeOff, FileText, Trash2 } from "lucide-react";
 import { AnimatedNumber, Avatar, Button, StatusChip } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
@@ -26,14 +26,13 @@ export interface CandidateFocusProps {
   invited?: string;
   onInvite: () => void;
   onDiscard: () => void;
-  onRestore: () => void;
   onOpenResume: () => void;
   onAiError: (requirementId: string) => void;
   onEquivalences: (requirementId: string) => void;
 }
 
 /** Pantalla 08 · Foco de candidato: puntaje, de dónde sale, evidencia y qué validar. */
-export function CandidateFocus({ candidate: c, requirements, profileVersion, discarded, invited, onInvite, onDiscard, onRestore, onOpenResume, onAiError, onEquivalences }: CandidateFocusProps) {
+export function CandidateFocus({ candidate: c, requirements, profileVersion, discarded, invited, onInvite, onDiscard, onOpenResume, onAiError, onEquivalences }: CandidateFocusProps) {
   const bars = Math.round(c.confidence * 5);
 
   return (
@@ -73,9 +72,6 @@ export function CandidateFocus({ candidate: c, requirements, profileVersion, dis
           <span className="text-ink-2">
             Descartado por: <strong className="font-medium text-ink">{discarded}</strong>. El motivo quedó en la auditoría.
           </span>
-          <Button variant="text" icon={<RotateCcw />} onClick={onRestore}>
-            Deshacer
-          </Button>
         </div>
       ) : (
         <div className="flex flex-wrap items-center gap-2" style={{ "--i": 1 } as React.CSSProperties}>

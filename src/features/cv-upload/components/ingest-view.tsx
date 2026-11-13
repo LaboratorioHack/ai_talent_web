@@ -7,9 +7,7 @@ import { ChevronRight, Clock, Play, X } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
 import { PdfViewer } from "@/shared/components/pdf/pdf-viewer";
 import { Button, CribaAi, EmptyState, Modal, ScrollArea, SearchField, Select, useToast } from "@/shared/components/ui";
-import { resumeToPdf } from "@/shared/lib/resume-pdf";
-import { mockResumeDocs } from "@/shared/mocks";
-import type { ResumeDoc } from "@/shared/types/resume-doc";
+import { getResumeFile, isPdf, saveFile } from "@/shared/lib/application-api";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { useIngest } from "../hooks/use-ingest";
@@ -24,7 +22,7 @@ type Group = "busy" | "read" | "unreadable" | "duplicate" | "rejected";
 type Column = "busy" | "attention" | "read";
 
 const groupOf = (f: IngestFile): Group =>
-  f.status === "UPLOADING" || f.status === "PROCESSING" ? "busy" : f.status === "READ" ? "read" : f.status === "UNREADABLE" ? "unreadable" : f.status === "DUPLICATE" ? "duplicate" : "rejected";
+  f.status === "PROCESSING" ? "busy" : f.status === "READ" ? "read" : f.status === "UNREADABLE" ? "unreadable" : f.status === "DUPLICATE" ? "duplicate" : "rejected";
 
 const columnOf = (f: IngestFile): Column => {
   const g = groupOf(f);
@@ -42,19 +40,6 @@ const COLUMNS: { key: Column; title: string; hint: string; dot: string }[] = [
 
 
 
-/** Mientras no exista el archivo real en Storage: una hoja de vida de ejemplo con el nombre del archivo. */
-function docFromFile(fileName: string): ResumeDoc {
-  const name = fileName
-    .replace(/\.[a-z0-9]+$/i, "")
-    .replace(/(_cv|_v\d+|_\d+|hv_|cv_)/gi, " ")
-    .split(/[_\s]+/)
-    .filter(Boolean)
-    .map((w) => w[0].toUpperCase() + w.slice(1))
-    .join(" ");
-  const base = mockResumeDocs.a1;
-  return { ...base, name: name || "Hoja de vida", contact: ["correo@ejemplo.com", "300 000 0000", "Colombia"] };
-}
-
 /**
  * Pantalla 07 · Postulaciones de una vacante. Arriba la convocatoria (enlace
  * público y canales); luego qué falta resolver y un tablero con las hojas de
@@ -63,16 +48,24 @@ function docFromFile(fileName: string): ResumeDoc {
 export function IngestView({ data }: { data: IngestData }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { files, read, remove, removeMany, requestOriginal } = useIngest(data.files);
+  const { files, remove, requestOriginal } = useIngest(data.job.id, data.files);
   const [group, setGroup] = useState<Group | null>(null);
   const [query, setQuery] = useState("");
   const [evaluating, setEvaluating] = useState(false);
   const [preview, setPreview] = useState<{ name: string; bytes: Uint8Array | null } | null>(null);
 
+  /** Abre el archivo que envió la persona: un PDF en el lector; un Word se descarga. */
   async function openFile(f: IngestFile) {
-    setPreview({ name: f.name, bytes: null });
-    const { bytes } = await resumeToPdf(docFromFile(f.name));
-    setPreview((p) => (p && p.name === f.name ? { ...p, bytes } : p));
+    const file = await getResumeFile(data.job.id, f.id).catch(() => null);
+    if (!file) {
+      toast({ tone: "error", title: "No encontramos el archivo", description: "Pide el original a la persona." });
+      return;
+    }
+    if (!isPdf(file)) {
+      saveFile(file, f.name);
+      return;
+    }
+    setPreview({ name: f.name, bytes: file.bytes });
   }
 
   const counts = useMemo(() => {
@@ -97,15 +90,15 @@ export function IngestView({ data }: { data: IngestData }) {
     return by;
   }, [files, query, group]);
 
-  function onRemove(id: string) {
+  async function onRemove(id: string) {
     const file = files.find((f) => f.id === id);
-    const undo = remove(id);
-    toast({ title: "Archivo quitado", description: file?.name, action: { label: "Deshacer", onClick: undo } });
+    if (await remove([id], "Quitada de la convocatoria desde Postulaciones")) toast({ title: "Postulación quitada", description: `${file?.person ?? ""}. Queda en la auditoría.` });
+    else toast({ tone: "error", title: "No se pudo quitar", description: "Revisa tu conexión e inténtalo de nuevo." });
   }
 
-  function onRequest(id: string) {
-    requestOriginal(id);
-    toast({ title: "Pedimos el original", description: "La persona recibe un correo con un enlace para subirlo de nuevo." });
+  async function onRequest(id: string) {
+    if (await requestOriginal([id])) toast({ title: "Pedimos el original", description: "La persona recibe un correo para enviarla de nuevo." });
+    else toast({ tone: "error", title: "No se pudo enviar el correo", description: "Intenta de nuevo en un momento." });
   }
 
   const emptyJob = files.length === 0;
@@ -153,20 +146,20 @@ export function IngestView({ data }: { data: IngestData }) {
                 counts={counts}
                 active={group}
                 onPick={setGroup}
-                onRequestAll={() => {
+                onRequestAll={async () => {
                   const ids = files.filter((f) => f.status === "UNREADABLE").map((f) => f.id);
-                  ids.forEach(requestOriginal);
-                  toast({ title: `Pedimos ${ids.length} originales`, description: "Cada persona recibe un correo con un enlace para subirla de nuevo." });
+                  const sent = await requestOriginal(ids);
+                  toast({ tone: sent === ids.length ? "success" : "error", title: `Pedimos ${sent} de ${ids.length} originales`, description: "Cada persona recibe un correo para enviarla de nuevo." });
                 }}
-                onRemoveDuplicates={() => {
+                onRemoveDuplicates={async () => {
                   const ids = files.filter((f) => f.status === "DUPLICATE").map((f) => f.id);
-                  const undo = removeMany(ids);
-                  toast({ title: `Quitaste ${ids.length} duplicadas`, description: "Se conserva la primera copia de cada una.", action: { label: "Deshacer", onClick: undo } });
+                  const removed = await remove(ids, "Hoja de vida duplicada");
+                  toast({ title: `Quitaste ${removed} duplicadas`, description: "Se conserva la primera postulación de cada archivo." });
                 }}
-                onRemoveRejected={() => {
+                onRemoveRejected={async () => {
                   const ids = files.filter((f) => f.status === "UNSUPPORTED" || f.status === "NO_DATA").map((f) => f.id);
-                  const undo = removeMany(ids);
-                  toast({ title: `Quitaste ${ids.length} archivos rechazados`, action: { label: "Deshacer", onClick: undo } });
+                  const removed = await remove(ids, "El archivo no es una hoja de vida legible");
+                  toast({ title: `Quitaste ${removed} archivos rechazados` });
                 }}
               />
             </div>
@@ -205,15 +198,15 @@ export function IngestView({ data }: { data: IngestData }) {
                         ) : null}
                       </header>
                       <ScrollArea className="h-[540px] max-lg:h-auto max-lg:max-h-[420px]" viewportClassName="px-3 pb-3">
-                        {col.key === "busy" ? (
+                        {col.key === "busy" && items[0] ? (
                           <div className="mb-2">
-                            <AiReadingCard />
+                            <AiReadingCard fileName={items[0].name} />
                           </div>
                         ) : null}
                         {items.length ? (
                           <ul className="flex flex-col gap-2">
                             {items.map((f, i) => (
-                              <FileCard key={f.id} file={f} index={i} onRetry={(id) => read(id)} onRemove={onRemove} onRequestOriginal={onRequest} onOpen={openFile} />
+                              <FileCard key={f.id} file={f} index={i} onRemove={onRemove} onRequestOriginal={onRequest} onOpen={openFile} />
                             ))}
                           </ul>
                         ) : (
