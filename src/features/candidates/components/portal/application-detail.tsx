@@ -7,7 +7,8 @@ import { Button, Modal, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
-import type { PortalApplication } from "../../types/portal";
+import { withdrawApplication } from "../../api/portal-actions";
+import { placeOf, type PortalApplication } from "../../types/portal";
 import { NextStep } from "./next-step";
 import { outcomeLabel, StageTrack, STAGES } from "./stage-track";
 
@@ -28,6 +29,20 @@ export function ApplicationDetail({ application }: { application: PortalApplicat
   const { toast } = useToast();
   const [a, setA] = useState(application);
   const [confirm, setConfirm] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  async function withdraw() {
+    setBusy(true);
+    try {
+      setA(await withdrawApplication(a.id));
+      setConfirm(false);
+      toast({ title: "Postulación retirada", description: a.jobTitle });
+    } catch {
+      toast({ tone: "error", title: "No se pudo retirar", description: "Esta postulación ya no se puede retirar o no hay conexión." });
+    } finally {
+      setBusy(false);
+    }
+  }
   const status = outcomeLabel(a);
   const current = STAGES.findIndex((s) => s.key === a.stage);
 
@@ -42,7 +57,7 @@ export function ApplicationDetail({ application }: { application: PortalApplicat
         <p className={cn("text-[14px] font-medium", status.text)}>{status.label}</p>
         <h1 className="font-head text-[36px] leading-[1.02] font-semibold tracking-[-0.025em] sm:text-[52px]">{a.jobTitle}</h1>
         <p className="text-[14px] text-ink-3">
-          {a.company} · {a.location}, {a.modality.toLowerCase()} · te postulaste el {day(a.appliedAt)}
+          {[a.company, placeOf(a)].filter(Boolean).join(" · ")} · te postulaste el {day(a.appliedAt)}
         </p>
       </header>
 
@@ -98,14 +113,7 @@ export function ApplicationDetail({ application }: { application: PortalApplicat
             <Button variant="text" onClick={() => setConfirm(false)}>
               Cancelar
             </Button>
-            <Button
-              variant="danger"
-              onClick={() => {
-                setA((x) => ({ ...x, outcome: "withdrawn", interviewToken: undefined, note: "Retiraste esta postulación. Puedes volver a postularte mientras la vacante siga abierta." }));
-                setConfirm(false);
-                toast({ title: "Postulación retirada", description: a.jobTitle, action: { label: "Deshacer", onClick: () => setA(application) } });
-              }}
-            >
+            <Button variant="danger" loading={busy} onClick={withdraw}>
               Retirar
             </Button>
           </>

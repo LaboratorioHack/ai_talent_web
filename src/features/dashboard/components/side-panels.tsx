@@ -12,7 +12,7 @@ export function TopProfiles({ profiles }: { profiles: DashboardData["topProfiles
       {profiles.map((p, i) => (
         <li key={p.applicationId} className="animate-rise" style={{ animationDelay: `${i * 80}ms` }}>
           <Link
-            href={routes.ranking("v-cloud", p.applicationId)}
+            href={routes.ranking(p.vacancyId, p.applicationId)}
             className="-mx-2 flex items-center gap-3 rounded-lg border-b border-border px-2 py-3 transition-colors duration-300 last:border-0 hover:bg-hover"
           >
             <Avatar name={p.name} size={36} />

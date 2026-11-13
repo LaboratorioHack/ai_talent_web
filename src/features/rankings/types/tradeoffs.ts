@@ -34,6 +34,4 @@ export interface TradeoffMatrix {
   candidates: TradeoffCandidate[];
   /** Lectura de Criba AI sobre las personas comparadas. */
   reading: string;
-  /** Acción extra propia de la vacante, p. ej. "Pedir prueba de inglés". */
-  secondaryAction?: string;
 }

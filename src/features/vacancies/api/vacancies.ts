@@ -1,23 +1,19 @@
 import "server-only";
 
-import { env } from "@/config/env";
 import { ApiError } from "@/shared/lib/api-client";
 import { serverApi } from "@/shared/lib/api-server";
-import { delay, mockApplications, mockCandidatesOf, mockRequirementsOf, mockVacancies } from "@/shared/mocks";
+import { toFulfillment, toJobOpening, toPipelineStage, vacanciesPath, type ApiVacancyApplication, type ApiVacancyDetail, type ApiVacancyPage } from "@/shared/lib/vacancy-api";
 import type { Fulfillment, JobOpening, PipelineStage } from "@/shared/types/domain";
-import type { RoleProfileDraft } from "../schemas/role-profile";
-import { toJobOpening, toPipelineStage, vacanciesPath, type ApiVacancyApplication, type ApiVacancyDetail, type ApiVacancyPage } from "@/shared/lib/vacancy-api";
+import { emptyListing, type RoleProfileDraft } from "../schemas/role-profile";
 
-/** Vacantes de la organización activa. Con backend: GET /vacancies. */
+/** Vacantes de la organización activa: GET /vacancies. */
 export async function listVacancies(): Promise<JobOpening[]> {
-  if (env.useMocks) return delay(mockVacancies);
   const page = await serverApi<ApiVacancyPage>(vacanciesPath);
   return page.items.map((v) => toJobOpening(v));
 }
 
-/** Una vacante; null si no existe o es de otra organización. Con backend: GET /vacancies/{id}. */
+/** Una vacante; null si no existe o es de otra organización: GET /vacancies/{id}. */
 export async function getVacancy(id: string): Promise<JobOpening | null> {
-  if (env.useMocks) return delay(mockVacancies.find((v) => v.id === id) ?? null);
   try {
     return toJobOpening(await serverApi<ApiVacancyDetail>(`/vacancies/${id}`));
   } catch (error) {
@@ -34,73 +30,39 @@ export interface PipelineCard {
   stage: PipelineStage;
   score?: number;
   fulfillment?: Fulfillment;
-  /** Lo más fuerte de su hoja de vida, o lo que falta. */
+  /** Estado de la lectura o lo que dijo la evaluación. */
   note?: string;
   source: "Se postuló";
 }
 
-/** La API aún no evalúa: solo hay postulaciones con el estado de lectura de su hoja de vida. */
-function resumeNote(a: ApiVacancyApplication): string | undefined {
+const FULFILLMENT_NOTE: Record<Fulfillment, string> = {
+  MEETS: "Cumple lo obligatorio",
+  PARTIAL: "Cumple parcialmente",
+  DOES_NOT_MEET: "No cumple lo obligatorio",
+};
+
+function noteOf(a: ApiVacancyApplication, fulfillment: Fulfillment | undefined): string | undefined {
   if (a.processingStatus === "FAILED") return "No se pudo leer la hoja de vida";
   if (a.processingStatus === "PENDING" || a.processingStatus === "PROCESSING") return "Leyendo la hoja de vida";
+  if (fulfillment) return FULFILLMENT_NOTE[fulfillment];
   return undefined;
 }
 
-async function livePipeline(id: string): Promise<PipelineCard[]> {
+/** Tablero de una vacante: sus postulaciones por etapa, con la última evaluación. GET /vacancies/{id}/applications. */
+export async function getPipeline(id: string): Promise<PipelineCard[]> {
   try {
     const applications = await serverApi<ApiVacancyApplication[]>(`/vacancies/${id}/applications`);
     return applications.flatMap((a) => {
-      const stage = toPipelineStage(a.selectionStatus);
-      return stage ? [{ id: a.applicationId, name: a.candidateName, stage, note: resumeNote(a), source: "Se postuló" as const }] : [];
+      const fulfillment = toFulfillment(a.fulfillment);
+      const stage = toPipelineStage(a.selectionStatus, fulfillment !== undefined && fulfillment !== "MEETS");
+      if (!stage) return [];
+      return [{ id: a.applicationId, name: a.candidateName, stage, score: a.score ?? undefined, fulfillment, note: noteOf(a, fulfillment), source: "Se postuló" as const }];
     });
   } catch (error) {
     // La página ya muestra el 404 de la vacante; el tablero solo queda vacío.
     if (error instanceof ApiError && error.status === 404) return [];
     throw error;
   }
-}
-
-const NEW_NAMES = ["Martín Quiroga", "Ximena Patiño", "Óscar Lozano", "Renata Gómez", "Samuel Ibarra", "Antonia Vélez", "Iván Becerra", "Luisa Chaparro"];
-
-/** Tablero de una vacante: todas sus postulaciones por etapa. Con backend: GET /vacancies/{id}/applications. */
-export async function getPipeline(id: string): Promise<PipelineCard[]> {
-  if (!env.useMocks) return livePipeline(id);
-  const job = mockVacancies.find((v) => v.id === id);
-  if (!job || !job.stats.received) return delay([]);
-
-  const reqs = mockRequirementsOf(job);
-  const short = (rid: string) => reqs.find((r) => r.id === rid)?.description ?? "";
-  const fixed = new Map(mockApplications.filter((a) => a.jobOpeningId === id).map((a) => [a.id, a.stage]));
-  const ranked = mockCandidatesOf(job, reqs);
-  let finalists = (job.stats.finalist ?? 0) - [...fixed.values()].filter((s) => s === "finalist").length;
-  let interviews = job.stats.interview - [...fixed.values()].filter((s) => s === "interview").length;
-
-  const cards: PipelineCard[] = ranked.map((c) => {
-    let stage: PipelineStage = fixed.get(c.id) ?? (c.fulfillment === "MEETS" ? "meets" : "evaluated");
-    if (!fixed.has(c.id) && c.fulfillment === "MEETS" && finalists > 0) {
-      stage = "finalist";
-      finalists--;
-    } else if (!fixed.has(c.id) && c.fulfillment !== "DOES_NOT_MEET" && interviews > 0) {
-      stage = "interview";
-      interviews--;
-    }
-    const best = c.results.filter((r) => r.result === "MEETS").sort((x, y) => y.score - x.score)[0];
-    const gap = c.results.find((r) => r.result === "DOES_NOT_MEET" || r.result === "PARTIAL");
-    return {
-      id: c.id,
-      name: c.name,
-      stage,
-      score: c.score,
-      fulfillment: c.fulfillment,
-      note: c.fulfillment === "MEETS" ? (best ? short(best.requirementId) : undefined) : gap ? `Falta: ${short(gap.requirementId)}` : undefined,
-      source: "Se postuló",
-    };
-  });
-  const pending = Math.max(0, job.stats.received - job.stats.read);
-  for (let i = 0; i < Math.max(pending, id === "v-cloud" ? 1 : 0); i++) {
-    cards.push({ id: `${id}-new${i}`, name: NEW_NAMES[(i + id.length) % NEW_NAMES.length], stage: "received", source: "Se postuló" });
-  }
-  return delay(cards);
 }
 
 /** Perfil de una vacante como borrador del editor. */
@@ -114,5 +76,6 @@ export function draftFromVacancy(v: JobOpening): RoleProfileDraft {
     autoInterview: v.profile.autoInterview,
     ignoreSensitive: true,
     requirements: v.profile.requirements.map((r) => ({ id: r.id, description: r.description, type: r.type, weight: r.weight, equivalences: r.equivalences })),
+    listing: v.listing ?? emptyListing(),
   };
 }

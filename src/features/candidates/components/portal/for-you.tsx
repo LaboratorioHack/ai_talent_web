@@ -6,7 +6,7 @@ import { ArrowUpRight, MapPin, RefreshCw, X } from "lucide-react";
 import { CribaAi } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
-import type { PortalJob } from "../../types/portal";
+import { placeOf, type PortalJob } from "../../types/portal";
 import { MATCH_LABEL, matchReason } from "./recommended-jobs";
 
 const PER_BATCH = 3;
@@ -24,7 +24,8 @@ export function ForYou({ jobs }: { jobs: PortalJob[] }) {
   const [leaving, setLeaving] = useState<"all" | string | null>(null);
 
   const pool = useMemo(
-    () => jobs.filter((j) => !j.applied && !dismissed.has(j.id)),
+    // Solo las que Criba AI comparó con su hoja de vida y tienen algo en común.
+    () => jobs.filter((j) => !j.applied && !dismissed.has(j.id) && j.match && j.match.level !== "baja"),
     [jobs, dismissed],
   );
   const picks = useMemo(() => {
@@ -109,7 +110,7 @@ export function ForYou({ jobs }: { jobs: PortalJob[] }) {
 
       <ul className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {picks.map((j, i) => {
-          const m = MATCH_LABEL[j.match.level];
+          const m = MATCH_LABEL[j.match!.level];
           const out = leaving === "all" || leaving === j.id;
           return (
             <li
@@ -156,9 +157,13 @@ export function ForYou({ jobs }: { jobs: PortalJob[] }) {
                     </h3>
                     <p className="flex items-center gap-1.5 text-[13px] text-ink-3">
                       {j.company}
-                      <span aria-hidden>·</span>
-                      <MapPin aria-hidden className="size-3.5" />
-                      {j.location}, {j.modality.toLowerCase()}
+                      {placeOf(j) ? (
+                        <>
+                          <span aria-hidden>·</span>
+                          <MapPin aria-hidden className="size-3.5" />
+                          {placeOf(j)}
+                        </>
+                      ) : null}
                     </p>
                   </div>
                   <p className="text-[13.5px] leading-snug text-ink-2">

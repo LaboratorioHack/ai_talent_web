@@ -12,7 +12,9 @@ export interface PortalApplication {
   jobId: string;
   jobTitle: string;
   company: string;
+  /** Vacío si la empresa no lo publicó. */
   location: string;
+  /** "Presencial", "Híbrido", "Remoto" o vacío. */
   modality: string;
   appliedAt: string;
   updatedAt: string;
@@ -30,10 +32,8 @@ export interface PortalApplication {
 export interface Applicant {
   name: string;
   email: string;
-  phone: string;
-  city: string;
-  /** Área en la que más se postula: guía las recomendaciones. */
-  interest: string;
+  /** Área en la que más se postula; null si aún no se postula. */
+  interest: string | null;
 }
 
 export interface ResumeSummary {
@@ -44,6 +44,10 @@ export interface ResumeSummary {
   doc: ResumeDoc;
   /** Lo que Criba AI encontró en ella (sin datos personales). */
   skills: string[];
+  /** PROCESSED cuando Criba AI ya la leyó. */
+  status: "PENDING" | "PROCESSING" | "PROCESSED" | "FAILED";
+  /** Archivos que ha enviado, el más reciente primero. */
+  versions: { fileName: string; at: string }[];
 }
 
 export interface PortalJob {
@@ -52,10 +56,14 @@ export interface PortalJob {
   company: string;
   area: string;
   location: string;
-  modality: "Presencial" | "Híbrido" | "Remoto";
-  closesAt: string;
+  modality: string;
+  closesAt: string | null;
+  postedAt: string | null;
   highlights: string[];
   applied: boolean;
-  /** Qué tan afín es a la hoja de vida, según Criba AI. Nunca un puntaje. */
-  match: { level: "alta" | "media" | "baja"; reasons: string[] };
+  /** Qué tan afín es a la hoja de vida, según Criba AI. Nunca un puntaje. Sin hoja de vida no hay. */
+  match?: { level: "alta" | "media" | "baja"; reasons: string[] };
 }
+
+/** "Medellín, híbrido" con lo que haya; vacío si la empresa no publicó ninguno. */
+export const placeOf = (p: { location: string; modality: string }): string => [p.location, p.modality.toLowerCase()].filter(Boolean).join(", ");

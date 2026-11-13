@@ -1,12 +1,11 @@
 "use client";
 
-import { Ban, Check, Copy, FileQuestion, Loader2, Mail, RotateCcw, ScanLine, Trash2, Upload, type LucideIcon } from "lucide-react";
+import { Ban, Check, Copy, FileQuestion, Loader2, Mail, ScanLine, Trash2, type LucideIcon } from "lucide-react";
 import { Tooltip } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 import type { IngestFile, IngestStatus } from "../types/ingest";
 
 const STATUS: Record<IngestStatus, { label: string; icon: LucideIcon; tone: string }> = {
-  UPLOADING: { label: "Subiendo", icon: Upload, tone: "bg-blue-soft text-blue" },
   PROCESSING: { label: "Leyendo", icon: Loader2, tone: "bg-blue-soft text-blue" },
   READ: { label: "Leída", icon: Check, tone: "bg-success-soft text-success" },
   UNREADABLE: { label: "Ilegible", icon: ScanLine, tone: "bg-danger-soft text-danger" },
@@ -18,7 +17,6 @@ const STATUS: Record<IngestStatus, { label: string; icon: LucideIcon; tone: stri
 export interface FileCardProps {
   file: IngestFile;
   index: number;
-  onRetry: (id: string) => void;
   onRemove: (id: string) => void;
   onRequestOriginal: (id: string) => void;
   /** Abre el archivo en el lector (solo los PDF y Word ya leídos). */
@@ -26,10 +24,10 @@ export interface FileCardProps {
 }
 
 /** Tarjeta de una postulación en el tablero: archivo, canal, qué se leyó y su acción. */
-export function FileCard({ file, index, onRetry, onRemove, onRequestOriginal, onOpen }: FileCardProps) {
+export function FileCard({ file, index, onRemove, onRequestOriginal, onOpen }: FileCardProps) {
   const openable = Boolean(onOpen) && file.status === "READ" && /^(PDF|DOCX?)$/.test(file.kind);
   const s = STATUS[file.status];
-  const busy = file.status === "UPLOADING" || file.status === "PROCESSING";
+  const busy = file.status === "PROCESSING";
   const icon = "flex size-8 items-center justify-center rounded-lg text-ink-3 transition-colors hover:bg-hover hover:text-ink";
 
   return (
@@ -50,28 +48,18 @@ export function FileCard({ file, index, onRetry, onRemove, onRequestOriginal, on
           <span className="line-clamp-2 text-[12.5px] text-ink-3">{file.detail}</span>
         </span>
       </div>
-      {file.status === "UPLOADING" ? (
-        <span className="h-1 w-full overflow-hidden rounded-full bg-surface-2">
-          <span className="block h-full rounded-full bg-blue transition-[width] duration-300 ease-out" style={{ width: `${file.progress ?? 0}%` }} />
-        </span>
-      ) : null}
       <div className="flex items-center gap-2">
         <span key={file.status} className={cn("inline-flex items-center gap-1 rounded-full py-[3px] pr-2 pl-1.5 text-[11.5px] font-medium whitespace-nowrap animate-[pop-in_380ms_var(--ease-spring)_both]", s.tone)}>
           <s.icon aria-hidden className={cn("size-3", file.status === "PROCESSING" && "animate-spin")} />
-          {file.status === "UPLOADING" ? `${file.progress ?? 0} %` : s.label}
+          {s.label}
         </span>
-        <span className="truncate text-[11.5px] text-ink-3">Se postuló</span>
+        <span className="truncate text-[11.5px] text-ink-3">{file.person}</span>
         <span className="ml-auto flex gap-0.5 opacity-70 transition-opacity group-hover:opacity-100">
           {file.status === "UNREADABLE" ? (
             <>
               <Tooltip content="Pedir el original">
                 <button type="button" aria-label={`Pedir original de ${file.name}`} className={icon} onClick={() => onRequestOriginal(file.id)}>
                   <Mail aria-hidden className="size-3.5" />
-                </button>
-              </Tooltip>
-              <Tooltip content="Leer de nuevo">
-                <button type="button" aria-label={`Leer de nuevo ${file.name}`} className={icon} onClick={() => onRetry(file.id)}>
-                  <RotateCcw aria-hidden className="size-3.5" />
                 </button>
               </Tooltip>
             </>

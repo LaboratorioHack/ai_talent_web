@@ -73,3 +73,18 @@ export function fromISODate(value: string): Date | null {
   if (!m) return null;
   return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
 }
+
+/** Zona de la organización: servidor y navegador formatean igual, sin errores de hidratación. */
+export const APP_TIME_ZONE = "America/Bogota";
+
+const MONTHS_SHORT = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+
+/** Instante ISO → "23 oct a las 06:54" en la hora de Bogotá (igual en el servidor y en el navegador). */
+export function formatDayTime(iso: string): string {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", { timeZone: APP_TIME_ZONE, day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+      .formatToParts(new Date(iso))
+      .map((p) => [p.type, p.value]),
+  );
+  return `${parts.day} ${MONTHS_SHORT[Number(parts.month) - 1]} a las ${parts.hour}:${parts.minute}`;
+}

@@ -4,9 +4,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Grid2x2, Inbox, Link2 } from "lucide-react";
-import { env } from "@/config/env";
 import { evaluationErrorMessage } from "@/features/evaluations/api/errors";
 import { rankVacancy } from "@/features/evaluations/api/evaluations";
+import { browserApi } from "@/shared/lib/api-browser";
+import { rejectApplication } from "@/shared/lib/application-api";
+import { saveEquivalences, type InterviewInvitation } from "../api/actions";
 import { PageTop } from "@/shared/components/layout";
 import { ButtonLink, EmptyState, Select, useToast, CribaAi } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
@@ -17,12 +19,6 @@ import { CandidateFocus } from "./candidate-focus";
 import { EvaluatingPanel } from "./evaluating-panel";
 import { AiErrorModal, DiscardModal, EquivalencesModal, InvitedModal, InviteModal, ResumeModal } from "./ranking-modals";
 import { RankingList } from "./ranking-list";
-
-const without = (map: Record<string, string>, id: string) => {
-  const next = { ...map };
-  delete next[id];
-  return next;
-};
 
 type ModalKind = "invite" | "invited" | "discard" | "aiError" | "equiv" | "resume" | null;
 
@@ -46,11 +42,19 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
   const [deadline, setDeadline] = useState<Date | null>(null);
   const [evaluating, setEvaluating] = useState(initialEvaluating ?? 0);
   const [liveDone, setLiveDone] = useState(0);
+  const [invitation, setInvitation] = useState<InterviewInvitation | null>(null);
+  const [saving, setSaving] = useState(false);
   const rankStarted = useRef(false);
+  const startCount = useRef(data.candidates.length);
 
+  // Evalúa en el servidor y, mientras tanto, cuenta las evaluaciones que ya quedaron guardadas.
   useEffect(() => {
-    if (env.useMocks || evaluating <= 0 || rankStarted.current) return;
+    if (evaluating <= 0 || rankStarted.current) return;
     rankStarted.current = true;
+    const poll = window.setInterval(async () => {
+      const ranking = await browserApi<{ candidates: unknown[] }>(`/vacancies/${data.job.id}/ranking`).catch(() => null);
+      if (ranking) setLiveDone(Math.max(0, ranking.candidates.length - startCount.current));
+    }, 4000);
     rankVacancy(data.job.id)
       .then(() => {
         setLiveDone(evaluating);
@@ -60,8 +64,11 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
         toast({ tone: "error", title: "No se pudo evaluar", description: evaluationErrorMessage(error) });
         setEvaluating(0);
         window.history.replaceState(null, "", "?");
-      });
+      })
+      .finally(() => window.clearInterval(poll));
+    return () => window.clearInterval(poll);
   }, [data.job.id, evaluating, router, toast]);
+
 
   const selected = data.candidates.find((c) => c.id === selectedId) ?? null;
 
@@ -76,16 +83,24 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
     toast({ title: `${data.candidates.length} hojas de vida evaluadas`, description: "El ranking ya está ordenado por ajuste al perfil." });
   }, [data.candidates.length, toast]);
 
-  function discard(reason: string) {
+  // Cuando ya están todas guardadas, cierra la pantalla de evaluación.
+  useEffect(() => {
+    if (evaluating <= 0 || liveDone < evaluating) return;
+    const t = window.setTimeout(finishEvaluation, 700);
+    return () => window.clearTimeout(t);
+  }, [evaluating, liveDone, finishEvaluation]);
+
+  async function discard(reason: string) {
     if (!selected) return;
     const who = selected;
-    setDiscarded((d) => ({ ...d, [who.id]: reason }));
-    setModal(null);
-    toast({
-      title: `Descartaste a ${who.name}`,
-      description: "Motivo guardado en la auditoría.",
-      action: { label: "Deshacer", onClick: () => setDiscarded((d) => without(d, who.id)) },
-    });
+    try {
+      await rejectApplication(data.job.id, who.id, reason);
+      setDiscarded((d) => ({ ...d, [who.id]: reason }));
+      setModal(null);
+      toast({ title: `Descartaste a ${who.name}`, description: "Motivo guardado en la auditoría." });
+    } catch {
+      toast({ tone: "error", title: "No se pudo descartar", description: "La postulación ya está cerrada o no hay conexión." });
+    }
   }
 
   function nextToInvite() {
@@ -170,17 +185,7 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
         </aside>
         <section className="flex min-w-0 flex-col bg-surface px-4 pt-6 pb-14 sm:px-6 sm:pt-8 lg:px-12">
           {evaluating > 0 ? (
-            <EvaluatingPanel
-              total={evaluating}
-              live={!env.useMocks}
-              done={liveDone}
-              onDone={finishEvaluation}
-              onCancelled={(done) => {
-                setEvaluating(0);
-                window.history.replaceState(null, "", "?");
-                toast({ title: "Evaluación cancelada", description: `Se conservaron ${done} evaluaciones; el resto quedó sin evaluar.` });
-              }}
-            />
+            <EvaluatingPanel total={evaluating} done={liveDone} onLeave={() => router.push(routes.rankings)} />
           ) : selected ? (
             <CandidateFocus
               candidate={selected}
@@ -190,7 +195,6 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
               invited={invited[selected.id]}
               onInvite={() => setModal("invite")}
               onDiscard={() => setModal("discard")}
-              onRestore={() => setDiscarded((d) => without(d, selected.id))}
               onOpenResume={() => setModal("resume")}
               onAiError={(id) => {
                 setRequirementId(id);
@@ -206,18 +210,21 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
       </div>
 
       <InviteModal
+        vacancyId={data.job.id}
         candidate={selected}
         open={modal === "invite"}
         onClose={() => setModal(null)}
-        onSent={(d) => {
+        onSent={(d, sent) => {
           if (selected) setInvited((m) => ({ ...m, [selected.id]: formatShortDate(d) }));
           setDeadline(d);
+          setInvitation(sent);
           setModal("invited");
         }}
       />
-      <InvitedModal name={selected?.name ?? ""} deadline={deadline} open={modal === "invited"} onClose={() => setModal(null)} onNext={nextToInvite} />
+      <InvitedModal name={selected?.name ?? ""} deadline={deadline} invitation={invitation} open={modal === "invited"} onClose={() => setModal(null)} onNext={nextToInvite} />
       <DiscardModal candidate={selected} open={modal === "discard"} onClose={() => setModal(null)} onDiscard={discard} />
       <AiErrorModal
+        vacancyId={data.job.id}
         candidate={selected}
         requirements={requirements}
         requirementId={requirementId}
@@ -225,20 +232,30 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
         onClose={() => setModal(null)}
         onSaved={() => {
           setModal(null);
-          toast({ title: "Corrección guardada", description: "Queda en Gobierno IA y ajusta las próximas evaluaciones." });
+          toast({ title: "Corrección guardada", description: "Queda en Gobierno IA para revisar la evaluación." });
         }}
       />
       <EquivalencesModal
         requirement={requirements.find((r) => r.id === requirementId) ?? null}
         open={modal === "equiv"}
+        busy={saving}
         onClose={() => setModal(null)}
-        onSaved={(list) => {
-          setRequirements((rs) => rs.map((r) => (r.id === requirementId ? { ...r, equivalences: list } : r)));
-          setModal(null);
-          toast({ title: "Equivalencias guardadas", description: "Se aplican a las próximas evaluaciones de la organización." });
+        onSaved={async (list) => {
+          if (!requirementId) return;
+          setSaving(true);
+          try {
+            await saveEquivalences(data.job.id, requirementId, list);
+            setRequirements((rs) => rs.map((r) => (r.id === requirementId ? { ...r, equivalences: list } : r)));
+            setModal(null);
+            toast({ title: "Equivalencias guardadas", description: "Se aplican a las próximas evaluaciones de esta vacante." });
+          } catch {
+            toast({ tone: "error", title: "No se pudieron guardar", description: "Revisa tu conexión e inténtalo de nuevo." });
+          } finally {
+            setSaving(false);
+          }
         }}
       />
-      <ResumeModal candidate={selected} open={modal === "resume"} onClose={() => setModal(null)} />
+      <ResumeModal vacancyId={data.job.id} candidate={selected} open={modal === "resume"} onClose={() => setModal(null)} />
     </div>
   );
 }

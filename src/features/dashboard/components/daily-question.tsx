@@ -12,7 +12,7 @@ const QUESTIONS = [
   "¿Qué entrevistas quedaron listas para leer?",
   "¿Ajustamos algún perfil de cargo?",
   "¿Quién pasa hoy a la lista de finalistas?",
-  "¿Subimos las hojas de vida que llegaron ayer?",
+  "¿Revisamos las hojas de vida que llegaron ayer?",
   "¿Qué decisión destrabamos hoy?",
 ];
 
