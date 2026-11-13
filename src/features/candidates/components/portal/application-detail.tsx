@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
-import { Button, Modal, useToast } from "@/shared/components/ui";
+import { Button, LinkPending, Modal, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
@@ -48,8 +48,10 @@ export function ApplicationDetail({ application }: { application: PortalApplicat
 
   return (
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-10 px-4 pt-10 pb-20 sm:px-6 lg:pt-14">
-      <Link href={routes.portal} className="inline-flex w-fit items-center gap-1.5 text-[13.5px] text-ink-3 transition-colors hover:text-ink">
-        <ArrowLeft aria-hidden className="size-4" />
+      <Link href={routes.portal} className="group inline-flex w-fit items-center gap-1.5 text-[13.5px] text-ink-3 transition-colors hover:text-ink">
+        <LinkPending>
+          <ArrowLeft aria-hidden className="size-4 transition-[translate] duration-300 group-hover:-translate-x-0.5" />
+        </LinkPending>
         Mis postulaciones
       </Link>
 
