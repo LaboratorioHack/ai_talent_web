@@ -1,10 +1,14 @@
 import "server-only";
 
+import { connection } from "next/server";
 import { apiFetch, type ApiInit } from "./api-client";
 import { createSupabaseServerClient } from "./supabase/server";
 
 /** Llamada a la API desde un Server Component, con el token de la sesión en cookies. */
 export async function serverApi<T>(path: string, init: Omit<ApiInit, "token"> = {}): Promise<T> {
+  // Supabase checks session expiry with Date.now(); keep that request-specific
+  // work out of Next.js prerendering.
+  await connection();
   const supabase = await createSupabaseServerClient();
   // El proxy ya validó al usuario con getUser(); aquí solo hace falta el JWT, que la API verifica.
   const {
