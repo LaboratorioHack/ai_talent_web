@@ -7,16 +7,13 @@ import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import type { RankedCandidate, RankRequirement } from "../types/ranking";
 import { CompositionBar } from "./composition-bar";
+import { formatDayTime } from "@/shared/lib/dates";
 import { EvidenceTable } from "./evidence-table";
 
 const CHIP = { MEETS: "meets", PARTIAL: "partial", DOES_NOT_MEET: "does_not_meet" } as const;
 const TONE = { MEETS: "text-success", PARTIAL: "text-warning", DOES_NOT_MEET: "text-danger" } as const;
 
-const evaluatedAt = (iso: string) => {
-  const d = new Date(iso);
-  const month = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"][d.getMonth()];
-  return `${d.getDate()} ${month} a las ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-};
+const evaluatedAt = (iso: string) => formatDayTime(iso);
 
 export interface CandidateFocusProps {
   candidate: RankedCandidate;
