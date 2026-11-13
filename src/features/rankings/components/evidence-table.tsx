@@ -4,6 +4,7 @@ import { Check, FileText, Flag, Minus, MoreHorizontal, Scale, X } from "lucide-r
 import { Popover } from "@/shared/components/ui";
 import { CribaAi } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
+import { sentenceCase, tidyQuote } from "@/shared/lib/text";
 import type { RequirementResult } from "@/shared/types/domain";
 import type { RankRequirement } from "../types/ranking";
 
@@ -61,7 +62,7 @@ export function EvidenceTable({ requirements, results, onOpenResume, onAiError, 
                 {req.weight ? `, peso ${req.weight}` : ""}
               </span>
             </span>
-            <span className={cn("text-[13.5px] leading-snug", ev ? "text-ink" : "text-ink-3")}>{ev ? <q className="[quotes:'“'_'”']">{ev.citation}</q> : disq ? "Sin indicios. No descalifica." : res.justification}</span>
+            <span className={cn("text-[13.5px] leading-snug", ev ? "text-ink" : "text-ink-3")}>{ev ? <q className="[quotes:'“'_'”']">{tidyQuote(ev.citation)}</q> : disq ? "Sin indicios. No descalifica." : sentenceCase(res.justification)}</span>
             {ev ? (
               <button type="button" onClick={onOpenResume} className="flex items-center gap-1.5 text-left text-[12.5px] text-blue transition-colors hover:text-ink">
                 <FileText aria-hidden className="size-3.5 shrink-0" />
