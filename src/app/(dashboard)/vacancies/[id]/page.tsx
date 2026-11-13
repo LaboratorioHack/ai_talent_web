@@ -6,6 +6,7 @@ import { ChevronRight, Inbox, Pencil } from "lucide-react";
 import { PageTop, PageTopSkeleton } from "@/shared/components/layout";
 import { ButtonLink, Skeleton } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
+import { toISODate } from "@/shared/lib/dates";
 import { getPipeline, getVacancy } from "@/features/vacancies/api/vacancies";
 import { CopyApplyLink } from "@/shared/components/share/copy-apply-link";
 import { CloseVacancy } from "@/features/vacancies/components/close-vacancy";
@@ -18,6 +19,8 @@ async function Board({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [vacancy, cards] = await Promise.all([getVacancy(id), getPipeline(id)]);
   if (!vacancy) notFound();
+  // Abierta y sin vencer: si el cierre ya pasó, la página pública responde 404 y el enlace no serviría.
+  const receiving = vacancy.status === "OPEN" && (!vacancy.closesAt || vacancy.closesAt >= toISODate(new Date()));
   const evaluations = vacancy.stats.meets + vacancy.stats.partial + vacancy.stats.doesNotMeet;
   return (
     <>
@@ -38,7 +41,7 @@ async function Board({ params }: { params: Promise<{ id: string }> }) {
           <>
             <DeleteVacancy id={vacancy.id} title={vacancy.title} evaluations={evaluations} />
             {vacancy.status === "OPEN" ? <CloseVacancy id={vacancy.id} title={vacancy.title} /> : null}
-            {vacancy.status === "OPEN" ? <CopyApplyLink jobId={vacancy.id} /> : null}
+            {receiving ? <CopyApplyLink jobId={vacancy.id} /> : null}
             <ButtonLink href={routes.vacancyEdit(vacancy.id)} variant="outline" icon={<Pencil />}>
               Editar perfil
             </ButtonLink>

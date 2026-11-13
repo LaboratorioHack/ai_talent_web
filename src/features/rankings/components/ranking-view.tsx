@@ -45,22 +45,38 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
   const [invitation, setInvitation] = useState<InterviewInvitation | null>(null);
   const [saving, setSaving] = useState(false);
   const rankStarted = useRef(false);
-  const startCount = useRef(data.candidates.length);
 
   // Evalúa en el servidor y, mientras tanto, cuenta las evaluaciones que ya quedaron guardadas.
   useEffect(() => {
     if (evaluating <= 0 || rankStarted.current) return;
     rankStarted.current = true;
+    // Cuenta las evaluaciones guardadas desde que empezó (no cuántos candidatos hay): al volver a
+    // evaluar a los mismos, el número de candidatos no cambia y la barra se quedaba quieta.
+    const startedAt = Date.now() - 5000;
+    const countDone = async () => {
+      const ranking = await browserApi<{ candidates: { evaluatedAt?: string }[] }>(`/vacancies/${data.job.id}/ranking`).catch(() => null);
+      if (!ranking) return null;
+      return ranking.candidates.filter((c) => c.evaluatedAt && Date.parse(c.evaluatedAt) >= startedAt).length;
+    };
     const poll = window.setInterval(async () => {
-      const ranking = await browserApi<{ candidates: unknown[] }>(`/vacancies/${data.job.id}/ranking`).catch(() => null);
-      if (ranking) setLiveDone(Math.max(0, ranking.candidates.length - startCount.current));
+      const done = await countDone();
+      if (done !== null) setLiveDone(done);
     }, 4000);
     rankVacancy(data.job.id)
       .then(() => {
         setLiveDone(evaluating);
         router.refresh();
       })
-      .catch((error) => {
+      .catch(async (error) => {
+        // Una evaluación larga puede cortar la conexión (proxy o red) aunque siga en el servidor.
+        // Si ya hay evaluaciones nuevas, se refresca el ranking en vez de dejar la pantalla esperando.
+        const done = await countDone();
+        if (done) {
+          toast({ title: "La evaluación sigue en el servidor", description: `Ya hay ${done} de ${evaluating} listas. Actualiza en un momento para ver el resto.` });
+          setLiveDone(evaluating);
+          router.refresh();
+          return;
+        }
         toast({ tone: "error", title: "No se pudo evaluar", description: evaluationErrorMessage(error) });
         setEvaluating(0);
         window.history.replaceState(null, "", "?");
@@ -80,8 +96,10 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
   const finishEvaluation = useCallback(() => {
     setEvaluating(0);
     window.history.replaceState(null, "", "?");
+    // Trae el ranking ya ordenado: sin esto la vista seguía con los datos de antes de evaluar.
+    router.refresh();
     toast({ title: `${data.candidates.length} hojas de vida evaluadas`, description: "El ranking ya está ordenado por ajuste al perfil." });
-  }, [data.candidates.length, toast]);
+  }, [data.candidates.length, router, toast]);
 
   // Cuando ya están todas guardadas, cierra la pantalla de evaluación.
   useEffect(() => {

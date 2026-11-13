@@ -354,7 +354,7 @@ function LineEditor({ doc, lineKey, patch, onClose }: { doc: ResumeDoc; lineKey:
               <TextField label="Fechas" value={line.right ?? ""} onChange={(e) => patch((d) => void (d.sections[si].lines[li].right = e.target.value))} />
             </>
           ) : (
-            <TextArea label={line.kind === "bullet" ? "Logro" : "Texto"} autoFocus minRows={3} value={line.text} onChange={(e) => patch((d) => void (d.sections[si].lines[li].text = e.target.value))} />
+            <TextArea label={line.kind === "bullet" ? "Logro" : line.kind === "sub" ? "Empresa" : "Texto"} autoFocus minRows={3} value={line.text} onChange={(e) => patch((d) => void (d.sections[si].lines[li].text = e.target.value))} />
           )}
           <div className="flex flex-wrap gap-2">
             {doc.sections[si].title === "Experiencia" ? (

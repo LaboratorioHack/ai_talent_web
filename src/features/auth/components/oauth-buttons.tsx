@@ -32,8 +32,8 @@ const PROVIDERS: { id: OAuthProvider; label: string; mark: () => React.ReactNode
 ];
 
 export interface OAuthButtonsProps {
-  /** Ruta interna a la que vuelve después de entrar. */
-  next: string;
+  /** Ruta interna a la que vuelve después de entrar (o cómo calcularla al hacer clic). */
+  next: string | (() => string);
   /** Muestra el error si no se pudo abrir el proveedor. */
   onError: (message: string) => void;
 }
@@ -44,7 +44,7 @@ export function OAuthButtons({ next, onError }: OAuthButtonsProps) {
 
   async function start(provider: OAuthProvider) {
     setPending(provider);
-    const error = await signInWithProvider(provider, next);
+    const error = await signInWithProvider(provider, typeof next === "function" ? next() : next);
     // Si todo va bien el navegador ya se fue al proveedor; solo volvemos aquí con un error.
     if (error) {
       setPending(null);

@@ -10,7 +10,8 @@ export interface ResumeNote {
 }
 
 export interface ResumeLine {
-  kind: "role" | "bullet" | "text";
+  /** "role": cargo o título en negrita con fechas a la derecha; "sub": empleador en cursiva bajo el cargo. */
+  kind: "role" | "sub" | "bullet" | "text";
   text: string;
   /** Fechas u otro dato alineado a la derecha (solo en "role"). */
   right?: string;

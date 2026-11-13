@@ -17,6 +17,9 @@ export interface ResumeSheetProps {
   className?: string;
 }
 
+/** "Técnicas: C++, SQL" → etiqueta en negrita, como el bloque final de la plantilla Harvard. */
+const LABELED = /^([^:]{2,24}):\s+(.+)$/;
+
 /**
  * Una hoja de vida como documento en papel (serif de documento, secciones en
  * versalitas, fechas a la derecha). Con `annotated`, el margen derecho lleva la
@@ -62,7 +65,9 @@ export function ResumeSheet({ doc, annotated = false, score, reveal = false, com
           ) : null}
         </header>
 
-        {doc.sections.map((section) => (
+        {doc.sections.map((section) => {
+          const labeled = /^habilidades/i.test(section.title);
+          return (
           <section key={section.title} className="mt-5">
             <h4 className={cn("grid", annotated && "md:grid-cols-[1fr_230px]")}>
               <span className="cv-heading">{section.title}</span>
@@ -83,8 +88,17 @@ export function ResumeSheet({ doc, annotated = false, score, reveal = false, com
                   >
                     <span className="flex min-w-0 items-baseline gap-3">
                       {line.kind === "bullet" ? <span aria-hidden className="ml-1 size-1 shrink-0 self-center rounded-full bg-ink-2" /> : null}
-                      <span className={cn("min-w-0 leading-snug", compact ? "text-[13px]" : "text-[14px]", line.kind === "role" ? "font-bold" : "text-ink-2")}>
-                        <span className={cn(line.note && "marker")}>{line.text}</span>
+                      <span className={cn("min-w-0 leading-snug", compact ? "text-[13px]" : "text-[14px]", line.kind === "role" ? "font-bold" : "text-ink-2", line.kind === "sub" && "italic")}>
+                        <span className={cn(line.note && "marker")}>
+                          {labeled && line.kind === "text" && LABELED.test(line.text) ? (
+                            <>
+                              <strong className="font-bold text-ink">{line.text.slice(0, line.text.indexOf(":") + 1)}</strong>
+                              {line.text.slice(line.text.indexOf(":") + 1)}
+                            </>
+                          ) : (
+                            line.text
+                          )}
+                        </span>
                       </span>
                       {annotated && line.note ? (
                         <span aria-hidden className="leader ml-1 hidden h-px min-w-6 flex-1 self-center bg-[linear-gradient(to_right,var(--ink-3)_50%,transparent_50%)] bg-[length:6px_1px] opacity-60 md:block" />
@@ -106,7 +120,8 @@ export function ResumeSheet({ doc, annotated = false, score, reveal = false, com
               })}
             </ul>
           </section>
-        ))}
+          );
+        })}
       </div>
     </article>
   );

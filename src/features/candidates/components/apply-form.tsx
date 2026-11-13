@@ -1,49 +1,140 @@
 "use client";
 
-import { useRef, useState, type DragEvent } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileText, Send, Upload, X } from "lucide-react";
-import { Button, Collapse, TextField, useToast } from "@/shared/components/ui";
+import { ArrowRight, Building2, FileText, Send, Upload, UserRound, X } from "lucide-react";
+import { Button, ButtonLink, Collapse, Skeleton, TextField, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
+import { accountTypeOf } from "@/shared/lib/account-type";
 import { cn } from "@/shared/lib/cn";
+import { createSupabaseBrowserClient } from "@/shared/lib/supabase/client";
 import { submitApplication } from "../api/submit";
 import { applicationSchema, type ApplicationInput } from "../schemas/application";
 
 const size = (bytes: number) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1).replace(".", ",")} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
 
-/** Formulario de postulación: nombre, correo, hoja de vida y autorización de datos. */
+/** Quién está viendo la vacante: sin sesión, una cuenta de empresa o el postulante que se va a postular. */
+type Account = { status: "loading" } | { status: "none" } | { status: "company" } | { status: "applicant"; name: string; email: string };
+
+const CARD = "card flex flex-col gap-5 p-5 animate-rise [animation-delay:120ms] sm:p-7";
+
+/**
+ * Postulación: el nombre y el correo salen de la cuenta del postulante, así que solo sube su hoja
+ * de vida y autoriza el tratamiento de datos. Sin sesión, invita a entrar y vuelve a esta vacante.
+ * Una cuenta de empresa no se postula.
+ */
 export function ApplyForm({ jobId, company }: { jobId: string; company: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
+  const [account, setAccount] = useState<Account>({ status: "loading" });
   const form = useForm<ApplicationInput>({
     resolver: zodResolver(applicationSchema),
     mode: "onTouched",
-    defaultValues: { name: "", email: "" },
+    defaultValues: { name: "" },
   });
   const errors = form.formState.errors;
 
+  useEffect(() => {
+    let cancelled = false;
+    createSupabaseBrowserClient()
+      .auth.getUser()
+      .then(({ data: { user } }) => {
+        if (cancelled) return;
+        if (!user?.email) return setAccount({ status: "none" });
+        if (accountTypeOf(user) === "company") return setAccount({ status: "company" });
+        const meta = user.user_metadata ?? {};
+        const name = [meta.name, meta.full_name].find((value): value is string => typeof value === "string" && value.trim().length > 0);
+        setAccount({ status: "applicant", name: name?.trim() ?? "", email: user.email });
+      })
+      .catch(() => !cancelled && setAccount({ status: "none" }));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   async function onSubmit(values: ApplicationInput) {
-    const result = await submitApplication(jobId, values);
+    if (account.status !== "applicant") return;
+    // La cuenta que entró con enlace al correo no trae nombre: se pide una sola vez y queda guardado.
+    const typedName = account.name ? undefined : values.name?.trim();
+    if (!account.name && (!typedName || typedName.length < 3)) {
+      form.setError("name", { message: "Escribe tu nombre completo" });
+      return;
+    }
+    const result = await submitApplication(jobId, { ...values, name: typedName });
     if (!result.ok) {
       toast({ tone: "error", title: result.message });
       return;
     }
+    if (typedName) await createSupabaseBrowserClient().auth.updateUser({ data: { name: typedName } }).catch(() => undefined);
     router.push(routes.applied(jobId));
   }
 
+  if (account.status === "loading") {
+    return (
+      <div className={CARD} aria-busy>
+        <Skeleton className="h-7 w-32" />
+        <Skeleton className="h-14 w-full rounded-xl" />
+        <Skeleton className="h-28 w-full rounded-xl" />
+        <Skeleton className="h-11 w-full rounded-xl" />
+      </div>
+    );
+  }
+
+  if (account.status === "none") {
+    return (
+      <div className={CARD}>
+        <div className="flex flex-col gap-1">
+          <h2 className="font-head text-[22px] font-semibold tracking-[-0.01em]">Postúlate</h2>
+          <p className="text-[13.5px] text-ink-2">Entra con Google, Microsoft o tu correo. Tu nombre y tu correo salen de tu cuenta: después solo subes tu hoja de vida.</p>
+        </div>
+        <ButtonLink href={`${routes.portalSignIn}?next=${encodeURIComponent(routes.apply(jobId))}`} block iconRight={<ArrowRight />}>
+          Entrar para postularme
+        </ButtonLink>
+        <p className="text-xs text-ink-3">Si es tu primera vez, creamos tu cuenta de postulante al entrar. Con ella sigues en qué va cada postulación.</p>
+      </div>
+    );
+  }
+
+  if (account.status === "company") {
+    return (
+      <div className={CARD}>
+        <span className="flex size-11 items-center justify-center rounded-2xl bg-surface-2 text-ink-2 ring-1 ring-border">
+          <Building2 aria-hidden className="size-5" />
+        </span>
+        <div className="flex flex-col gap-1">
+          <h2 className="font-head text-[22px] font-semibold tracking-[-0.01em]">Estás con una cuenta de empresa</h2>
+          <p className="text-[13.5px] text-ink-2">Las cuentas de empresa evalúan postulaciones, no se postulan. Para postularte, cierra sesión y entra con otro correo como postulante.</p>
+        </div>
+        <ButtonLink href={routes.home} variant="outline" block>
+          Volver al panel
+        </ButtonLink>
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="card flex flex-col gap-5 p-5 animate-rise [animation-delay:120ms] sm:p-7">
+    <form onSubmit={form.handleSubmit(onSubmit)} noValidate className={CARD}>
       <div className="flex flex-col gap-1">
         <h2 className="font-head text-[22px] font-semibold tracking-[-0.01em]">Postúlate</h2>
-        <p className="text-[13.5px] text-ink-2">Toma un par de minutos. No necesitas crear una cuenta.</p>
+        <p className="text-[13.5px] text-ink-2">Solo sube tu hoja de vida. Tus datos salen de tu cuenta.</p>
       </div>
 
-      <TextField label="Nombre completo" autoComplete="name" error={errors.name?.message} {...form.register("name")} />
-      <TextField label="Correo" type="email" autoComplete="email" placeholder="tu@correo.com" help="Aquí te escribimos si avanzas" error={errors.email?.message} {...form.register("email")} />
+      <div className="flex items-center gap-3 rounded-xl bg-surface-2 px-3.5 py-3 ring-1 ring-border">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface text-ink-2 ring-1 ring-border">
+          <UserRound aria-hidden className="size-4" />
+        </span>
+        <span className="flex min-w-0 flex-col">
+          <span className="text-xs text-ink-3">Te postulas como</span>
+          <span className="truncate text-[13.5px] font-medium">{account.name || account.email}</span>
+          {account.name ? <span className="truncate text-xs text-ink-3">{account.email}</span> : null}
+        </span>
+      </div>
+
+      {account.name ? null : <TextField label="Nombre completo" autoComplete="name" help="Solo esta vez: lo guardamos en tu cuenta" error={errors.name?.message} {...form.register("name")} />}
 
       <Controller
         control={form.control}

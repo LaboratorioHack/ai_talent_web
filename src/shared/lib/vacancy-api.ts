@@ -118,6 +118,14 @@ export const toFulfillment = (value: ApiVacancyApplication["fulfillment"]): Fulf
   value === "MEETS" ? "MEETS" : value === "PARTIALLY_MEETS" ? "PARTIAL" : value === "DOES_NOT_MEET" ? "DOES_NOT_MEET" : undefined;
 
 /** Instante ISO → "AAAA-MM-DD" en la hora local, el formato de fechas del front. */
+/**
+ * ¿La vacante recibe postulaciones? Abierta y con el cierre sin vencer: es la misma regla de la página
+ * pública (GET /vacancies/{id}/public responde 404 si no se cumple), así el panel no ofrece un enlace roto.
+ */
+export function acceptsApplications(status: string, closingAt: string | null, now: Date = new Date()): boolean {
+  return status === "OPEN" && (!closingAt || new Date(closingAt).getTime() > now.getTime());
+}
+
 function toLocalDate(iso: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);

@@ -4,7 +4,8 @@ import { rememberAuthNext } from "@/shared/lib/auth-redirect";
 import { createSupabaseBrowserClient } from "@/shared/lib/supabase/client";
 
 const MESSAGES: Record<string, string> = {
-  over_email_send_rate_limit: "Pediste varios enlaces seguidos. Espera unos minutos",
+  // Este límite es de todo el proyecto en Supabase (no de esta persona): muchos enlaces en la última hora.
+  over_email_send_rate_limit: "Ahora mismo no podemos enviar más enlaces. Entra con Google o Microsoft, o intenta en unos minutos",
   over_request_rate_limit: "Pediste varios enlaces seguidos. Espera unos minutos",
   email_address_invalid: "Escribe un correo válido",
   validation_failed: "Escribe un correo válido",

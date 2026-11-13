@@ -225,7 +225,8 @@ export function IngestView({ data }: { data: IngestData }) {
       </div>
 
       <div className="sticky bottom-0 z-20 mt-auto border-t border-border bg-surface/90 backdrop-blur-xl">
-        <div className="flex flex-col items-stretch justify-between gap-3 px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4 lg:px-12">
+        {/* El margen derecho deja libre el botón flotante de Criba AI, que si no tapa "Evaluar ahora". */}
+        <div className="flex flex-col items-stretch justify-between gap-3 px-4 py-3 pb-24 sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4 sm:pr-28 lg:pl-12">
           <p className="text-[14px] text-ink-2">
             <strong className="font-semibold text-ink">{counts.read} listas para evaluar</strong>
             {attention ? `, ${attention} necesitan tu acción` : ""}
