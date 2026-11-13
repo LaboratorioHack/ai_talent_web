@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { Button, SelectField, TextField, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { COMPANY_SIZES, createCompany, isCompanySize, joinCompany, type CompanySize } from "../api/company";
@@ -67,14 +66,9 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
       title="¿Para qué organización reclutas?"
       description={detectedName ? `Detectamos ${detectedName} por tu correo. Puedes cambiarlo.` : "Así aparecerá en tus vacantes públicas."}
       footer={
-        <>
-          <Button variant="text" icon={<ArrowLeft />} onClick={() => router.push(routes.login)}>
-            Atrás
-          </Button>
-          <Button disabled={!name.trim() || joining} loading={busy && !joining} onClick={next}>
-            Continuar
-          </Button>
-        </>
+        <Button disabled={!name.trim() || joining} loading={busy && !joining} onClick={next} className="ml-auto">
+          Continuar
+        </Button>
       }
     >
       <TextField label="Nombre de la organización" value={name} maxLength={120} onChange={(e) => setName(e.target.value)} validated={!!detectedName && name === detectedName} />

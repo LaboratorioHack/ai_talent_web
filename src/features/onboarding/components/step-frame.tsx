@@ -14,7 +14,7 @@ export interface StepFrameProps {
   className?: string;
 }
 
-/** Pregunta grande arriba, campos en el centro, pie con Atrás / Continuar. */
+/** Pregunta grande arriba, campos en el centro y el pie con las acciones del paso. */
 export function StepFrame({ step, title, description, children, footer, width = 600, bare = false, className }: StepFrameProps) {
   return (
     <div className={cn("stagger flex flex-1 flex-col items-center gap-8 px-4 pt-8 pb-10 sm:gap-10 sm:px-6 sm:pt-16 sm:pb-16 [&>*]:animate-rise", className)}>
