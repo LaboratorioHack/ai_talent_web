@@ -210,6 +210,17 @@ Astro 7 + Tailwind v4, estática y en oscuro (tinta verde de la marca, resaltado
 - Sin precios ni "50 hojas gratis": no venían de ningún requisito.
 - `pnpm dev` → `http://localhost:4321`. `PUBLIC_APP_URL` apunta a la app Next.
 
+## 45 · `feat/no-mocks` (12 y 13 de noviembre) · todo con datos reales
+
+Front y back en ramas `feat/no-mocks`. El front ya no tiene `shared/mocks` ni `NEXT_PUBLIC_USE_MOCKS`: cada pantalla lee la API.
+
+- **Back nuevo**: migración `20261113000000_listing_portal_interviews` (datos de publicación de la vacante, archivo del CV, token y vencimiento de la entrevista). Endpoints: `GET /public/vacancies` (tablero con afinidad por hoja de vida), `GET|POST /public/interviews/{token}`, `POST /public/portal-link` (enlace mágico por el SMTP de Criba, se verifica en `/auth/confirm`), `/me/*` (postulaciones, retirar, hoja de vida con versiones, subir otra, exportar, borrar), `POST …/applications/{id}/interview|ai-error|request-original`, `GET …/resume/file` (archivo original de R2), `POST /interviews/{id}/schedule`, `GET /governance/audit?days=7|30|90`. El panel trae `activity` (lo que hizo Criba AI) y las entrevistas su postulación y vencimiento.
+- **Arreglos de fondo**: leer el ranking ya no re-evalúa todas las hojas de vida con IA (ordena las evaluaciones guardadas); el engine tolera la salida suelta del evaluador y pide el JSON exacto (antes devolvía 400 o evaluaciones vacías); puntos por requisito = peso × cumplimiento; fechas en hora de Bogotá; la bandeja de entrevistas fallaba por un parámetro nulo sin tipo; el contenedor web no tenía `API_INTERNAL_URL`.
+- **Seed**: `scripts/seed/generate_demo.py` → `supabase/seed/demo.sql` (Cordillera Financiera y dos empresas ficticias). `DATABASE_URL=… ./scripts/seed-demo.sh --admin <correo> --applicant <correo>` enlaza un admin y un postulante.
+- **Logins**: un mismo marco (`AuthShell`) para empresas y postulantes; sin "Paso 1 de 3"; sin botón Atrás en la organización.
+- **Errores.pdf**: textos del Inicio, embudo alineado, horas ahorradas en verde, validación de pesos antes de publicar y errores de la API en español, enlace de postulación (ahora lee `GET /vacancies/{id}/public`).
+- **Pendiente fuera del código**: las credenciales SMTP de `backend.development` no autentican en Gmail (hace falta una contraseña de aplicación de 16 caracteres); el servidor EC2 no respondía el 13/11 de madrugada.
+
 ## pen.dev: cómo actualizarlo
 
 Importar la página viva tarda demasiado y se corta (60 s). Lo que funciona: congelar cada pantalla con Playwright en HTML estático (sin scripts, canvas como imagen, animaciones apagadas) dentro de `public/_freeze/` (excluido en `.git/info/exclude`), abrirla en el navegador de pen.dev a 1440 de ancho y al alto de la página, marcar trozos de menos de 300 elementos (`data-part`), quitar lo que queda fuera de pantalla en las listas con scroll, importar cada trozo y armarlos en un frame sin layout en la posición de la pantalla vieja. La órbita de la landing va como imagen (`images/landing-orbit.png` junto al `.pen`).
@@ -249,11 +260,11 @@ Lo que Manuel va pidiendo; se hace en este orden y se tacha al cerrarlo.
 1. ~~Actualizar este handoff con lo que ya tiene `develop` del back.~~
 2. ~~Quitar todos los datos de prueba del front (`shared/mocks`, `NEXT_PUBLIC_USE_MOCKS`, datos fijos en componentes). Lo que falte en la API se hace en el back con su migración, endpoint y seed. Usar los `.env` de Descargas (`frontend.download` → `.env.local`, `backend.development` → `.env.development`).~~
 3. ~~Logins según el MVP: que el de empresas y el del portal del postulante sean consistentes; quitar el botón de atrás en el onboarding de la organización y el "Paso 1 de 3" del login de empresas.~~
-4. Revisar `Errores.pdf` (QA del 12/11): textos del Inicio ("las evaluaciones", leyenda "Recibidas y fecha de cierre a la derecha" sobra, embudo desalineado, "Mostrando los últimos 30 días en 1 vacantes"), horas ahorradas en verde, límite de envíos del enlace mágico (es el límite de correos de Supabase: hay que configurar SMTP propio en Auth), guardar borrador y crear con pesos que no suman 100, enlace de postulación que da 404.
+4. ~~Revisar `Errores.pdf` (QA del 12/11): textos del Inicio ("las evaluaciones", leyenda "Recibidas y fecha de cierre a la derecha" sobra, embudo desalineado, "Mostrando los últimos 30 días en 1 vacantes"), horas ahorradas en verde, límite de envíos del enlace mágico (es el límite de correos de Supabase: hay que configurar SMTP propio en Auth), guardar borrador y crear con pesos que no suman 100, enlace de postulación que da 404.~~
 5. Probar la build de producción en Docker en local; PR a `develop`, esperar CI y mergear; PR a `main`, esperar CI, CD y lint, mergear y comprobar el sitio desplegado.
 6. Video con todo el flujo de ambos lados; un personaje para Criba AI (en la línea del de Claude) cuando la IA actúa; pruebas exhaustivas de la IA real (Anthropic, embeddings Nemotron y Voyage por OpenRouter, RAG) y un archivo con capturas de todo funcionando.
 7. Auditoría: que toda acción genere un evento real (también las de la IA). Exportes en PDF con plantilla de la estética de Criba (sobria y elegante) y datos reales; CSV opcional.
-8. Usar Jev (el fast-pass del AI Engine) en el ranking y comprobar que ordena bien.
+8. ~~Usar Jev (el fast-pass del AI Engine) en el ranking y comprobar que ordena bien.~~ (el evaluate usa Jev como filtro rápido y luego Claude; probado con IA real)
 9. Correos con plantilla propia de Criba (invitación a entrevista, enlace del portal, pedir original, entrevista con el equipo): bonitos y con la estética de la marca.
 
 ## Pendiente
