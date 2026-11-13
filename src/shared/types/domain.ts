@@ -185,7 +185,8 @@ export interface AuditDecision {
   action: string;
   who: string;
   subject: string;
-  status: "meets" | "partial" | "does_not_meet" | "unevaluated";
+  /** Resultado de la evaluación, si la acción tiene uno; "none" = sin etiqueta. */
+  status: "meets" | "partial" | "does_not_meet" | "unevaluated" | "none";
 }
 
 export interface PendingItem {
