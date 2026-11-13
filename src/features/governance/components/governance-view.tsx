@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Download, Eye, EyeOff, Info, Lock } from "lucide-react";
+import { Check, Download, Eye, EyeOff, Info, Lock, Settings } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
-import { AnimatedNumber, Button, Modal, ScrollArea, Segmented, Select, useToast } from "@/shared/components/ui";
+import { AnimatedNumber, Button, CribaCharacter, Modal, ScrollArea, Segmented, Select, useToast } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 import type { AuditDecision } from "@/shared/types/domain";
 import { fetchGovernance } from "../api/governance-browser";
@@ -12,8 +12,12 @@ import type { BiasAlert, GovernanceData, GovernancePeriod as Period } from "../t
 const PERIOD_TEXT: Record<Period, string> = { "7d": "Últimos 7 días", "30d": "Últimos 30 días", "90d": "Últimos 90 días" };
 
 const DAY: Record<string, string> = { Hoy: "Hoy", Ayer: "Ayer", Lun: "Lunes", Mar: "Martes", "Mié": "Miércoles", Jue: "Jueves", Vie: "Viernes", "Sáb": "Sábado", Dom: "Domingo" };
-const STATUS_TONE: Record<AuditDecision["status"], string> = { meets: "bg-success-soft text-success", partial: "bg-warning-soft text-warning", does_not_meet: "bg-danger-soft text-danger", unevaluated: "bg-blue-soft text-blue" };
-const STATUS_TEXT: Record<AuditDecision["status"], string> = { meets: "Cumple", partial: "Parcial", does_not_meet: "No cumple", unevaluated: "Ajuste" };
+const STATUS_TONE: Record<AuditDecision["status"], string> = { meets: "bg-success-soft text-success", partial: "bg-warning-soft text-warning", does_not_meet: "bg-danger-soft text-danger", unevaluated: "bg-blue-soft text-blue", none: "" };
+const STATUS_TEXT: Record<AuditDecision["status"], string> = { meets: "Cumple", partial: "Parcial", does_not_meet: "No cumple", unevaluated: "Sin evaluar", none: "" };
+/** Así llama el back a las acciones de la IA (GovernanceService.CribaAi). */
+const CRIBA_AI = "Criba AI";
+const AUTOMATIC = "Sistema";
+const rank = (who: string) => (who === AUTOMATIC ? 2 : who === CRIBA_AI ? 1 : 0);
 const ATTRIBUTE_GROUPS = [
   { title: "Nunca entran al puntaje", hint: "Se borran al leer, antes de evaluar", used: false },
   { title: "Entran al puntaje", hint: "Solo si un requisito los pide", used: true },
@@ -56,8 +60,9 @@ export function GovernanceView({ data: initial }: { data: GovernanceData }) {
     () => [
       { value: "all", label: "Todas las personas" },
       ...[...new Set(data.decisions.map((d) => d.who))]
-        .sort((a, b) => (a === "Sistema" ? 1 : b === "Sistema" ? -1 : a.localeCompare(b, "es")))
-        .map((who) => ({ value: who, label: who === "Sistema" ? "Cambios automáticos" : who })),
+        // Primero las personas; al final Criba AI y los cambios automáticos.
+        .sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, "es"))
+        .map((who) => ({ value: who, label: who === AUTOMATIC ? "Cambios automáticos" : who })),
     ],
     [data.decisions],
   );
@@ -179,20 +184,20 @@ export function GovernanceView({ data: initial }: { data: GovernanceData }) {
           <section className="card flex h-[560px] flex-col overflow-hidden animate-rise [animation-delay:200ms]">
             <header className="flex items-start justify-between gap-4 border-b border-border px-6 pt-5 pb-4">
               <div className="flex flex-col gap-1">
-                <h2 className="font-head text-[20px] font-semibold tracking-[-0.01em]">Decisiones humanas</h2>
-                <p className="text-[13px] text-ink-3">Quién decidió qué, y sobre quién.</p>
+                <h2 className="font-head text-[20px] font-semibold tracking-[-0.01em]">Registro de acciones</h2>
+                <p className="text-[13px] text-ink-3">Qué hizo cada persona y qué hizo Criba AI, y sobre quién.</p>
               </div>
               <Select aria-label="Persona" options={people} value={who} onChange={setWho} className="w-[200px]" triggerClassName="field-box h-9 w-full px-3 text-[13px] text-ink" />
             </header>
-            <ScrollArea aria-label="Decisiones humanas" className="flex-1" viewportClassName="px-6 pb-6">
+            <ScrollArea aria-label="Registro de acciones" className="flex-1" viewportClassName="px-6 pb-6">
               {groups.map(([day, list]) => (
                 <div key={day} className="flex flex-col">
                   <h3 className="sticky top-0 z-10 bg-surface/95 pt-5 pb-2 text-[12.5px] font-medium text-ink-3 backdrop-blur">{DAY[day] ?? day}</h3>
                   <ol className="relative flex flex-col before:absolute before:top-3 before:bottom-3 before:left-[15px] before:w-px before:bg-border">
                     {list.map((d, i) => (
                       <li key={`${d.action}-${d.subject}-${i}`} className="relative flex items-start gap-3.5 py-2.5 animate-[option-in_360ms_var(--ease-out-soft)_both]" style={{ animationDelay: `${i * 35}ms` }}>
-                        <span className={cn("relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ring-4 ring-surface", d.who === "Sistema" ? "bg-blue-soft text-blue" : "bg-surface-2 text-ink-2")}>
-                          {d.who === "Sistema" ? "IA" : initials(d.who)}
+                        <span className={cn("relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ring-4 ring-surface", d.who === CRIBA_AI ? "bg-amber/15" : d.who === AUTOMATIC ? "bg-blue-soft text-blue" : "bg-surface-2 text-ink-2")}>
+                          {d.who === CRIBA_AI ? <CribaCharacter size={18} /> : d.who === AUTOMATIC ? <Settings aria-hidden className="size-3.5" /> : initials(d.who)}
                         </span>
                         <span className="flex min-w-0 flex-1 flex-col gap-0.5 pt-0.5">
                           <span className="text-[13.5px] leading-snug">
@@ -203,7 +208,7 @@ export function GovernanceView({ data: initial }: { data: GovernanceData }) {
                             {d.when.includes(":") ? `, ${d.when.split(" ")[1]}` : ""}
                           </span>
                         </span>
-                        <span className={cn("mt-1 shrink-0 rounded-full px-2 py-0.5 text-[11.5px]", STATUS_TONE[d.status])}>{STATUS_TEXT[d.status]}</span>
+                        {d.status !== "none" ? <span className={cn("mt-1 shrink-0 rounded-full px-2 py-0.5 text-[11.5px]", STATUS_TONE[d.status])}>{STATUS_TEXT[d.status]}</span> : null}
                       </li>
                     ))}
                   </ol>

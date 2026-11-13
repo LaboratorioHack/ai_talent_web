@@ -6,13 +6,14 @@ import { Briefcase, Mail, Plus, Share2, X } from "lucide-react";
 import { evaluationErrorMessage } from "@/features/evaluations/api/errors";
 import { compareApplications } from "@/features/evaluations/api/evaluations";
 import { PageTop } from "@/shared/components/layout";
-import { Button, CribaAi, CribaCharacter, EmptyState, Select, useToast } from "@/shared/components/ui";
+import { Button, Collapse, CribaAi, CribaCharacter, CribaThinking, EmptyState, Select, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
-import { withCriba } from "@/shared/lib/criba-work";
+import { startCribaWork } from "@/shared/lib/criba-work";
+import { pause, revealEach } from "@/shared/lib/reveal";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import { inviteToInterview } from "../api/actions";
-import type { TradeoffCandidate, TradeoffMatrix as Matrix, TradeoffStatus } from "../types/tradeoffs";
+import type { TradeoffCandidate, TradeoffCell, TradeoffMatrix as Matrix, TradeoffStatus } from "../types/tradeoffs";
 
 const MAX = 3;
 const MIN_COMPARE = 2;
@@ -24,7 +25,6 @@ const STATUS: Record<TradeoffStatus, { label: string; dot: string; text: string 
   unknown: { label: "No consta", dot: "bg-ink-3", text: "text-ink-3" },
 };
 
-const PILL = { blue: "bg-blue-soft text-blue", green: "bg-success-soft text-success", neutral: "bg-surface-2 text-ink-2" } as const;
 const TINT = ["bg-blue-soft/60", "bg-success-soft/60", "bg-amber/10", "bg-danger-soft/50"];
 
 /**
@@ -39,6 +39,8 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
   const [overrides, setOverrides] = useState<Record<string, Pick<TradeoffCandidate, "gains" | "assumes">>>({});
   const [reading, setReading] = useState(data.reading);
   const [comparing, setComparing] = useState(false);
+  // Lo que Criba va pensando al comparar: pasos reales y, al final, lo que devolvió.
+  const [thoughts, setThoughts] = useState<string[]>([]);
   const [inviting, setInviting] = useState(false);
   const byId = useMemo(() => new Map(data.candidates.map((c) => [c.id, c])), [data.candidates]);
   const cols = shown
@@ -59,25 +61,47 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
 
   const runCompare = useCallback(
     async (applicationIds: string[]) => {
+      const names = applicationIds.map((id) => byId.get(id)?.name.split(" ")[0]).filter(Boolean);
+      const think = (line: string) => setThoughts((t) => [...t, line]);
       setComparing(true);
+      setThoughts([`Leo las hojas de vida de ${names.join(", ").replace(/, ([^,]*)$/, " y $1")}`]);
+      const done = startCribaWork(`Compara ${applicationIds.length} hojas de vida frente al cargo`);
+      const steps = [
+        window.setTimeout(() => think("Comparo requisito por requisito lo que prueba cada una"), 2200),
+        window.setTimeout(() => think("Busco qué ganas y qué cedes con cada persona"), 5200),
+      ];
       try {
-        const result = await withCriba(`Compara ${applicationIds.length} hojas de vida frente al cargo`, compareApplications(data.job.id, applicationIds));
-        const summary = result.comparison.comparativeSummary || result.comparison.headToHeadTradeOff;
-        if (summary) setReading(summary);
-        const next: Record<string, Pick<TradeoffCandidate, "gains" | "assumes">> = {};
-        for (const ref of result.candidates) {
+        const result = await compareApplications(data.job.id, applicationIds);
+        steps.forEach(window.clearTimeout);
+        const rows = result.candidates.flatMap((ref) => {
           const row = result.comparison.sideBySideMatrix.find((item) => item.candidateId === ref.resumeId);
-          if (!row) continue;
-          next[ref.applicationId] = { gains: row.primaryAdvantage, assumes: row.primaryTradeOffOrGap };
+          return row ? [{ id: ref.applicationId, gains: row.primaryAdvantage, assumes: row.primaryTradeOffOrGap }] : [];
+        });
+        // Cada columna se actualiza a su turno, mientras Criba cuenta qué encontró.
+        await revealEach(
+          rows,
+          (row) => {
+            think(`${byId.get(row.id)?.name.split(" ")[0] ?? "Esta persona"}: ${row.gains}`);
+            setOverrides((o) => ({ ...o, [row.id]: { gains: row.gains, assumes: row.assumes } }));
+          },
+          1500,
+        );
+        const summary = result.comparison.comparativeSummary || result.comparison.headToHeadTradeOff;
+        if (summary) {
+          await pause(900);
+          setReading(summary);
+          think(summary);
         }
-        setOverrides(next);
       } catch (error) {
+        steps.forEach(window.clearTimeout);
+        setThoughts([]);
         toast({ tone: "error", title: "No se pudo comparar", description: evaluationErrorMessage(error) });
       } finally {
+        done();
         setComparing(false);
       }
     },
-    [data.job.id, toast],
+    [byId, data.job.id, toast],
   );
 
   useEffect(() => {
@@ -189,10 +213,11 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
                         </span>
                         <span className="flex min-w-0 flex-col">
                           <span className="truncate text-[14.5px] font-semibold">{c.name}</span>
-                          <span className="text-[12px] text-ink-3">{c.score} de 100 · encaje con el cargo</span>
+                          <span className="text-[12px] text-ink-3 tabular-nums">
+                            {c.score} de 100 · confianza {c.confidence} %
+                          </span>
                         </span>
                       </div>
-                      <span className={cn("w-fit rounded-md px-2 py-0.5 text-[11.5px] font-medium", PILL[c.pill.tone])}>{c.pill.label}</span>
                       {cols.length > 2 ? (
                         <button
                           type="button"
@@ -222,16 +247,7 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
                         </div>
                         {cols.map((c) => {
                           const cell = r.cells[c.id] ?? { status: "unknown" as const, text: "No aparece en la hoja de vida." };
-                          const s = STATUS[cell.status];
-                          return (
-                            <div key={c.id} className="flex flex-col gap-1 border-l border-border px-4 py-4">
-                              <span className={cn("flex items-center gap-1.5 text-[12px] font-medium", s.text)}>
-                                <span aria-hidden className={cn("size-1.5 rounded-full", s.dot)} />
-                                {s.label}
-                              </span>
-                              <span className="text-[13px] leading-snug text-ink-2">{cell.text}</span>
-                            </div>
-                          );
+                          return <MatrixCell key={c.id} cell={cell} />;
                         })}
                       </div>
                     ))}
@@ -271,7 +287,9 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
               </div>
             </div>
 
-            {reading ? (
+            {thoughts.length ? (
+              <CribaThinking thoughts={thoughts} working={comparing} title="Criba AI está comparando" className="animate-rise [animation-delay:120ms]" />
+            ) : reading ? (
               <p className="flex flex-wrap items-center gap-3 rounded-2xl bg-amber/8 px-4 py-3 text-[13.5px] leading-snug text-ink-2 ring-1 ring-amber/25 animate-rise [animation-delay:120ms]">
                 <CribaCharacter mood={comparing ? "thinking" : "idle"} size={24} />
                 <CribaAi label={comparing ? "Comparando" : "Lectura"} />
@@ -290,6 +308,31 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+/** Una celda: el estado, una frase que se lee de un vistazo y, si hay, la cita textual a un clic. */
+function MatrixCell({ cell }: { cell: TradeoffCell }) {
+  const [open, setOpen] = useState(false);
+  const s = STATUS[cell.status];
+  return (
+    <div className="flex flex-col gap-1.5 border-l border-border px-4 py-4">
+      <span className={cn("flex items-center gap-1.5 text-[12px] font-medium", s.text)}>
+        <span aria-hidden className={cn("size-1.5 rounded-full", s.dot)} />
+        {s.label}
+      </span>
+      <span className={cn("text-[13px] leading-snug text-ink-2", !open && "line-clamp-2")}>{cell.text}</span>
+      {cell.quote ? (
+        <>
+          <Collapse open={open}>
+            <q className="block border-l-2 border-amber/60 pl-2.5 text-[12.5px] leading-snug text-ink-3 italic [quotes:'“'_'”']">{cell.quote}</q>
+          </Collapse>
+          <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="self-start text-[12px] font-medium text-ink-3 underline-offset-4 transition-colors hover:text-ink hover:underline">
+            {open ? "Ocultar cita" : "Ver cita"}
+          </button>
+        </>
+      ) : null}
     </div>
   );
 }

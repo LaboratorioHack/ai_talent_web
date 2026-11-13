@@ -5,6 +5,7 @@ import { serverApi } from "@/shared/lib/api-server";
 import { toJobOpening, type ApiVacancyDetail } from "@/shared/lib/vacancy-api";
 import type { RankedCandidate, RankRequirement } from "@/shared/types/ranking";
 import type { TradeoffCandidate, TradeoffCell, TradeoffMatrix, TradeoffRow } from "../types/tradeoffs";
+import { sentenceCase, tidyQuote } from "@/shared/lib/text";
 import { getRanking } from "./rankings";
 
 const initials = (name: string) =>
@@ -14,40 +15,22 @@ const initials = (name: string) =>
     .map((w) => w[0])
     .join("");
 
-const clean = (s: string) => s.replace(/^[“"]|[”"]$/g, "").trim();
-
 function cellOf(c: RankedCandidate, r: RankRequirement): TradeoffCell {
   const res = c.results.find((x) => x.requirementId === r.id);
   if (!res || res.result === "NO_EVIDENCE") return { status: "unknown", text: "No aparece en la hoja de vida." };
-  const text = res.evidence[0] ? clean(res.evidence[0].citation) : res.justification;
-  return { status: res.result === "MEETS" ? "meets" : res.result === "PARTIAL" ? "partial" : "missing", text };
+  // La celda dice en una frase por qué; la cita textual queda a un clic.
+  const quote = res.evidence[0] ? tidyQuote(res.evidence[0].citation) : undefined;
+  const text = res.justification ? sentenceCase(res.justification.trim()) : (quote ?? "");
+  return { status: res.result === "MEETS" ? "meets" : res.result === "PARTIAL" ? "partial" : "missing", text, quote: quote && quote !== text ? quote : undefined };
 }
 
 /** Matriz armada con el ranking de cualquier vacante: requisitos del perfil y señales de la evaluación. */
-function fromRanking(requirements: RankRequirement[], pool: RankedCandidate[], total: number): Pick<TradeoffMatrix, "sections" | "candidates" | "reading"> {
+function fromRanking(requirements: RankRequirement[], pool: RankedCandidate[]): Pick<TradeoffMatrix, "sections" | "candidates" | "reading"> {
   const reqRows: TradeoffRow[] = requirements.slice(0, 6).map((r) => ({
     label: r.description,
     tag: r.type === "MANDATORY" ? "Obligatorio" : r.type === "NICE_TO_HAVE" ? "Deseable" : "Descalificante",
     cells: Object.fromEntries(pool.map((c) => [c.id, cellOf(c, r)])),
   }));
-  const signalRows: TradeoffRow[] = [
-    {
-      label: "Confianza de la evaluación",
-      tag: "Ponderado",
-      cells: Object.fromEntries(
-        pool.map((c) => {
-          const pct = Math.round(c.confidence * 100);
-          return [c.id, { status: pct >= 85 ? "meets" : pct >= 70 ? "partial" : "missing", text: `${pct} %: ${pct >= 85 ? "la hoja de vida es clara y fechada." : "hay puntos que confirmar en la entrevista."}` }];
-        }),
-      ),
-    },
-    {
-      label: "Cómo entra en el ranking",
-      tag: "Ranking",
-      cells: Object.fromEntries(pool.map((c, i) => [c.id, { status: i < 3 ? "meets" : "partial", text: i === 0 ? `1.º de ${total} hojas de vida.` : `${i + 1}.º del ranking.` }])),
-    },
-  ];
-
   const candidates: TradeoffCandidate[] = pool.map((c) => {
     const met = requirements.filter((r) => cellOf(c, r).status === "meets");
     const gap = requirements.find((r) => cellOf(c, r).status !== "meets");
@@ -56,7 +39,7 @@ function fromRanking(requirements: RankRequirement[], pool: RankedCandidate[], t
       name: c.name,
       initials: initials(c.name),
       score: c.score,
-      pill: { label: "En ranking", tone: "blue" },
+      confidence: Math.round(c.confidence * 100),
       gains: met.length ? met.slice(0, 2).map((r) => r.description).join(" y ") : "Base para crecer en el cargo",
       assumes: gap ? `Validar ${gap.description.toLowerCase()} en la entrevista.` : "Nada pendiente en el perfil.",
     };
@@ -73,7 +56,7 @@ function fromRanking(requirements: RankRequirement[], pool: RankedCandidate[], t
       ? `Todos cumplen los obligatorios: la diferencia está en los deseables y en la confianza de cada evaluación.`
       : `${hardest.n === 0 ? "Nadie" : `Solo ${hardest.n} de ${shown.length}`} cumple del todo «${hardest.r.description}»: si es innegociable, pídelo como prueba en la entrevista.`;
 
-  return { sections: [{ title: "Requisitos del perfil de cargo", hint: "lo que pediste en la descripción de la vacante", rows: reqRows }, { title: "Señales de la evaluación", hint: "cómo leyó Criba AI cada hoja de vida", rows: signalRows }], candidates, reading };
+  return { sections: [{ title: "Requisitos del perfil de cargo", hint: "lo que pediste en la descripción de la vacante", rows: reqRows }], candidates, reading };
 }
 
 /**
@@ -101,5 +84,5 @@ export async function getTradeoffs(jobId: string): Promise<TradeoffMatrix | null
     jobs: ranking.jobs.map((j) => ({ value: j.value, label: j.label })),
   };
   if (!ranking.candidates.length) return { ...base, sections: [], candidates: [], reading: "" };
-  return { ...base, ...fromRanking(ranking.requirements, ranking.candidates, ranking.candidates.length) };
+  return { ...base, ...fromRanking(ranking.requirements, ranking.candidates) };
 }

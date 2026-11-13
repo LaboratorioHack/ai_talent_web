@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Button, CribaAi, CribaCharacter } from "@/shared/components/ui";
+import { Button, CribaAi, CribaCharacter, CribaThinking } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 import { useCribaWork } from "@/shared/lib/criba-work";
 
@@ -29,6 +29,13 @@ export function EvaluatingPanel({ total, done, onLeave }: EvaluatingPanelProps) 
 
   const finished = done >= total;
   useCribaWork(!finished, `Evalúa ${total} hojas de vida y cita la evidencia`, "thinking");
+  // Lo que va haciendo, con el avance real que cuenta la API (no una animación sin datos).
+  const thoughts = [
+    "Una lectura rápida revisa primero los requisitos obligatorios",
+    "Busco en cada hoja de vida la línea que prueba cada requisito",
+    ...Array.from({ length: Math.min(done, total) }, (_, i) => `Terminé la evaluación ${i + 1} de ${total}`),
+    ...(finished ? ["Ordeno el ranking por ajuste al perfil"] : []),
+  ];
   // Mientras no hay ninguna lista, la barra muestra un mínimo para que se vea que empezó.
   const pct = Math.max(6, Math.min(100, Math.round((done / Math.max(1, total)) * 100)));
 
@@ -56,6 +63,7 @@ export function EvaluatingPanel({ total, done, onLeave }: EvaluatingPanelProps) 
           <span>{finished ? "terminado" : "cada hoja de vida toma unos segundos"}</span>
         </span>
       </div>
+      <CribaThinking thoughts={thoughts} working={!finished} title="Criba AI está evaluando" className="w-full max-w-[520px] text-left" />
       {!finished ? (
         <Button variant="text" icon={<ArrowLeft />} onClick={onLeave}>
           Volver al ranking

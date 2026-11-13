@@ -2,13 +2,12 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { BadgeCheck, Briefcase, MessageSquareText, Timer, Users } from "lucide-react";
 import { CribaAi, Segmented, Select, Skeleton } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import type { DashboardData, Period, PeriodStats } from "../api/dashboard";
 import { AiActivity } from "./ai-activity";
 import { FunnelChart } from "./funnel-chart";
-import { KpiCard } from "./kpi-card";
+import { FitBreakdown, ReadingGauge } from "./overview-charts";
 import { PendingList, TopProfiles } from "./side-panels";
 import { VacancyBars } from "./vacancy-bars";
 
@@ -177,16 +176,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
 
   const scope = useMemo(() => (vacancy === "all" ? data.vacancies : data.vacancies.filter((v) => v.id === vacancy)), [data, vacancy]);
   const t = totalsOf(scope, period);
-  const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : 0);
   const vacancyOptions = [{ value: "all", label: "Todas las vacantes abiertas" }, ...data.vacancies.map((v) => ({ value: v.id, label: v.title }))];
-  const closingSoon = scope.filter((v) => {
-    if (!v.closesAt.trim()) return false;
-    const [y, m, d] = v.closesAt.split("-").map(Number);
-    const close = new Date(y, m - 1, d);
-    const limit = new Date();
-    limit.setDate(limit.getDate() + 30);
-    return close >= new Date() && close <= limit;
-  }).length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -201,18 +191,10 @@ export function DashboardView({ data }: { data: DashboardData }) {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <KpiCard
-          index={0}
-          label="Vacantes abiertas"
-          value={scope.length}
-          detail={closingSoon ? `${closingSoon} ${closingSoon === 1 ? "cierra" : "cierran"} en los próximos 30 días` : `${scope.filter((v) => v.closesAt.trim()).length} con fecha de cierre`}
-          icon={Briefcase}
-        />
-        <KpiCard index={1} label="Hojas de vida recibidas" value={t.received} detail={`${pct(t.read, t.received)} % leídas sin problema`} icon={Users} />
-        <KpiCard index={2} label="Cumplen el perfil" value={t.meets} detail={`${pct(t.meets, t.received)} % de las recibidas`} icon={BadgeCheck} tone="success" />
-        <KpiCard index={3} label="Entrevistas IA" value={t.interview} detail="Las hace Criba AI; decide tu equipo" icon={MessageSquareText} />
-        <KpiCard index={4} label="Horas ahorradas" value={Math.round((t.read * READ_MINUTES) / 60)} detail={`Unos ${READ_MINUTES.toLocaleString("es-CO")} min por hoja de vida que Criba AI leyó por ti`} icon={Timer} tone="success" />
+      {/* Dos lecturas visuales en vez de una fila de cifras: cómo cumplen y cuánto leyó Criba AI. */}
+      <div className="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
+        <FitBreakdown key={`fit-${period}-${vacancy}`} stats={t} index={0} />
+        <ReadingGauge key={`read-${period}-${vacancy}`} stats={t} minutesPerResume={READ_MINUTES} index={1} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_400px]">
