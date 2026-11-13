@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/shared/components/layout";
 import { Avatar, Logo, Popover } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
+import { signOut } from "@/features/auth/api/auth";
 
 export interface PortalNavProps {
   name: string;
@@ -115,9 +116,12 @@ export function PortalNav({ name, email, active, pending }: PortalNavProps) {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       close();
-                      router.push(routes.portalSignIn);
+                      // Cierra la sesión de verdad; si solo navegara, el proxy la devolvería al portal.
+                      await signOut();
+                      router.replace(routes.portalSignIn);
+                      router.refresh();
                     }}
                     className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[14px] text-ink-2 transition-colors hover:bg-hover hover:text-ink"
                   >
