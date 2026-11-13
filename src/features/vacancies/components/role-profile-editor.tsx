@@ -12,7 +12,8 @@ import { formatShortDate, fromISODate, toISODate } from "@/shared/lib/dates";
 import { AREAS, CONTRACTS, MODALITIES, SCHEDULES } from "@/shared/constants/vacancy";
 import { REQUIREMENT_TYPE_LABEL, roleProfileDraftSchema, weightTotals, type ListingDraft, type RequirementDraft, type RoleProfileDraft } from "../schemas/role-profile";
 import { vacancyErrorMessage } from "../api/errors";
-import { profileAssistErrorMessage, proposeRequirements, suggestEquivalences } from "../api/role-profiles";
+import { draftVacancy, profileAssistErrorMessage, proposeRequirements, suggestEquivalences } from "../api/role-profiles";
+import { AiFillCard } from "./ai-fill-card";
 import { RequirementRow } from "./requirement-row";
 import { ScoringSidebar } from "./scoring-sidebar";
 
@@ -39,7 +40,9 @@ export function emptyRequirement(type: RequirementDraft["type"] = "MANDATORY"): 
 export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLabel = "Guardar borrador", evaluateLabel = "Evaluar" }: RoleProfileEditorProps) {
   const [draft, setDraft] = useState<RoleProfileDraft>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [busy, setBusy] = useState<"save" | "evaluate" | "propose" | null>(null);
+  const [busy, setBusy] = useState<"save" | "evaluate" | "propose" | "fill" | null>(null);
+  // Lo que Criba va haciendo mientras llena la vacante completa desde el contexto.
+  const [fillThoughts, setFillThoughts] = useState<string[]>([]);
   // Lo que Criba va pensando mientras propone requisitos (pasos reales y lo que devolvió).
   const [thoughts, setThoughts] = useState<string[]>([]);
   const [thinking, setThinking] = useState(false);
@@ -99,6 +102,76 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
       steps.forEach(window.clearTimeout);
       setThinking(false);
       toast({ tone: "error", title: "Criba no pudo proponer requisitos", description: profileAssistErrorMessage(error) });
+    } finally {
+      done();
+      setBusy(null);
+    }
+  }
+
+  /**
+   * Llena toda la vacante desde el contexto libre. Los campos que el texto no dice se quedan como
+   * estaban; los requisitos se reemplazan y entran de a uno. Devuelve si terminó bien.
+   */
+  async function fillFromContext(context: string): Promise<boolean> {
+    const say = (line: string) => setFillThoughts((t) => [...t, line]);
+    setBusy("fill");
+    setFillThoughts(["Leo lo que me contaste del cargo"]);
+    const done = startCribaWork("Arma la vacante con lo que le contaste", "reading");
+    const steps = [
+      window.setTimeout(() => say("Escribo el nombre, el área y la descripción para los candidatos"), 2000),
+      window.setTimeout(() => say("Separo lo obligatorio de lo deseable y reparto los pesos hasta 100"), 4500),
+    ];
+    try {
+      const fill = await draftVacancy(context);
+      steps.forEach(window.clearTimeout);
+      setErrors({});
+
+      say(`La vacante es «${fill.title}»${fill.area ? `, del área ${fill.area}` : ""}`);
+      setDraft((d) => ({ ...d, title: fill.title || d.title, area: fill.area ?? d.area }));
+      await pause(700);
+
+      if (fill.description) {
+        setDraft((d) => ({ ...d, description: fill.description }));
+        say("Escribí la descripción del cargo");
+        await pause(700);
+      }
+
+      const extras: string[] = [];
+      if (fill.openings) extras.push(`${fill.openings} ${fill.openings === 1 ? "plaza" : "plazas"}`);
+      const closes = fill.closesAt ? fromISODate(fill.closesAt) : null;
+      if (closes) extras.push(`cierra el ${formatShortDate(closes)}`);
+      const listed = Object.keys(fill.listing).length;
+      setDraft((d) => ({
+        ...d,
+        openings: fill.openings ?? d.openings,
+        closesAt: closes ? toISODate(closes) : d.closesAt,
+        listing: { ...d.listing, ...fill.listing },
+      }));
+      if (listed) extras.push(`${listed} ${listed === 1 ? "dato" : "datos"} de la publicación`);
+      if (extras.length) {
+        say(`También: ${extras.join(", ")}`);
+        await pause(700);
+      }
+
+      say(`Propongo ${fill.requirements.length} requisitos`);
+      setDraft((d) => ({ ...d, requirements: [] }));
+      await revealEach(
+        fill.requirements,
+        (r) => {
+          const weight = r.type === "DISQUALIFYING" ? "" : ` · peso ${r.weight}`;
+          say(`${REQUIREMENT_TYPE_LABEL[r.type]}${weight}: ${r.description}`);
+          setDraft((d) => ({ ...d, requirements: [...d.requirements, r] }));
+        },
+        900,
+      );
+      await pause(800);
+      say("Listo. Revisa cada campo, sobre todo los pesos y la fecha de cierre, antes de guardar");
+      return true;
+    } catch (error) {
+      steps.forEach(window.clearTimeout);
+      setFillThoughts([]);
+      toast({ tone: "error", title: "Criba no pudo llenar la vacante", description: profileAssistErrorMessage(error) });
+      return false;
     } finally {
       done();
       setBusy(null);
@@ -233,6 +306,13 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
           </div>
           </div>
         </header>
+
+        <AiFillCard
+          hasContent={Boolean(draft.title.trim() || draft.description.trim() || draft.requirements.some((r) => r.description.trim()))}
+          busy={busy === "fill"}
+          thoughts={fillThoughts}
+          onFill={fillFromContext}
+        />
 
         <section className="card p-7 animate-rise [animation-delay:80ms]" aria-label="Datos de la vacante">
           <h2 className="mb-6 text-[15px] font-semibold">Datos de la vacante</h2>
