@@ -1,6 +1,5 @@
 import { ApiError } from "@/shared/lib/api-client";
 import { browserApi } from "@/shared/lib/api-browser";
-import { createSupabaseBrowserClient } from "@/shared/lib/supabase/client";
 
 /** Tamaños que acepta la API (y la restricción de la base de datos), con su texto para la persona. */
 export const COMPANY_SIZES = [
@@ -22,14 +21,8 @@ export interface CompanyInput {
   name: string;
   sector: string;
   size: CompanySize;
-}
-
-/** Nombre de la cuenta: provision-user.sh lo guarda en user_metadata.name. */
-async function accountName(): Promise<string> {
-  const {
-    data: { user },
-  } = await createSupabaseBrowserClient().auth.getUser();
-  return (user?.user_metadata?.name as string | undefined) ?? user?.email ?? "";
+  /** Nombre de la persona: la cuenta nace del enlace del correo y no trae nombre. */
+  yourName: string;
 }
 
 /**
@@ -37,9 +30,8 @@ async function accountName(): Promise<string> {
  * Si ya pertenece a una empresa (409), sigue el alta.
  */
 export async function createCompany(input: CompanyInput): Promise<void> {
-  const yourName = await accountName();
   try {
-    await browserApi("/companies", { method: "POST", body: JSON.stringify({ companyName: input.name, sector: input.sector, size: input.size, yourName }) });
+    await browserApi("/companies", { method: "POST", body: JSON.stringify({ companyName: input.name, sector: input.sector, size: input.size, yourName: input.yourName }) });
   } catch (error) {
     if (error instanceof ApiError && error.status === 409) return;
     throw error;
@@ -61,9 +53,9 @@ export type JoinResult = { ok: true } | { ok: false; message: string };
  * Entra como reclutador a la empresa que emitió el código: POST /companies/join.
  * La API responde igual a un código vencido, alterado o desconocido.
  */
-export async function joinCompany(code: string): Promise<JoinResult> {
+export async function joinCompany(code: string, yourName: string): Promise<JoinResult> {
   try {
-    await browserApi("/companies/join", { method: "POST", body: JSON.stringify({ code: code.trim(), yourName: await accountName() }) });
+    await browserApi("/companies/join", { method: "POST", body: JSON.stringify({ code: code.trim(), yourName }) });
     return { ok: true };
   } catch (error) {
     if (!(error instanceof ApiError)) return { ok: false, message: "No pudimos conectarnos. Intenta de nuevo" };

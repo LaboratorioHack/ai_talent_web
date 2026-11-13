@@ -1,73 +1,76 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, Eye, EyeOff, Inbox } from "lucide-react";
+import { ArrowRight, Inbox, MailCheck } from "lucide-react";
 import { AuthHeading, AuthSwitch } from "@/shared/components/layout/auth-shell";
-import { Button, TextField, useToast } from "@/shared/components/ui";
+import { Button, TextField } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { safeNextPath } from "@/shared/lib/auth-redirect";
-import { requestPasswordReset, signInWithPassword } from "../api/auth";
-import { hasFinishedOnboarding } from "@/features/onboarding/state/onboarding-store";
+import { sendSignInLink } from "../api/auth";
+import { OAuthButtons } from "./oauth-buttons";
 import { loginSchema, organizationFromEmail, type LoginInput } from "../schemas/login";
 
+const LINK_FAILED = "El enlace ya no sirve: venció, ya se usó o se abrió en otro navegador. Pide uno nuevo.";
+const OAUTH_FAILED = "No se completó la entrada con Google o Microsoft. Intenta de nuevo o usa tu correo.";
+
+/**
+ * Entrada de empresas sin contraseña con Supabase Auth: el correo recibe un enlace de un solo uso. Entrar y
+ * registrarse son lo mismo; una cuenta nueva sigue al onboarding para crear o unirse a su organización.
+ */
 export function LoginForm() {
-  const router = useRouter();
   const params = useSearchParams();
-  const { toast } = useToast();
-  const [showPassword, setShowPassword] = useState(false);
-  const [resetting, setResetting] = useState(false);
   // Solo rutas internas: ?next=//otro-sitio no debe sacar a nadie de Criba.
   const requested = safeNextPath(params.get("next"));
-  const linkFailed = params.get("error") === "auth";
-
-  // /auth/callback manda aquí con ?error=auth si el enlace de cambio de contraseña ya no sirve.
-  useEffect(() => {
-    if (linkFailed) toast({ tone: "error", title: "El enlace ya no sirve", description: "Venció, ya se usó o se abrió en otro navegador. Pide uno nuevo con «¿Olvidaste tu contraseña?»." });
-  }, [linkFailed, toast]);
+  const failure = params.get("error");
+  const [sentTo, setSentTo] = useState<string | null>(null);
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     mode: "onTouched",
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "" },
   });
+
+  // /auth/callback manda aquí con ?error=auth (el enlace del correo ya no sirve) u ?error=oauth (Google/Microsoft).
+  useEffect(() => {
+    if (failure === "auth") form.setError("email", { message: LINK_FAILED });
+    else if (failure === "oauth") form.setError("email", { message: OAUTH_FAILED });
+  }, [failure, form]);
 
   const email = useWatch({ control: form.control, name: "email" });
   const org = email.includes("@") ? organizationFromEmail(email) : null;
   const emailValidated = !form.formState.errors.email && Boolean(org);
 
   async function onSubmit(values: LoginInput) {
-    const result = await signInWithPassword(values);
-    if (!result.ok) {
-      form.setError("password", { message: result.message });
-      return;
-    }
-    toast({ title: "Bienvenida de vuelta", description: org ? `Entrando a ${org}` : undefined, duration: 2500 });
-    // Una cuenta nueva sigue con el onboarding; una que ya lo terminó va a donde iba o al panel.
-    router.push(hasFinishedOnboarding() ? (requested ?? routes.home) : routes.onboarding(2));
-    router.refresh();
+    // El enlace lleva al panel, o a la página del panel que se quería abrir. Sin empresa, al onboarding.
+    const result = await sendSignInLink(values.email, requested ?? routes.home);
+    if (result === "sent") setSentTo(values.email);
+    else form.setError("email", { message: result });
   }
 
-  async function onForgot() {
-    const ok = await form.trigger("email");
-    if (!ok) {
-      form.setFocus("email");
-      return;
-    }
-    setResetting(true);
-    const result = await requestPasswordReset(form.getValues("email"));
-    setResetting(false);
-    if (!result.ok) toast({ tone: "error", title: result.message });
-    else toast({ title: "Revisa tu correo", description: "Si la cuenta existe, te llega un enlace para crear una contraseña nueva." });
+  if (sentTo) {
+    return (
+      <div className="flex flex-col gap-4 animate-rise">
+        <span className="flex size-12 items-center justify-center rounded-2xl bg-success-soft text-success">
+          <MailCheck aria-hidden className="size-6" />
+        </span>
+        <AuthHeading eyebrow="Empresas" title="Revisa tu correo" description={`Te enviamos un enlace a ${sentTo}. Ábrelo en este dispositivo para entrar; vence en una hora.`} />
+        <Button variant="text" className="self-start" onClick={() => setSentTo(null)}>
+          Usar otro correo
+        </Button>
+      </div>
+    );
   }
 
   return (
     <div className="stagger flex flex-col gap-7 short:gap-5 shorter:gap-4 [&>*]:animate-rise">
-      <AuthHeading eyebrow="Empresas" title="Entra a Criba" description="Con el correo de empresa y la contraseña que te dio tu organización." />
+      <AuthHeading eyebrow="Empresas" title="Entra a Criba" description="Con Google, Microsoft o tu correo de empresa, sin contraseña. Si es tu primera vez, creamos tu cuenta." />
 
-      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6 short:gap-4 shorter:gap-3" style={{ "--i": 1 } as React.CSSProperties}>
+      <OAuthButtons next={requested ?? routes.home} onError={(message) => form.setError("email", { message })} />
+
+      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6 short:gap-4 shorter:gap-3" style={{ "--i": 2 } as React.CSSProperties}>
         <TextField
           label="Correo de empresa"
           type="email"
@@ -78,33 +81,12 @@ export function LoginForm() {
           help={emailValidated && org ? `Detectamos ${org} por tu correo` : undefined}
           {...form.register("email")}
         />
-        <TextField
-          label="Contraseña"
-          help="Mínimo 8 caracteres"
-          type={showPassword ? "text" : "password"}
-          autoComplete="current-password"
-          error={form.formState.errors.password?.message}
-          trailing={
-            <button
-              type="button"
-              onClick={() => setShowPassword((s) => !s)}
-              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              className="text-ink-3 transition-colors hover:text-ink"
-            >
-              {showPassword ? <EyeOff aria-hidden className="size-4" /> : <Eye aria-hidden className="size-4" />}
-            </button>
-          }
-          {...form.register("password")}
-        />
-        <button type="button" onClick={onForgot} disabled={resetting} className="-mt-3 self-end text-[13px] text-ink-2 underline-offset-4 transition-colors hover:text-ink hover:underline disabled:opacity-60 short:-mt-2">
-          {resetting ? "Enviando enlace" : "¿Olvidaste tu contraseña?"}
-        </button>
         <Button type="submit" block loading={form.formState.isSubmitting} iconRight={<ArrowRight />}>
-          Entrar
+          Enviarme el enlace
         </Button>
       </form>
 
-      <AuthSwitch href={routes.portalSignIn} icon={Inbox} title="¿Buscas empleo?" description="Entra al portal de postulantes con tu correo, sin contraseña." />
+      <AuthSwitch href={routes.portalSignIn} icon={Inbox} title="¿Buscas empleo?" description="Entra al portal de postulantes con el correo con el que te postulaste." />
     </div>
   );
 }

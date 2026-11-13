@@ -13,16 +13,19 @@ const SECTORS = ["Banca y finanzas", "Tecnología", "Retail", "Salud", "Educaci�
 export interface OrganizationStepProps {
   /** Organización detectada por el dominio del correo; null si es un correo personal. */
   detectedName: string | null;
+  /** Nombre que ya traía la cuenta (cuentas antiguas); vacío si entró por primera vez con el enlace. */
+  suggestedPersonName: string;
 }
 
 /**
- * Pantalla 02 · Onboarding · Paso 2 Organización: nombre, sector y tamaño.
- * Invitar al equipo queda fuera del MVP (un reclutador, una compañía).
+ * Pantalla 02 · Onboarding · Paso 2 Organización: tu nombre y el nombre, sector y tamaño de la
+ * organización, o un código para unirte a una que ya existe.
  */
-export function OrganizationStep({ detectedName }: OrganizationStepProps) {
+export function OrganizationStep({ detectedName, suggestedPersonName }: OrganizationStepProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { data, update, finish } = useOnboarding();
+  const [yourName, setYourName] = useState(suggestedPersonName);
   const [name, setName] = useState(data.organization.name || detectedName || "");
   const [sector, setSector] = useState(data.organization.sector || SECTORS[0]);
   // Un avance guardado antes de alinear los tamaños con la API puede traer uno que ya no existe.
@@ -36,7 +39,7 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
   async function join() {
     setBusy(true);
     setJoinError(null);
-    const result = await joinCompany(code);
+    const result = await joinCompany(code, yourName.trim());
     if (result.ok) {
       finish();
       toast({ title: "Te uniste a la organización" });
@@ -50,7 +53,7 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
   async function next() {
     setBusy(true);
     try {
-      await createCompany({ name: name.trim(), sector, size });
+      await createCompany({ name: name.trim(), sector, size, yourName: yourName.trim() });
       update({ organization: { name: name.trim(), sector, size } });
       router.push(routes.onboarding(3));
     } catch (error) {
@@ -66,11 +69,12 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
       title="¿Para qué organización reclutas?"
       description={detectedName ? `Detectamos ${detectedName} por tu correo. Puedes cambiarlo.` : "Así aparecerá en tus vacantes públicas."}
       footer={
-        <Button disabled={!name.trim() || joining} loading={busy && !joining} onClick={next} className="ml-auto">
+        <Button disabled={!name.trim() || !yourName.trim() || joining} loading={busy && !joining} onClick={next} className="ml-auto">
           Continuar
         </Button>
       }
     >
+      <TextField label="Tu nombre" value={yourName} maxLength={120} autoComplete="name" onChange={(e) => setYourName(e.target.value)} help="Así te verá tu equipo en Criba." />
       <TextField label="Nombre de la organización" value={name} maxLength={120} onChange={(e) => setName(e.target.value)} validated={!!detectedName && name === detectedName} />
       <div className="grid grid-cols-2 gap-4">
         <SelectField label="Sector" value={sector} onChange={setSector} options={SECTORS.map((s) => ({ value: s, label: s }))} />
@@ -84,7 +88,7 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
               <Button variant="text" disabled={busy} onClick={() => setJoining(false)}>
                 Cancelar
               </Button>
-              <Button variant="outline" disabled={!code.trim()} loading={busy} onClick={join}>
+              <Button variant="outline" disabled={!code.trim() || !yourName.trim()} loading={busy} onClick={join}>
                 Unirme a la organización
               </Button>
             </div>
