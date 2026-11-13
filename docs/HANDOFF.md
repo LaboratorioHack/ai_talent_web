@@ -261,18 +261,17 @@ Lo que Manuel va pidiendo; se hace en este orden y se tacha al cerrarlo.
 2. ~~Quitar todos los datos de prueba del front (`shared/mocks`, `NEXT_PUBLIC_USE_MOCKS`, datos fijos en componentes). Lo que falte en la API se hace en el back con su migración, endpoint y seed. Usar los `.env` de Descargas (`frontend.download` → `.env.local`, `backend.development` → `.env.development`).~~
 3. ~~Logins según el MVP: que el de empresas y el del portal del postulante sean consistentes; quitar el botón de atrás en el onboarding de la organización y el "Paso 1 de 3" del login de empresas.~~
 4. ~~Revisar `Errores.pdf` (QA del 12/11): textos del Inicio ("las evaluaciones", leyenda "Recibidas y fecha de cierre a la derecha" sobra, embudo desalineado, "Mostrando los últimos 30 días en 1 vacantes"), horas ahorradas en verde, límite de envíos del enlace mágico (es el límite de correos de Supabase: hay que configurar SMTP propio en Auth), guardar borrador y crear con pesos que no suman 100, enlace de postulación que da 404.~~
-5. Probar la build de producción en Docker en local; PR a `develop`, esperar CI y mergear; PR a `main`, esperar CI, CD y lint, mergear y comprobar el sitio desplegado.
-6. Video con todo el flujo de ambos lados; un personaje para Criba AI (en la línea del de Claude) cuando la IA actúa; pruebas exhaustivas de la IA real (Anthropic, embeddings Nemotron y Voyage por OpenRouter, RAG) y un archivo con capturas de todo funcionando.
+5. Probar la build de producción en Docker en local; PR a `develop`, esperar CI y mergear; PR a `main`, esperar CI, CD y lint, mergear y comprobar el sitio desplegado. — Hecho hasta el CD (13/11): build de producción probada en Docker en local, PR #63/#64 (web) y #34/#35 (back) con CI en verde y mergeadas, migración aplicada en Supabase, imágenes en GHCR y seed de demo cargado. **Falta**: el paso de despliegue no llega al EC2 (SSH `i/o timeout`); al encender la instancia, relanzar los CD con `workflow_dispatch` (primero back, luego web) y comprobar el sitio.
+6. Video con todo el flujo de ambos lados; un personaje para Criba AI (en la línea del de Claude) cuando la IA actúa; pruebas exhaustivas de la IA real (Anthropic, embeddings Nemotron y Voyage por OpenRouter, RAG) y un archivo con capturas de todo funcionando. Que la IA se note cuando trabaja (personaje + aviso flotante «Criba AI · trabajando»).
 7. Auditoría: que toda acción genere un evento real (también las de la IA). Exportes en PDF con plantilla de la estética de Criba (sobria y elegante) y datos reales; CSV opcional.
 8. ~~Usar Jev (el fast-pass del AI Engine) en el ranking y comprobar que ordena bien.~~ (el evaluate usa Jev como filtro rápido y luego Claude; probado con IA real)
-9. Correos con plantilla propia de Criba (invitación a entrevista, enlace del portal, pedir original, entrevista con el equipo): bonitos y con la estética de la marca.
+9. Correos con plantilla propia de Criba (invitación a entrevista, enlace del portal, pedir original, entrevista con el equipo): bonitos y con la estética de la marca. El SMTP de Gmail hoy rechaza la contraseña: hace falta una contraseña de aplicación de 16 letras en `Smtp__Password`.
+10. Al terminar: PR a `develop` y a `main` de lo nuevo y revisar el despliegue.
 
 ## Pendiente
 
 - Supabase Auth en el proyecto alojado: en Authentication → URL Configuration, poner `https://app.criba.isroot.in` como Site URL y agregar `https://app.criba.isroot.in/**`, `http://localhost:3000/**` y `http://127.0.0.1:3000/**` en Redirect URLs. Si `emailRedirectTo` no está en esa lista, Supabase usa el Site URL (hoy apunta a localhost) en el correo del enlace mágico. Desde el front ya está cubierto: el enlace vuelve al dominio desde el que se pidió; si cae en `/` con `?code`, el proxy lo pasa a `/auth/callback`; la cookie `criba-auth-next` recuerda si era el portal de postulantes o el panel; el callback redirige con `X-Forwarded-Host` (no con el host interno del contenedor) y, si el enlace falla, el postulante vuelve a `/portal/sign-in`, no al login de empresas.
 
-- Conectar las `api/` que faltan a los endpoints reales cuando existan (cada función indica su ruta en el comentario). Sesión, onboarding, vacantes, tablero, ingesta y postulación ya usan la API (ver arriba).
-- Anon key de Supabase en `.env.local` (`NEXT_PUBLIC_SUPABASE_ANON_KEY`); hoy está vacía y la app corre en modo mock.
 - Proveedores OAuth en `supabase/config.toml` si se quieren los botones Google / Microsoft.
 - Tests: el CI corre `pnpm test --if-present` y aún no hay runner configurado.
 

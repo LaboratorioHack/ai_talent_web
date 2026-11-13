@@ -896,3 +896,67 @@
   background: var(--amber);
   animation: caret 1s steps(1) infinite;
 }
+
+/*
+ * El personaje de Criba AI (shared/components/ui/criba-character.tsx). Cada
+ * estado mueve una sola parte, para que el gesto se lea en cualquier tamaño.
+ */
+.criba-char :is(.criba-char__body, .criba-char__eyes, .criba-char__eye, .criba-char__marker) {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.criba-char__body {
+  animation: criba-bob 3.2s var(--ease-in-out-soft) infinite;
+}
+.criba-char__eye {
+  animation: criba-blink 4.6s var(--ease-in-out-soft) infinite;
+}
+.criba-char[data-mood="reading"] .criba-char__eyes {
+  transform: translateY(0.9px);
+}
+.criba-char[data-mood="reading"] .criba-char__line {
+  opacity: 0.2;
+}
+.criba-char[data-mood="reading"] .criba-char__marker {
+  animation: criba-read 2s var(--ease-in-out-soft) infinite;
+}
+.criba-char[data-mood="thinking"] .criba-char__eyes {
+  animation: criba-look 2.6s var(--ease-in-out-soft) infinite;
+}
+.criba-char[data-mood="thinking"] .criba-char__marker {
+  animation: criba-glow 1.3s var(--ease-in-out-soft) infinite;
+}
+.criba-char[data-mood="talking"] .criba-char__marker {
+  transform-origin: left center;
+  animation: criba-talk 0.62s var(--ease-in-out-soft) infinite;
+}
+.criba-char[data-mood="done"] .criba-char__body {
+  animation: criba-hop 700ms var(--ease-spring) both;
+}
+@keyframes criba-bob {
+  50% { transform: translateY(-0.7px); }
+}
+@keyframes criba-blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  94% { transform: scaleY(0.12); }
+}
+@keyframes criba-read {
+  0%, 100% { transform: translateY(-1px); }
+  50% { transform: translateY(3.2px); }
+}
+@keyframes criba-look {
+  0%, 100% { transform: translateX(-1.1px); }
+  45%, 55% { transform: translateX(1.1px); }
+}
+@keyframes criba-glow {
+  50% { opacity: 0.55; }
+}
+@keyframes criba-talk {
+  50% { transform: scaleX(0.72); }
+}
+@keyframes criba-hop {
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-2.4px) scale(1.04, 0.97); }
+  70% { transform: translateY(0.4px) scale(0.98, 1.02); }
+  100% { transform: translateY(0) scale(1); }
+}

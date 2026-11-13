@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
-import { CribaAi } from "@/shared/components/ui";
+import { CribaAi, CribaCharacter } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 
 const STEPS = ["Lee el texto, aunque sea un escaneo", "Quita foto, edad y datos de contacto", "Saca experiencia, estudios e idiomas", "La deja lista para evaluar"];
@@ -23,7 +23,10 @@ export function AiReadingCard({ fileName }: { fileName: string }) {
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-amber/30 bg-amber/5 p-3.5">
       <div className="flex items-center justify-between">
-        <CribaAi label="Leyendo" />
+        <span className="flex items-center gap-2">
+          <CribaCharacter mood="reading" size={22} />
+          <CribaAi label="Leyendo" />
+        </span>
         <span className="truncate font-mono text-[11px] text-ink-3">{fileName}</span>
       </div>
       <div className="flex gap-3.5">

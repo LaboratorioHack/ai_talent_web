@@ -151,6 +151,18 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
     />
   );
 
+  // Primera evaluación de la vacante: aún no hay ranking, pero Criba AI ya está trabajando y se tiene que ver.
+  if (!evaluated && evaluating > 0) {
+    return (
+      <div className="flex flex-1 flex-col">
+        {top}
+        <div className="flex flex-1 flex-col px-4 sm:px-6 lg:px-12">
+          <EvaluatingPanel total={evaluating} done={liveDone} onLeave={() => router.push(routes.rankings)} />
+        </div>
+      </div>
+    );
+  }
+
   if (!evaluated) {
     return (
       <div className="flex flex-1 flex-col">

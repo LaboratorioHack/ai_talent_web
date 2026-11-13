@@ -3,6 +3,7 @@ import { Funnel_Display, Funnel_Sans, IBM_Plex_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import { themeScript } from "@/shared/lib/theme";
 import { ToastProvider } from "@/shared/components/ui/toast";
+import { CribaPresence } from "@/shared/components/ui/criba-presence";
 
 /* Funnel Display para títulos y Funnel Sans para el texto: misma familia, sobria y poco vista. */
 const display = Funnel_Display({
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="flex min-h-full flex-col">
         <ToastProvider>{children}</ToastProvider>
+        <CribaPresence />
       </body>
     </html>
   );

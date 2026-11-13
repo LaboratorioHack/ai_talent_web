@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Button, CribaAi, LogoMark } from "@/shared/components/ui";
+import { Button, CribaAi, CribaCharacter } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
+import { useCribaWork } from "@/shared/lib/criba-work";
 
 export interface EvaluatingPanelProps {
   total: number;
@@ -27,6 +28,7 @@ export function EvaluatingPanel({ total, done, onLeave }: EvaluatingPanelProps) 
   }, []);
 
   const finished = done >= total;
+  useCribaWork(!finished, `Evalúa ${total} hojas de vida y cita la evidencia`, "thinking");
   // Mientras no hay ninguna lista, la barra muestra un mínimo para que se vea que empezó.
   const pct = Math.max(6, Math.min(100, Math.round((done / Math.max(1, total)) * 100)));
 
@@ -34,7 +36,7 @@ export function EvaluatingPanel({ total, done, onLeave }: EvaluatingPanelProps) 
     <div className="flex flex-1 flex-col items-center justify-center gap-6 py-24 text-center animate-rise">
       <div className="relative flex size-[84px] items-center justify-center rounded-[24px] bg-ink shadow-[0_20px_40px_-20px_rgba(21,32,27,0.6)]" aria-hidden>
         <span key={tick} className="absolute inset-0 rounded-[24px] ring-2 ring-amber/60 animate-[mark-pulse_1400ms_var(--ease-out-soft)_both]" />
-        <LogoMark size={46} inverse />
+        <CribaCharacter size={50} inverse announce mood={finished ? "done" : done > 0 ? "thinking" : "reading"} />
       </div>
       <div className="flex flex-col gap-2">
         <h2 className="font-head text-[28px] font-semibold tracking-[-0.02em]">{finished ? "Listo, ordenando el ranking" : `Criba AI está evaluando ${total} hojas de vida`}</h2>
