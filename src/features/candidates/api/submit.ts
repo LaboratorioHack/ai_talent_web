@@ -1,6 +1,7 @@
 "use client";
 
 import { apiFetch, ApiError } from "@/shared/lib/api-client";
+import { browserApi } from "@/shared/lib/api-browser";
 import type { ApplicationInput } from "../schemas/application";
 
 export type SubmitResult = { ok: true } | { ok: false; message: string };
@@ -14,8 +15,9 @@ function conflictMessage(detail: string): string {
 
 /**
  * Envía la postulación: crea la aplicación con source = CANDIDATE y sube la
- * hoja de vida al bucket privado. Ruta pública (sin sesión) de la API:
- * POST /vacancies/{id}/applications (multipart con name, email, consent y file).
+ * hoja de vida al bucket privado. Ruta pública de la API: POST /vacancies/{id}/applications
+ * (multipart con name, email, consent y file). Si la persona tiene sesión, viaja también: así la
+ * postulación aparece en su portal aunque haya escrito otro correo.
  */
 export async function submitApplication(jobId: string, input: ApplicationInput): Promise<SubmitResult> {
   const body = new FormData();
@@ -24,7 +26,7 @@ export async function submitApplication(jobId: string, input: ApplicationInput):
   body.set("consent", "true");
   body.set("file", input.resume);
   try {
-    await apiFetch(`/vacancies/${jobId}/applications`, { method: "POST", body });
+    await browserApi(`/vacancies/${jobId}/applications`, { method: "POST", body });
     return { ok: true };
   } catch (error) {
     if (!(error instanceof ApiError)) return { ok: false, message: "No pudimos conectarnos. Revisa tu conexión e intenta de nuevo" };

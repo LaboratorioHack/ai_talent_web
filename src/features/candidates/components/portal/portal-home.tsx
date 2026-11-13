@@ -1,3 +1,5 @@
+import { ButtonLink } from "@/shared/components/ui";
+import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import type { Applicant, PortalApplication, PortalJob, ResumeSummary } from "../../types/portal";
@@ -48,7 +50,9 @@ export function PortalHome({ applicant, applications, resume, jobs }: { applican
             Tienes <span className="hl">{open.length} procesos</span> en curso
           </h1>
           <p className="text-[15px] text-ink-2">
-            {advanced} ya {advanced === 1 ? "pasó" : "pasaron"} la primera revisión{pending ? " y en uno te toca a ti" : ""}.
+            {applications.length
+              ? `${advanced} ya ${advanced === 1 ? "pasó" : "pasaron"} la primera revisión${pending ? " y en uno te toca a ti" : ""}.`
+              : "Cuando te postules a una vacante, la verás aquí con cada paso del proceso."}
           </p>
         </header>
 
@@ -63,11 +67,23 @@ export function PortalHome({ applicant, applications, resume, jobs }: { applican
             <h2 className="text-[13px] font-medium tracking-[0.08em] text-ink-3 uppercase">En curso</h2>
             <span className="text-[12.5px] text-ink-3">{open.length}</span>
           </div>
-          <ul className="panel flex flex-col divide-y divide-border overflow-hidden px-4">
-            {open.map((a, i) => (
-              <ApplicationRow key={a.id} application={a} index={i} />
-            ))}
-          </ul>
+          {open.length ? (
+            <ul className="panel flex flex-col divide-y divide-border overflow-hidden px-4">
+              {open.map((a, i) => (
+                <ApplicationRow key={a.id} application={a} index={i} />
+              ))}
+            </ul>
+          ) : (
+            <div className="panel flex flex-col items-start gap-3 px-5 py-6 animate-rise">
+              <p className="text-[15px] font-medium">{applications.length ? "No tienes procesos abiertos ahora" : "Todavía no tienes postulaciones"}</p>
+              <p className="max-w-[520px] text-[13.5px] text-ink-2">
+                Si te postulaste con otro correo, entra al portal con ese correo para verlas. Desde ahora, lo que envíes con tu sesión abierta aparece aquí aunque escribas otro correo.
+              </p>
+              <ButtonLink href={routes.portalJobs} size="sm" variant="outline">
+                Ver vacantes abiertas
+              </ButtonLink>
+            </div>
+          )}
           {ended.length ? (
             <>
               <div className="mt-10 mb-2 flex items-baseline justify-between">
@@ -101,6 +117,7 @@ export function PortalHome({ applicant, applications, resume, jobs }: { applican
 
         <section className="panel flex flex-col gap-4 p-5 animate-rise [animation-delay:200ms]">
           <h2 className="text-[13px] font-medium tracking-[0.08em] text-ink-3 uppercase">Últimos movimientos</h2>
+          {moves.length ? null : <p className="text-[13.5px] text-ink-3">Aún no hay movimientos. Aquí verás cuando Criba lea tu hoja de vida o te inviten a la entrevista.</p>}
           <ol className="flex flex-col">
             {moves.map((m, i) => (
               <li key={m.id} className="relative flex gap-3.5 pb-5 last:pb-0">
