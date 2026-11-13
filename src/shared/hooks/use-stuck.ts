@@ -7,10 +7,14 @@ import { useEffect, useRef, useState } from "react";
  * centinela colocado justo antes del encabezado, descontando la barra fija
  * (--app-header). Tiene histéresis: se encoge pasados 24px y vuelve a su
  * tamaño al regresar al tope, sin parpadeos en el límite ni en páginas cortas.
+ *
+ * `pinned` es aparte: el encabezado ya está sobre el contenido (aunque no se
+ * encoja en una página corta) y necesita fondo para no taparlo transparente.
  */
 export function useStuck<T extends HTMLElement = HTMLDivElement>() {
   const sentinel = useRef<T>(null);
   const [stuck, setStuck] = useState(false);
+  const [pinned, setPinned] = useState(false);
 
   useEffect(() => {
     const el = sentinel.current;
@@ -24,6 +28,7 @@ export function useStuck<T extends HTMLElement = HTMLDivElement>() {
       // no se encoge: así no entra en bucle al filtrar listas cortas.
       const room = document.documentElement.scrollHeight - window.innerHeight;
       setStuck((was) => (was ? top < -4 : top < -24 && room > 320));
+      setPinned(top < 0);
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(check);
@@ -36,5 +41,5 @@ export function useStuck<T extends HTMLElement = HTMLDivElement>() {
     };
   }, []);
 
-  return { sentinel, stuck };
+  return { sentinel, stuck, pinned };
 }
