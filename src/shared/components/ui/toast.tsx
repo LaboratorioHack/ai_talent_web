@@ -83,7 +83,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         aria-live="polite"
         onPointerEnter={() => setPaused(true)}
         onPointerLeave={() => setPaused(false)}
-        className="dark-scope pointer-events-none fixed right-6 bottom-6 z-50 flex w-[380px] max-w-[calc(100vw-2rem)] flex-col"
+        className="dark-scope pointer-events-none fixed right-6 bottom-24 z-50 flex w-[380px] max-w-[calc(100vw-2rem)] flex-col"
       >
         {items.map((t) => (
           <ToastRow key={t.id} item={t} paused={paused} onDismiss={dismiss} />
