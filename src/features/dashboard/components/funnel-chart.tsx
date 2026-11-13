@@ -52,10 +52,11 @@ export function FunnelChart({ steps }: FunnelChartProps) {
                   </span>
                 ) : null}
               </button>
-              {pass !== null ? (
+              {/* El separador va siempre entre columnas (aunque no haya porcentaje), para que las cifras queden sobre sus nombres. */}
+              {next ? (
                 <span className="flex w-4 shrink-0 flex-col items-center gap-0.5 self-center text-ink-3 sm:w-14" aria-hidden>
                   <ChevronRight className="size-3.5" />
-                  <span className="hidden font-mono text-[11px] sm:inline">{pass} %</span>
+                  <span className="hidden font-mono text-[11px] sm:inline">{pass === null ? "—" : `${pass} %`}</span>
                 </span>
               ) : null}
             </div>

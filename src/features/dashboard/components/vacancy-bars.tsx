@@ -40,7 +40,6 @@ export function VacancyBars({ rows }: { rows: VacancyBarRow[] }) {
             {s.label}
           </span>
         ))}
-        <span className="ml-auto text-[12px] text-ink-3">Recibidas y fecha de cierre a la derecha</span>
       </figcaption>
 
       <ul className="flex flex-col gap-3.5">

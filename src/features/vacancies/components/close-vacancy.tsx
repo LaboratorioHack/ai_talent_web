@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock } from "lucide-react";
 import { Button, Modal, useToast } from "@/shared/components/ui";
+import { vacancyErrorMessage } from "../api/errors";
 import { closeVacancy } from "../api/mutations";
 
 export interface CloseVacancyProps {
@@ -26,7 +27,7 @@ export function CloseVacancy({ id, title }: CloseVacancyProps) {
       setOpen(false);
       router.refresh();
     } catch (error) {
-      toast({ tone: "error", title: "No se pudo cerrar la vacante", description: error instanceof Error ? error.message : undefined });
+      toast({ tone: "error", title: "No se pudo cerrar la vacante", description: vacancyErrorMessage(error) });
     } finally {
       setBusy(false);
     }

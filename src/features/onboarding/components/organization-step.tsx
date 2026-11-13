@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, SelectField, TextField, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
-import { COMPANY_SIZES, createCompany, isCompanySize, joinCompany, type CompanySize } from "../api/company";
+import { COMPANY_SIZES, companyErrorMessage, createCompany, isCompanySize, joinCompany, type CompanySize } from "../api/company";
 import { useOnboarding } from "../state/onboarding-store";
 import { StepFrame } from "./step-frame";
 
@@ -54,7 +54,7 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
       update({ organization: { name: name.trim(), sector, size } });
       router.push(routes.onboarding(3));
     } catch (error) {
-      toast({ tone: "error", title: "No se pudo crear la organización", description: error instanceof Error ? error.message : undefined });
+      toast({ tone: "error", title: "No se pudo crear la organización", description: companyErrorMessage(error) });
     } finally {
       setBusy(false);
     }

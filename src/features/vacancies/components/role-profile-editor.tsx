@@ -8,7 +8,8 @@ import { useToday } from "@/shared/hooks/use-today";
 import { cn } from "@/shared/lib/cn";
 import { formatShortDate, fromISODate, toISODate } from "@/shared/lib/dates";
 import { AREAS, CONTRACTS, MODALITIES, SCHEDULES } from "@/shared/constants/vacancy";
-import { roleProfileDraftSchema, type ListingDraft, type RequirementDraft, type RoleProfileDraft } from "../schemas/role-profile";
+import { roleProfileDraftSchema, weightTotals, type ListingDraft, type RequirementDraft, type RoleProfileDraft } from "../schemas/role-profile";
+import { vacancyErrorMessage } from "../api/errors";
 import { profileAssistErrorMessage, proposeRequirements, suggestEquivalences } from "../api/role-profiles";
 import { RequirementRow } from "./requirement-row";
 import { ScoringSidebar } from "./scoring-sidebar";
@@ -122,12 +123,18 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
 
   async function run(kind: "save" | "evaluate") {
     if (!validate()) return;
+    // Un borrador se guarda con cualquier suma; publicar exige 100, y se avisa antes de llamar a la API.
+    const { total } = weightTotals(draft.requirements);
+    if (kind === "evaluate" && total !== 100) {
+      setErrors((e) => ({ ...e, requirements: `Los pesos suman ${total}: ajústalos hasta 100 para publicar.` }));
+      toast({ tone: "error", title: "Ajusta los pesos hasta sumar 100", description: `Ahora suman ${total}. Puedes guardarla como borrador y terminarla después.` });
+      return;
+    }
     setBusy(kind);
     try {
       await (kind === "save" ? onSave(draft) : onEvaluate?.(draft));
     } catch (error) {
-      // La API explica el motivo (p. ej. pesos que no suman 100 al publicar).
-      toast({ tone: "error", title: kind === "save" ? "No se pudo guardar" : "No se pudo publicar", description: error instanceof Error ? error.message : undefined });
+      toast({ tone: "error", title: kind === "save" ? "No se pudo guardar" : "No se pudo publicar", description: vacancyErrorMessage(error) });
     } finally {
       setBusy(null);
     }

@@ -46,6 +46,15 @@ export async function createCompany(input: CompanyInput): Promise<void> {
   }
 }
 
+/** Mensaje legible al crear la organización (la API responde en inglés). */
+export function companyErrorMessage(error: unknown): string {
+  if (!(error instanceof ApiError)) return "Revisa tu conexión e inténtalo de nuevo.";
+  if (/sector/i.test(error.message)) return "Elige el sector de la organización.";
+  if (/size/i.test(error.message)) return "Elige el tamaño de la organización.";
+  if (/name/i.test(error.message)) return "Escribe el nombre de la organización (máximo 120 caracteres).";
+  return "No pudimos crear la organización. Inténtalo de nuevo.";
+}
+
 export type JoinResult = { ok: true } | { ok: false; message: string };
 
 /**
