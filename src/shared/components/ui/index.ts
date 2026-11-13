@@ -26,3 +26,5 @@ export { AnimatedNumber } from "./animated-number";
 export { ScrollArea, type ScrollAreaProps } from "./scroll-area";
 export { Collapse, type CollapseProps } from "./collapse";
 export { CribaAi, CribaAiNote } from "./criba-ai";
+export { CribaCharacter, type CribaMood, type CribaCharacterProps } from "./criba-character";
+export { CribaPresence } from "./criba-presence";

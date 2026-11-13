@@ -2,10 +2,11 @@
 
 import { useId, useState, type ReactNode } from "react";
 import { ListPlus, Plus } from "lucide-react";
-import { Button, Collapse, DateField, NumberField, SelectField, TextArea, TextField, useToast } from "@/shared/components/ui";
+import { Button, Collapse, CribaCharacter, DateField, NumberField, SelectField, TextArea, TextField, useToast } from "@/shared/components/ui";
 import { useStuck } from "@/shared/hooks/use-stuck";
 import { useToday } from "@/shared/hooks/use-today";
 import { cn } from "@/shared/lib/cn";
+import { withCriba } from "@/shared/lib/criba-work";
 import { formatShortDate, fromISODate, toISODate } from "@/shared/lib/dates";
 import { AREAS, CONTRACTS, MODALITIES, SCHEDULES } from "@/shared/constants/vacancy";
 import { roleProfileDraftSchema, weightTotals, type ListingDraft, type RequirementDraft, type RoleProfileDraft } from "../schemas/role-profile";
@@ -57,7 +58,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
     setBusy("propose");
     try {
       const written = draft.requirements.filter((r) => r.description.trim());
-      const suggested = await proposeRequirements(draft, written);
+      const suggested = await withCriba("Lee la descripción y propone los requisitos", proposeRequirements(draft, written), "reading");
       const known = new Set(written.map((r) => keyOf(r.description)));
       const fresh = suggested.filter((r) => !known.has(keyOf(r.description)));
       // Las filas vacías del borrador inicial dejan su lugar a lo propuesto.
@@ -76,7 +77,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
       return;
     }
     try {
-      const found = await suggestEquivalences(requirement.description, draft, requirement.equivalences.map((e) => e.label));
+      const found = await withCriba(`Busca equivalencias para «${requirement.description.trim()}»`, suggestEquivalences(requirement.description, draft, requirement.equivalences.map((e) => e.label)));
       const seen = new Set(requirement.equivalences.map((e) => keyOf(e.label)));
       const extra = found.filter((e) => !seen.has(keyOf(e.label)));
       if (!extra.length) {
@@ -267,7 +268,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
               <Plus aria-hidden className="size-3.5" />
               Añadir requisito
             </button>
-            <Button variant="text" size="sm" icon={<ListPlus />} loading={busy === "propose"} disabled={busy !== null && busy !== "propose"} onClick={propose}>
+            <Button variant="text" size="sm" icon={busy === "propose" ? <CribaCharacter mood="reading" size={18} /> : <ListPlus />} disabled={busy !== null && busy !== "propose"} onClick={propose}>
               {busy === "propose" ? "Criba está leyendo la descripción…" : "Proponer requisitos con Criba AI"}
             </Button>
           </div>

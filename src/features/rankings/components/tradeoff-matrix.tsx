@@ -6,9 +6,10 @@ import { Briefcase, Mail, Plus, Share2, X } from "lucide-react";
 import { evaluationErrorMessage } from "@/features/evaluations/api/errors";
 import { compareApplications } from "@/features/evaluations/api/evaluations";
 import { PageTop } from "@/shared/components/layout";
-import { Button, CribaAi, EmptyState, Select, useToast } from "@/shared/components/ui";
+import { Button, CribaAi, CribaCharacter, EmptyState, Select, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
+import { withCriba } from "@/shared/lib/criba-work";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import { inviteToInterview } from "../api/actions";
 import type { TradeoffCandidate, TradeoffMatrix as Matrix, TradeoffStatus } from "../types/tradeoffs";
@@ -60,7 +61,7 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
     async (applicationIds: string[]) => {
       setComparing(true);
       try {
-        const result = await compareApplications(data.job.id, applicationIds);
+        const result = await withCriba(`Compara ${applicationIds.length} hojas de vida frente al cargo`, compareApplications(data.job.id, applicationIds));
         const summary = result.comparison.comparativeSummary || result.comparison.headToHeadTradeOff;
         if (summary) setReading(summary);
         const next: Record<string, Pick<TradeoffCandidate, "gains" | "assumes">> = {};
@@ -272,6 +273,7 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
 
             {reading ? (
               <p className="flex flex-wrap items-center gap-3 rounded-2xl bg-amber/8 px-4 py-3 text-[13.5px] leading-snug text-ink-2 ring-1 ring-amber/25 animate-rise [animation-delay:120ms]">
+                <CribaCharacter mood={comparing ? "thinking" : "idle"} size={24} />
                 <CribaAi label={comparing ? "Comparando" : "Lectura"} />
                 <span className="min-w-0 flex-1">{comparing ? "Criba AI está comparando las hojas de vida…" : reading}</span>
               </p>
