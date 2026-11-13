@@ -54,9 +54,22 @@ export async function getCurrentUser(): Promise<CurrentUser> {
   };
 }
 
-/** Avisos de la campana. La API aún no los calcula: sin backend de avisos, la campana queda vacía. */
+interface ApiNavNotice extends NavNotice {
+  occurredAt?: string;
+}
+
+/**
+ * Avisos de la campana. Con backend: GET /notifications (hasta 10, en español).
+ * Si la API falla o aún no tiene la ruta, la campana queda vacía en vez de tumbar la barra.
+ */
 export async function getNavNotices(): Promise<NavNotice[]> {
-  if (!env.useMocks) return [];
+  if (!env.useMocks) {
+    const rows = await serverApi<ApiNavNotice[]>("/notifications").catch((error: unknown) => {
+      if (error instanceof ApiError) return [];
+      throw error;
+    });
+    return rows.map((row): NavNotice => ({ id: row.id, text: row.text, when: row.when, href: row.href, tone: row.tone }));
+  }
   return delay(
     [
       { id: "n1", text: "3 hojas de vida ilegibles en Analista de Datos", when: "Hace 20 min", href: "/candidates?job=v-data", tone: "warning" },

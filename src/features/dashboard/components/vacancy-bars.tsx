@@ -97,7 +97,7 @@ export function VacancyBars({ rows }: { rows: VacancyBarRow[] }) {
               )}
               <span className="flex items-baseline gap-2 sm:flex-col sm:items-end sm:gap-0 sm:text-right">
                 <span className="text-[13px] font-medium text-ink tabular-nums">{r.received} recibidas</span>
-                <span className="text-[11.5px] text-ink-3">{closes ? `Cierra el ${formatShortDate(closes)}` : ""}</span>
+                <span className="text-[11.5px] text-ink-3">{closes ? `Cierra el ${formatShortDate(closes)}` : "Sin fecha de cierre"}</span>
               </span>
             </li>
           );

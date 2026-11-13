@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GripVertical, Minus, Plus, Trash2 } from "lucide-react";
+import { GripVertical, LoaderCircle, Minus, Plus, Sparkles, Trash2 } from "lucide-react";
 import { Select } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 import { REQUIREMENT_TYPE_LABEL, type RequirementDraft } from "../schemas/role-profile";
@@ -10,6 +10,8 @@ export interface RequirementRowProps {
   requirement: RequirementDraft;
   onChange: (next: RequirementDraft) => void;
   onRemove: () => void;
+  /** Pide equivalencias a Criba AI; la fila muestra la carga mientras tanto. */
+  onSuggestEquivalences?: () => Promise<void>;
   index: number;
 }
 
@@ -26,10 +28,21 @@ const typeTone: Record<RequirementDraft["type"], string> = {
 };
 
 /** Fila de la tabla de requisitos: nombre, tipo, peso, equivalencias. */
-export function RequirementRow({ requirement, onChange, onRemove, index }: RequirementRowProps) {
+export function RequirementRow({ requirement, onChange, onRemove, onSuggestEquivalences, index }: RequirementRowProps) {
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState("");
+  const [suggesting, setSuggesting] = useState(false);
   const disqualifying = requirement.type === "DISQUALIFYING";
+
+  async function suggest() {
+    if (!onSuggestEquivalences) return;
+    setSuggesting(true);
+    try {
+      await onSuggestEquivalences();
+    } finally {
+      setSuggesting(false);
+    }
+  }
 
   const setWeight = (w: number) => onChange({ ...requirement, weight: Math.min(100, Math.max(0, w)) });
 
@@ -128,6 +141,19 @@ export function RequirementRow({ requirement, onChange, onRemove, index }: Requi
             <Plus aria-hidden className="size-[11px]" />
           </button>
         )}
+        {onSuggestEquivalences ? (
+          <button
+            type="button"
+            aria-label="Sugerir equivalencias con Criba AI"
+            title="Sugerir equivalencias con Criba AI"
+            disabled={disqualifying || suggesting}
+            aria-busy={suggesting}
+            onClick={suggest}
+            className="flex size-[22px] items-center justify-center rounded-full border border-amber/40 bg-amber/10 text-[color:var(--ai-ink)] transition-colors hover:border-amber hover:bg-amber/20 disabled:opacity-35"
+          >
+            {suggesting ? <LoaderCircle aria-hidden className="size-[11px] animate-spin" /> : <Sparkles aria-hidden className="size-[11px]" />}
+          </button>
+        ) : null}
       </div>
 
       <button

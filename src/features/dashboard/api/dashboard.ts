@@ -3,7 +3,7 @@ import "server-only";
 import { env } from "@/config/env";
 import { serverApi } from "@/shared/lib/api-server";
 import { delay, mockApplications, mockPending, mockUser, mockVacancies } from "@/shared/mocks";
-import type { PendingItem } from "@/shared/types/domain";
+import type { JobOpening, PendingItem } from "@/shared/types/domain";
 
 export type Period = "7d" | "30d" | "90d";
 
@@ -32,8 +32,27 @@ export async function getDashboard(): Promise<DashboardData> {
   if (!env.useMocks) return serverApi<DashboardData>("/dashboard");
 
   const open = mockVacancies.filter((v) => v.status === "OPEN");
-  const scaled = (s: PeriodStats, p: Period): PeriodStats =>
-    Object.fromEntries(Object.entries(s).map(([k, n]) => [k, Math.round(n * SCALE[p])])) as unknown as PeriodStats;
+  const scaled = (s: JobOpening["stats"], p: Period): PeriodStats => {
+    const base: PeriodStats = {
+      received: s.received,
+      read: s.read,
+      meets: s.meets,
+      partial: s.partial,
+      doesNotMeet: s.doesNotMeet,
+      interview: s.interview,
+      finalist: s.finalist ?? 0,
+    };
+    const k = SCALE[p];
+    return {
+      received: Math.round(base.received * k),
+      read: Math.round(base.read * k),
+      meets: Math.round(base.meets * k),
+      partial: Math.round(base.partial * k),
+      doesNotMeet: Math.round(base.doesNotMeet * k),
+      interview: Math.round(base.interview * k),
+      finalist: Math.round(base.finalist * k),
+    };
+  };
 
   const vacancies = open.map((v) => ({
     id: v.id,

@@ -1,13 +1,17 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Grid2x2, Inbox, Link2 } from "lucide-react";
+import { env } from "@/config/env";
+import { evaluationErrorMessage } from "@/features/evaluations/api/errors";
+import { rankVacancy } from "@/features/evaluations/api/evaluations";
 import { PageTop } from "@/shared/components/layout";
 import { ButtonLink, EmptyState, Select, useToast, CribaAi } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { formatShortDate } from "@/shared/lib/dates";
+import { formatVacancyClosesAt } from "@/shared/lib/format-closes-at";
 import type { RankingData } from "../types/ranking";
 import { CandidateFocus } from "./candidate-focus";
 import { EvaluatingPanel } from "./evaluating-panel";
@@ -41,6 +45,23 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
   const [requirementId, setRequirementId] = useState<string | null>(null);
   const [deadline, setDeadline] = useState<Date | null>(null);
   const [evaluating, setEvaluating] = useState(initialEvaluating ?? 0);
+  const [liveDone, setLiveDone] = useState(0);
+  const rankStarted = useRef(false);
+
+  useEffect(() => {
+    if (env.useMocks || evaluating <= 0 || rankStarted.current) return;
+    rankStarted.current = true;
+    rankVacancy(data.job.id)
+      .then(() => {
+        setLiveDone(evaluating);
+        router.refresh();
+      })
+      .catch((error) => {
+        toast({ tone: "error", title: "No se pudo evaluar", description: evaluationErrorMessage(error) });
+        setEvaluating(0);
+        window.history.replaceState(null, "", "?");
+      });
+  }, [data.job.id, evaluating, router, toast]);
 
   const selected = data.candidates.find((c) => c.id === selectedId) ?? null;
 
@@ -85,7 +106,7 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
             Ranking
           </Link>
           <ChevronRight aria-hidden className="size-3.5" />
-          <span className="text-ink-2">Cierra el {formatShortDate(new Date(`${data.job.closesAt}T12:00:00`))}</span>
+          <span className="text-ink-2">{formatVacancyClosesAt(data.job.closesAt, "long")}</span>
         </nav>
       }
       title={data.job.title}
@@ -151,6 +172,8 @@ export function RankingView({ data, initialCandidate, evaluating: initialEvaluat
           {evaluating > 0 ? (
             <EvaluatingPanel
               total={evaluating}
+              live={!env.useMocks}
+              done={liveDone}
               onDone={finishEvaluation}
               onCancelled={(done) => {
                 setEvaluating(0);

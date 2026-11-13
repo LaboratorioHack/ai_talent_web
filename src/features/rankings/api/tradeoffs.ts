@@ -118,7 +118,7 @@ function dataAnalyst(): Pick<TradeoffMatrix, "sections" | "candidates" | "readin
   };
 }
 
-/** Matriz de trade-offs de una vacante. Con backend: POST /v1/evaluations/compare con 2 a 4 postulaciones. */
+/** Matriz de trade-offs de una vacante. Con backend: GET /vacancies/{id}/tradeoffs (matriz completa) o POST …/compare con 2 o 3 postulaciones. */
 export async function getTradeoffs(jobId: string): Promise<TradeoffMatrix | null> {
   if (!env.useMocks) return serverApi<TradeoffMatrix>(`/vacancies/${jobId}/tradeoffs`).catch(() => null);
   const job = mockVacancies.find((v) => v.id === jobId);
@@ -131,6 +131,6 @@ export async function getTradeoffs(jobId: string): Promise<TradeoffMatrix | null
   if (job.id === "v-data") return delay({ ...base, ...dataAnalyst() });
   if (!job.stats.received) return delay({ ...base, sections: [], candidates: [], reading: "" });
   const requirements = mockRequirementsOf(job);
-  const pool = mockCandidatesOf(job, requirements).slice(0, 8);
+  const pool = mockCandidatesOf(job, requirements).slice(0, 3);
   return delay({ ...base, ...fromRanking(requirements, pool, evaluated) });
 }
