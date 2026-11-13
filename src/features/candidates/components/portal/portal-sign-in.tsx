@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { ArrowRight, Building2, Check, MailCheck } from "lucide-react";
 import { Button, TextField } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
@@ -17,7 +16,6 @@ const STEP_MS = 1600;
  * sola por sus etapas.
  */
 export function PortalSignIn() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string>();
   const [sent, setSent] = useState(false);
@@ -47,8 +45,7 @@ export function PortalSignIn() {
     setLoading(true);
     const result = await sendPortalLink(email.trim().toLowerCase());
     setLoading(false);
-    if (result === "mock") router.push(routes.portal);
-    else if (result === "sent") setSent(true);
+    if (result === "sent") setSent(true);
     else setError(result);
   }
 

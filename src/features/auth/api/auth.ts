@@ -2,8 +2,7 @@
 
 import { routes } from "@/shared/constants/routes";
 import { rememberAuthNext } from "@/shared/lib/auth-redirect";
-import { createSupabaseBrowserClient, supabaseConfigured } from "@/shared/lib/supabase/client";
-import { delay } from "@/shared/mocks";
+import { createSupabaseBrowserClient } from "@/shared/lib/supabase/client";
 import type { LoginInput } from "../schemas/login";
 
 export type AuthResult = { ok: true } | { ok: false; message: string };
@@ -18,9 +17,8 @@ function humanize(code: string | undefined, fallback: string): string {
   return (code && MESSAGES[code]) ?? fallback;
 }
 
-/** Correo + contraseña con Supabase Auth. En modo mock siempre entra. */
+/** Correo + contraseña con Supabase Auth. */
 export async function signInWithPassword(input: LoginInput): Promise<AuthResult> {
-  if (!supabaseConfigured) return delay({ ok: true }, 700);
   const supabase = createSupabaseBrowserClient();
   const { error } = await supabase.auth.signInWithPassword(input);
   if (error) return { ok: false, message: humanize(error.code, error.message) };
@@ -32,7 +30,6 @@ export async function signInWithPassword(input: LoginInput): Promise<AuthResult>
  * /auth/callback. Por seguridad respondemos igual exista o no la cuenta.
  */
 export async function requestPasswordReset(email: string): Promise<AuthResult> {
-  if (!supabaseConfigured) return delay({ ok: true }, 600);
   const supabase = createSupabaseBrowserClient();
   rememberAuthNext(routes.home);
   const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/auth/callback?next=${routes.home}` });
@@ -41,7 +38,6 @@ export async function requestPasswordReset(email: string): Promise<AuthResult> {
 }
 
 export async function signOut(): Promise<void> {
-  if (!supabaseConfigured) return;
   const supabase = createSupabaseBrowserClient();
   await supabase.auth.signOut();
 }

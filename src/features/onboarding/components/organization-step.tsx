@@ -12,8 +12,8 @@ import { StepFrame } from "./step-frame";
 const SECTORS = ["Banca y finanzas", "Tecnología", "Retail", "Salud", "Educación", "Industria", "Otro"];
 
 export interface OrganizationStepProps {
-  /** Organización detectada por el dominio del correo. */
-  detectedName: string;
+  /** Organización detectada por el dominio del correo; null si es un correo personal. */
+  detectedName: string | null;
 }
 
 /**
@@ -24,8 +24,8 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { data, update, finish } = useOnboarding();
-  const [name, setName] = useState(data.organization.name || detectedName);
-  const [sector, setSector] = useState(data.organization.sector);
+  const [name, setName] = useState(data.organization.name || detectedName || "");
+  const [sector, setSector] = useState(data.organization.sector || SECTORS[0]);
   // Un avance guardado antes de alinear los tamaños con la API puede traer uno que ya no existe.
   const [size, setSize] = useState<CompanySize>(isCompanySize(data.organization.size) ? data.organization.size : "1000+");
   const [busy, setBusy] = useState(false);
@@ -65,7 +65,7 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
     <StepFrame
       step={2}
       title="¿Para qué organización reclutas?"
-      description={`Detectamos ${detectedName} por tu correo. Puedes cambiarlo.`}
+      description={detectedName ? `Detectamos ${detectedName} por tu correo. Puedes cambiarlo.` : "Así aparecerá en tus vacantes públicas."}
       footer={
         <>
           <Button variant="text" icon={<ArrowLeft />} onClick={() => router.push(routes.login)}>
@@ -77,7 +77,7 @@ export function OrganizationStep({ detectedName }: OrganizationStepProps) {
         </>
       }
     >
-      <TextField label="Nombre de la organización" value={name} maxLength={120} onChange={(e) => setName(e.target.value)} validated={name === detectedName} />
+      <TextField label="Nombre de la organización" value={name} maxLength={120} onChange={(e) => setName(e.target.value)} validated={!!detectedName && name === detectedName} />
       <div className="grid grid-cols-2 gap-4">
         <SelectField label="Sector" value={sector} onChange={setSector} options={SECTORS.map((s) => ({ value: s, label: s }))} />
         <SelectField label="Tamaño" value={size} onChange={(v) => isCompanySize(v) && setSize(v)} options={COMPANY_SIZES.map((s) => ({ value: s.value, label: s.label }))} />

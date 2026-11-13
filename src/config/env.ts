@@ -9,6 +9,4 @@ export const env = {
   serverApiUrl: process.env.API_INTERNAL_URL || apiUrl,
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
-  /** Mientras no haya backend, las features sirven datos de `shared/mocks`. */
-  useMocks: process.env.NEXT_PUBLIC_USE_MOCKS === "true",
 } as const;

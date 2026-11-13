@@ -1,8 +1,6 @@
-import { env } from "@/config/env";
 import { ApiError } from "@/shared/lib/api-client";
 import { browserApi } from "@/shared/lib/api-browser";
 import { createSupabaseBrowserClient } from "@/shared/lib/supabase/client";
-import { delay } from "@/shared/mocks";
 
 /** Tamaños que acepta la API (y la restricción de la base de datos), con su texto para la persona. */
 export const COMPANY_SIZES = [
@@ -39,7 +37,6 @@ async function accountName(): Promise<string> {
  * Si ya pertenece a una empresa (409), sigue el alta.
  */
 export async function createCompany(input: CompanyInput): Promise<void> {
-  if (env.useMocks) return delay(undefined, 500);
   const yourName = await accountName();
   try {
     await browserApi("/companies", { method: "POST", body: JSON.stringify({ companyName: input.name, sector: input.sector, size: input.size, yourName }) });
@@ -56,7 +53,6 @@ export type JoinResult = { ok: true } | { ok: false; message: string };
  * La API responde igual a un código vencido, alterado o desconocido.
  */
 export async function joinCompany(code: string): Promise<JoinResult> {
-  if (env.useMocks) return delay({ ok: true }, 500);
   try {
     await browserApi("/companies/join", { method: "POST", body: JSON.stringify({ code: code.trim(), yourName: await accountName() }) });
     return { ok: true };

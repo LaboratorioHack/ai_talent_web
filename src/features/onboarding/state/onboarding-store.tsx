@@ -16,7 +16,7 @@ const KEY = "criba.onboarding";
 const DONE_KEY = "criba.onboarded";
 
 const initial: OnboardingData = {
-  organization: { name: "Cordillera Financiera", sector: "Banca y finanzas", size: "1000+" },
+  organization: { name: "", sector: "", size: "" },
   vacancy: null,
 };
 
@@ -77,7 +77,7 @@ export function useOnboarding(): Ctx {
   return ctx;
 }
 
-/** ¿Esta cuenta ya terminó el onboarding? (mock: bandera local; real: metadata de Supabase). */
+/** ¿Esta cuenta ya terminó el onboarding en este navegador? */
 export function hasFinishedOnboarding(): boolean {
   try {
     return localStorage.getItem(DONE_KEY) === "1";

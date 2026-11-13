@@ -26,4 +26,3 @@ export async function createSupabaseServerClient() {
   });
 }
 
-export const supabaseConfigured = Boolean(env.supabaseUrl && env.supabaseAnonKey);

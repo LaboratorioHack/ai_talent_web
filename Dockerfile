@@ -25,8 +25,6 @@ WORKDIR /app
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
-# Mientras la API no exponga los endpoints del front, la app corre con datos simulados.
-ARG NEXT_PUBLIC_USE_MOCKS=true
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 COPY --from=landing /landing/dist ./public/landing
