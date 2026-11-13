@@ -1,27 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Check, Download, Eye, EyeOff, Info, Lock } from "lucide-react";
 import { PageTop } from "@/shared/components/layout";
 import { AnimatedNumber, Button, Modal, ScrollArea, Segmented, Select, useToast } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
 import type { AuditDecision } from "@/shared/types/domain";
-import type { BiasAlert, GovernanceData } from "../api/governance";
+import { fetchGovernance } from "../api/governance-browser";
+import type { BiasAlert, GovernanceData, GovernancePeriod as Period } from "../types";
 
-type Period = "7d" | "30d" | "90d";
-// Todas las vacantes abrieron en el último mes: 30 y 90 días muestran lo mismo.
-const SCALE: Record<Period, number> = { "7d": 0.3, "30d": 1, "90d": 1 };
 const PERIOD_TEXT: Record<Period, string> = { "7d": "Últimos 7 días", "30d": "Últimos 30 días", "90d": "Últimos 90 días" };
 
 const DAY: Record<string, string> = { Hoy: "Hoy", Ayer: "Ayer", Lun: "Lunes", Mar: "Martes", "Mié": "Miércoles", Jue: "Jueves", Vie: "Viernes", "Sáb": "Sábado", Dom: "Domingo" };
 const STATUS_TONE: Record<AuditDecision["status"], string> = { meets: "bg-success-soft text-success", partial: "bg-warning-soft text-warning", does_not_meet: "bg-danger-soft text-danger", unevaluated: "bg-blue-soft text-blue" };
 const STATUS_TEXT: Record<AuditDecision["status"], string> = { meets: "Cumple", partial: "Parcial", does_not_meet: "No cumple", unevaluated: "Ajuste" };
-const PEOPLE = [
-  { value: "all", label: "Todas las personas" },
-  { value: "Ana M.", label: "Ana M." },
-  { value: "Carlos P.", label: "Carlos P." },
-  { value: "Sistema", label: "Cambios automáticos" },
-];
 const ATTRIBUTE_GROUPS = [
   { title: "Nunca entran al puntaje", hint: "Se borran al leer, antes de evaluar", used: false },
   { title: "Entran al puntaje", hint: "Solo si un requisito los pide", used: true },
@@ -40,13 +32,38 @@ function exportCsv(data: GovernanceData) {
 }
 
 /** Pantalla 11 · Gobierno de IA · Auditoría de qué se usó, qué no y quién decidió. */
-export function GovernanceView({ data }: { data: GovernanceData }) {
+export function GovernanceView({ data: initial }: { data: GovernanceData }) {
   const { toast } = useToast();
   const [period, setPeriod] = useState<Period>("30d");
+  const [data, setData] = useState(initial);
+  const [loading, setLoading] = useState(false);
+
+  /** Cada período es una consulta real a la auditoría; mientras llega, la pantalla se atenúa. */
+  async function changePeriod(next: Period) {
+    setPeriod(next);
+    setLoading(true);
+    try {
+      setData(await fetchGovernance(next));
+    } catch {
+      toast({ tone: "error", title: "No se pudo cargar el período", description: "Revisa tu conexión e inténtalo de nuevo." });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Las personas del filtro salen de las decisiones registradas, no de una lista fija.
+  const people = useMemo(
+    () => [
+      { value: "all", label: "Todas las personas" },
+      ...[...new Set(data.decisions.map((d) => d.who))]
+        .sort((a, b) => (a === "Sistema" ? 1 : b === "Sistema" ? -1 : a.localeCompare(b, "es")))
+        .map((who) => ({ value: who, label: who === "Sistema" ? "Cambios automáticos" : who })),
+    ],
+    [data.decisions],
+  );
   const [who, setWho] = useState("all");
   const [alert, setAlert] = useState<BiasAlert | null>(null);
   const [reviewed, setReviewed] = useState<string[]>([]);
-  const k = SCALE[period];
   const s = data.stats;
   const openAlerts = data.alerts.filter((a) => !reviewed.includes(a.id));
   const groups = Object.entries(
@@ -61,22 +78,22 @@ export function GovernanceView({ data }: { data: GovernanceData }) {
 
   const stats = [
     { value: s.sensitiveUsed, label: "datos sensibles usados", tone: "text-success" },
-    { value: Math.round(s.resumesEvaluated * k), label: "hojas de vida evaluadas", tone: "text-ink" },
+    { value: s.resumesEvaluated, label: "hojas de vida evaluadas", tone: "text-ink" },
     { value: s.scoresWithEvidence, label: "% de puntajes con evidencia", tone: "text-ink" },
-    { value: Math.round(s.humanDecisions * k), label: "decisiones tomadas por personas", tone: "text-ink" },
+    { value: s.humanDecisions, label: "decisiones tomadas por personas", tone: "text-ink" },
     openAlerts.length
       ? { value: openAlerts.length, label: "alertas de sesgo por revisar", tone: "text-warning" }
-      : { value: Math.round(s.aiErrorsFlagged * k), label: "errores de la IA marcados por personas", tone: "text-ink" },
+      : { value: s.aiErrorsFlagged, label: "errores de la IA marcados por personas", tone: "text-ink" },
   ];
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className={cn("flex flex-1 flex-col transition-opacity duration-300", loading && "opacity-60")} aria-busy={loading}>
       <PageTop
         title="Qué usó y qué no usó Criba AI"
         description={`${PERIOD_TEXT[period]} en ${data.organization}. Toda salida de la IA pasa por una persona.`}
         actions={
           <>
-            <Segmented aria-label="Período" size="sm" value={period} onChange={setPeriod} items={[{ value: "7d", label: "7 días" }, { value: "30d", label: "30 días" }, { value: "90d", label: "90 días" }]} />
+            <Segmented aria-label="Período" size="sm" value={period} onChange={(p) => void changePeriod(p)} items={[{ value: "7d", label: "7 días" }, { value: "30d", label: "30 días" }, { value: "90d", label: "90 días" }]} />
             <Button
               variant="outline"
               icon={<Download />}
@@ -165,7 +182,7 @@ export function GovernanceView({ data }: { data: GovernanceData }) {
                 <h2 className="font-head text-[20px] font-semibold tracking-[-0.01em]">Decisiones humanas</h2>
                 <p className="text-[13px] text-ink-3">Quién decidió qué, y sobre quién.</p>
               </div>
-              <Select aria-label="Persona" options={PEOPLE} value={who} onChange={setWho} className="w-[200px]" triggerClassName="field-box h-9 w-full px-3 text-[13px] text-ink" />
+              <Select aria-label="Persona" options={people} value={who} onChange={setWho} className="w-[200px]" triggerClassName="field-box h-9 w-full px-3 text-[13px] text-ink" />
             </header>
             <ScrollArea aria-label="Decisiones humanas" className="flex-1" viewportClassName="px-6 pb-6">
               {groups.map(([day, list]) => (

@@ -219,7 +219,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
           <VacancyPanel key={`v-${period}`} data={data} period={period} />
         </div>
         <div className="flex flex-col gap-6">
-          <AiActivity />
+          <AiActivity events={data.activity} />
           <TopPanel data={data} vacancyOptions={vacancyOptions} />
           <Panel title="Pendientes" subtitle="Lo que necesita tu decisión">
             <PendingList items={data.pending} />
