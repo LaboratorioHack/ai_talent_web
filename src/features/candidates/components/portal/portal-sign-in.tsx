@@ -5,6 +5,8 @@ import { ArrowRight, Building2, Check, FileText, MailCheck, MessagesSquare, Shie
 import { AuthHeading, AuthSwitch } from "@/shared/components/layout/auth-shell";
 import { Button, TextField } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
+import { isApplicantPath } from "@/shared/lib/account-type";
+import { safeNextPath } from "@/shared/lib/auth-redirect";
 import { cn } from "@/shared/lib/cn";
 import { OAuthButtons } from "@/features/auth/components/oauth-buttons";
 import { sendPortalLink } from "../../api/portal-auth";
@@ -18,6 +20,12 @@ const HIGHLIGHTS = [
 ];
 const STEP_MS = 1600;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** A dónde vuelve después de entrar: la vacante desde la que llegó (?next=/jobs/…) o el portal. */
+function nextPath(): string {
+  const next = safeNextPath(new URLSearchParams(window.location.search).get("next"));
+  return next && isApplicantPath(next) ? next : routes.portal;
+}
 
 /**
  * Formulario de la entrada al portal del postulante: solo el correo; Criba manda un enlace
@@ -44,7 +52,7 @@ export function PortalSignInForm() {
       return;
     }
     setLoading(true);
-    const result = await sendPortalLink(email.trim().toLowerCase());
+    const result = await sendPortalLink(email.trim().toLowerCase(), nextPath());
     setLoading(false);
     if (result === "sent") setSent(true);
     else setError(result);
@@ -66,8 +74,8 @@ export function PortalSignInForm() {
 
   return (
     <div className="stagger flex flex-col gap-7 short:gap-5 shorter:gap-4 [&>*]:animate-rise">
-      <AuthHeading eyebrow="Postulantes" title="Sigue tus postulaciones" description="Entra con Google, Microsoft o el correo con el que te postulaste. Sin contraseña." />
-      <OAuthButtons next={routes.portal} onError={setError} />
+      <AuthHeading eyebrow="Postulantes" title="Postúlate y sigue tu proceso" description="Entra con Google, Microsoft o tu correo, sin contraseña. Con tu cuenta te postulas solo subiendo tu hoja de vida." />
+      <OAuthButtons next={nextPath} onError={setError} />
       <form onSubmit={submit} noValidate className="flex flex-col gap-6 short:gap-4 shorter:gap-3" style={{ "--i": 2 } as React.CSSProperties}>
         <TextField
           label="Tu correo"

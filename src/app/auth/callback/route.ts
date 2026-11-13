@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseServerClient } from "@/shared/lib/supabase/server";
 import { routes } from "@/shared/constants/routes";
+import { redirectForAccount } from "@/shared/lib/account-type";
+import { ensureAccountType } from "@/shared/lib/account-type-server";
 import { AUTH_NEXT_COOKIE, safeNextPath } from "@/shared/lib/auth-redirect";
 
 /**
@@ -26,6 +28,11 @@ export async function GET(request: NextRequest) {
   if (code) {
     const supabase = await createSupabaseServerClient();
     exchanged = !(await supabase.auth.exchangeCodeForSession(code)).error;
+    if (exchanged) {
+      // Una cuenta es de postulante o de empresa: si entró por el lado que no es el suyo, va a su inicio.
+      const type = await ensureAccountType(supabase, next);
+      if (type) target = redirectForAccount(type, next) ?? next;
+    }
   }
   if (!exchanged) {
     // El postulante vuelve a su propia entrada, nunca al login de empresas.

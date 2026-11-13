@@ -17,6 +17,9 @@ export const isCompanySize = (value: string): value is CompanySize => COMPANY_SI
 
 export const companySizeLabel = (value: string) => COMPANY_SIZES.find((s) => s.value === value)?.label ?? value;
 
+/** La API no deja que una cuenta que ya se postuló a vacantes cree o se una a una empresa. */
+const APPLICANT_ACCOUNT = "Esta cuenta ya se postuló a vacantes como postulante. Usa otro correo para la cuenta de empresa.";
+
 export interface CompanyInput {
   name: string;
   sector: string;
@@ -41,6 +44,7 @@ export async function createCompany(input: CompanyInput): Promise<void> {
 /** Mensaje legible al crear la organización (la API responde en inglés). */
 export function companyErrorMessage(error: unknown): string {
   if (!(error instanceof ApiError)) return "Revisa tu conexión e inténtalo de nuevo.";
+  if (error.status === 403) return APPLICANT_ACCOUNT;
   if (/sector/i.test(error.message)) return "Elige el sector de la organización.";
   if (/size/i.test(error.message)) return "Elige el tamaño de la organización.";
   if (/name/i.test(error.message)) return "Escribe el nombre de la organización (máximo 120 caracteres).";
@@ -61,6 +65,7 @@ export async function joinCompany(code: string, yourName: string): Promise<JoinR
     if (!(error instanceof ApiError)) return { ok: false, message: "No pudimos conectarnos. Intenta de nuevo" };
     // Ya pertenece a una empresa: el panel es su sitio.
     if (error.status === 409) return { ok: true };
+    if (error.status === 403) return { ok: false, message: APPLICANT_ACCOUNT };
     if (error.status === 429) return { ok: false, message: "Hiciste demasiados intentos. Espera 15 minutos" };
     if (error.status === 400) return { ok: false, message: "El código no es válido o ya venció. Pide uno nuevo a quien administra tu organización" };
     return { ok: false, message: "No pudimos unirte a la organización. Intenta de nuevo" };
