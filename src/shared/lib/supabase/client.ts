@@ -11,5 +11,3 @@ export function createSupabaseBrowserClient() {
   return createBrowserClient(env.supabaseUrl, env.supabaseAnonKey);
 }
 
-/** True cuando hay URL y anon key: si no, la app corre en modo mock. */
-export const supabaseConfigured = Boolean(env.supabaseUrl && env.supabaseAnonKey);

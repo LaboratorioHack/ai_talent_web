@@ -1,5 +1,5 @@
-/** Estado de un archivo en la ingesta. UPLOADING solo existe en el navegador. */
-export type IngestStatus = "UPLOADING" | "PROCESSING" | "READ" | "UNREADABLE" | "DUPLICATE" | "UNSUPPORTED" | "NO_DATA";
+/** Estado de la hoja de vida de una postulación. */
+export type IngestStatus = "PROCESSING" | "READ" | "UNREADABLE" | "DUPLICATE" | "UNSUPPORTED" | "NO_DATA";
 
 /** Canal de la postulación (applications.source). En el MVP solo llegan por la postulación del candidato. */
 export type IngestSource = "upload" | "candidate";
@@ -15,8 +15,8 @@ export interface IngestFile {
   /** Qué se leyó o por qué no: "nombre, 3 empleos y 2 certificaciones". */
   detail: string;
   source: IngestSource;
-  /** 0–100 mientras sube. */
-  progress?: number;
+  /** Quién se postuló con este archivo. */
+  person: string;
 }
 
 export interface IngestData {

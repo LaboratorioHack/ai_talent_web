@@ -8,10 +8,10 @@ import { cn } from "@/shared/lib/cn";
 const STEPS = ["Lee el texto, aunque sea un escaneo", "Quita foto, edad y datos de contacto", "Saca experiencia, estudios e idiomas", "La deja lista para evaluar"];
 
 /**
- * Criba AI leyendo una hoja de vida, a la vista: una hoja que se barre con la
- * franja ámbar y los pasos que se van cumpliendo en bucle.
+ * Criba AI leyendo una hoja de vida que acaba de llegar (la primera de "Leyendo"):
+ * una hoja que se barre con la franja ámbar y los pasos de la lectura.
  */
-export function AiReadingCard() {
+export function AiReadingCard({ fileName }: { fileName: string }) {
   const [step, setStep] = useState(1);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export function AiReadingCard() {
     <div className="flex flex-col gap-3 rounded-xl border border-amber/30 bg-amber/5 p-3.5">
       <div className="flex items-center justify-between">
         <CribaAi label="Leyendo" />
-        <span className="font-mono text-[11px] text-ink-3">andrea_gomez_cv.pdf</span>
+        <span className="truncate font-mono text-[11px] text-ink-3">{fileName}</span>
       </div>
       <div className="flex gap-3.5">
         <div aria-hidden className="relative h-[92px] w-[70px] shrink-0 overflow-hidden rounded-[4px] border border-border bg-surface shadow-[0_6px_14px_-10px_rgba(0,0,0,0.4)]">

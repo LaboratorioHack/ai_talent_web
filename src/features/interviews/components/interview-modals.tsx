@@ -4,7 +4,8 @@ import { useState } from "react";
 import { CalendarCheck, Trash2 } from "lucide-react";
 import { Button, DateField, Modal, SelectField, TextField } from "@/shared/components/ui";
 import { useToday } from "@/shared/hooks/use-today";
-import { delay } from "@/shared/mocks";
+import { toISODate } from "@/shared/lib/dates";
+import { scheduleWithTeam } from "../api/actions";
 
 const HOURS = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"].map((h) => ({ value: h, label: h }));
 const DURATIONS = [
@@ -14,12 +15,12 @@ const DURATIONS = [
 ];
 
 /** Programar la entrevista con el equipo (humana) después de la de IA. */
-export function ScheduleModal({ name, open, onClose, onScheduled }: { name: string; open: boolean; onClose: () => void; onScheduled: (summary: string) => void }) {
+export function ScheduleModal({ interviewId, name, open, onClose, onScheduled }: { interviewId: string; name: string; open: boolean; onClose: () => void; onScheduled: (summary: string) => void }) {
   const today = useToday();
   const [date, setDate] = useState<Date | null>(null);
   const [hour, setHour] = useState("10:00");
   const [duration, setDuration] = useState("45");
-  const [guests, setGuests] = useState("carlos.p@cordillera.co");
+  const [guests, setGuests] = useState("");
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
   const min = today ? new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1) : undefined;
@@ -29,10 +30,20 @@ export function ScheduleModal({ name, open, onClose, onScheduled }: { name: stri
       setError("Elige una fecha");
       return;
     }
+    const list = guests.split(/[,;\s]+/).map((g) => g.trim()).filter(Boolean);
+    if (list.some((g) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(g))) {
+      setError("Revisa los correos de quienes asisten");
+      return;
+    }
     setBusy(true);
-    await delay(null, 900);
-    setBusy(false);
-    onScheduled(`${date.getDate()}/${date.getMonth() + 1} a las ${hour}`);
+    try {
+      await scheduleWithTeam(interviewId, { date: toISODate(date), time: hour, durationMin: Number(duration), guests: list });
+      onScheduled(`${date.getDate()}/${date.getMonth() + 1} a las ${hour}`);
+    } catch {
+      setError("No se pudo programar. Intenta de nuevo");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -80,7 +91,7 @@ const REASONS = [
 ];
 
 /** Descartar después de la entrevista, siempre con motivo auditable. */
-export function DiscardInterviewModal({ name, open, onClose, onDiscard }: { name: string; open: boolean; onClose: () => void; onDiscard: (reason: string) => void }) {
+export function DiscardInterviewModal({ name, open, busy = false, onClose, onDiscard }: { name: string; open: boolean; busy?: boolean; onClose: () => void; onDiscard: (reason: string) => void }) {
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string>();
   return (
@@ -97,6 +108,7 @@ export function DiscardInterviewModal({ name, open, onClose, onDiscard }: { name
           <Button
             variant="danger"
             icon={<Trash2 />}
+            loading={busy}
             onClick={() => (reason ? onDiscard(REASONS.find((r) => r.value === reason)?.label ?? reason) : setError("Elige un motivo"))}
           >
             Descartar

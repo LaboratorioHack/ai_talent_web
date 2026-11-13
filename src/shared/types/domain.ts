@@ -64,6 +64,8 @@ export interface JobOpening {
   openings: number;
   closesAt: string; // ISO date
   createdAt: string;
+  /** Lo que ve el candidato además del perfil; solo en el detalle de la vacante. */
+  listing?: { location: string; modality: "" | "ONSITE" | "HYBRID" | "REMOTE"; contract: string; schedule: string; salary: string };
   profile: RoleProfile;
   stats: {
     received: number;
@@ -72,7 +74,7 @@ export interface JobOpening {
     partial: number;
     doesNotMeet: number;
     interview: number;
-    /** Solo cuando la API expone el dato (p. ej. mocks o dashboard agregado). */
+    /** Solo cuando la API expone el dato (panel agregado). */
     finalist?: number;
   };
 }
@@ -172,6 +174,10 @@ export interface Interview {
   turns: InterviewTurn[];
   contrasts: InterviewContrast[];
   recommendation?: InterviewRecommendation;
+  applicationId: Id;
+  vacancyId: Id;
+  /** Vence el enlace del candidato (ISO); null si no tiene. */
+  expiresAt: string | null;
 }
 
 export interface AuditDecision {

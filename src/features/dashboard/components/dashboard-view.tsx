@@ -23,6 +23,8 @@ const SHORT_PERIODS: { value: Period; label: string }[] = [
   { value: "90d", label: "90 d" },
 ];
 const PERIOD_TEXT: Record<Period, string> = { "7d": "los últimos 7 días", "30d": "los últimos 30 días", "90d": "los últimos 90 días" };
+/** Minutos que toma leer una hoja de vida a mano: base del cálculo de horas ahorradas. */
+const READ_MINUTES = 2.5;
 const ZERO: PeriodStats = { received: 0, read: 0, meets: 0, partial: 0, doesNotMeet: 0, interview: 0, finalist: 0 };
 
 type Vac = DashboardData["vacancies"][number];
@@ -105,7 +107,7 @@ function VacancyPanel({ data, period: initialPeriod }: { data: DashboardData; pe
   return (
     <Panel
       title="Resultado por vacante"
-      subtitle="Cómo quedaron las evaluadas de cada vacante"
+      subtitle="Cómo quedaron las evaluaciones de cada vacante"
       ai="Evaluó"
       action={{ label: "Ir al ranking", href: routes.rankings }}
       controls={
@@ -194,8 +196,8 @@ export function DashboardView({ data }: { data: DashboardData }) {
           <Select aria-label="Vacante" options={vacancyOptions} value={vacancy} onChange={setVacancy} className="w-full sm:w-[280px]" triggerClassName="field-box h-11 w-full rounded-full px-4 text-[13.5px] text-ink" />
         </div>
         <p className="text-[13px] text-ink-3">
-          Mostrando {PERIOD_TEXT[period]}
-          {vacancy === "all" ? ` en ${scope.length} vacantes` : ""}. Cada gráfico tiene además su propio filtro.
+          Cifras de {PERIOD_TEXT[period]}
+          {vacancy === "all" ? ` en ${scope.length === 1 ? "tu vacante abierta" : `tus ${scope.length} vacantes abiertas`}` : ""}. Cada gráfico se puede filtrar aparte.
         </p>
       </div>
 
@@ -210,7 +212,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
         <KpiCard index={1} label="Hojas de vida recibidas" value={t.received} detail={`${pct(t.read, t.received)} % leídas sin problema`} icon={Users} />
         <KpiCard index={2} label="Cumplen el perfil" value={t.meets} detail={`${pct(t.meets, t.received)} % de las recibidas`} icon={BadgeCheck} tone="success" />
         <KpiCard index={3} label="Entrevistas IA" value={t.interview} detail="Las hace Criba AI; decide tu equipo" icon={MessageSquareText} />
-        <KpiCard index={4} label="Horas ahorradas" value={Math.round((t.received * 2.5) / 60)} detail="Lo que Criba AI leyó por ti" icon={Timer} tone="blue" />
+        <KpiCard index={4} label="Horas ahorradas" value={Math.round((t.read * READ_MINUTES) / 60)} detail={`Unos ${READ_MINUTES.toLocaleString("es-CO")} min por hoja de vida que Criba AI leyó por ti`} icon={Timer} tone="success" />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_400px]">
@@ -219,7 +221,7 @@ export function DashboardView({ data }: { data: DashboardData }) {
           <VacancyPanel key={`v-${period}`} data={data} period={period} />
         </div>
         <div className="flex flex-col gap-6">
-          <AiActivity />
+          <AiActivity events={data.activity} />
           <TopPanel data={data} vacancyOptions={vacancyOptions} />
           <Panel title="Pendientes" subtitle="Lo que necesita tu decisión">
             <PendingList items={data.pending} />

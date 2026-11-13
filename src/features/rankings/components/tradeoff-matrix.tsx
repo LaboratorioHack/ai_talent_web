@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Briefcase, Mail, Plus, Share2, X } from "lucide-react";
-import { env } from "@/config/env";
 import { evaluationErrorMessage } from "@/features/evaluations/api/errors";
 import { compareApplications } from "@/features/evaluations/api/evaluations";
 import { PageTop } from "@/shared/components/layout";
@@ -11,6 +10,7 @@ import { Button, CribaAi, EmptyState, Select, useToast } from "@/shared/componen
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
+import { inviteToInterview } from "../api/actions";
 import type { TradeoffCandidate, TradeoffMatrix as Matrix, TradeoffStatus } from "../types/tradeoffs";
 
 const MAX = 3;
@@ -38,6 +38,7 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
   const [overrides, setOverrides] = useState<Record<string, Pick<TradeoffCandidate, "gains" | "assumes">>>({});
   const [reading, setReading] = useState(data.reading);
   const [comparing, setComparing] = useState(false);
+  const [inviting, setInviting] = useState(false);
   const byId = useMemo(() => new Map(data.candidates.map((c) => [c.id, c])), [data.candidates]);
   const cols = shown
     .map((id) => {
@@ -79,13 +80,26 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
   );
 
   useEffect(() => {
-    if (env.useMocks || cols.length < MIN_COMPARE || cols.length > MAX) return;
+    if (cols.length < MIN_COMPARE || cols.length > MAX) return;
     const applicationIds = colKey ? colKey.split(",") : [];
   // eslint-disable-next-line react-hooks/set-state-in-effect -- compare async al cambiar la selección
     void runCompare(applicationIds);
   }, [colKey, cols.length, runCompare]);
   const grid = { gridTemplateColumns: `260px repeat(${Math.max(cols.length, 1)}, minmax(220px, 1fr))` };
   const invite = Math.min(2, cols.length);
+
+  /** Invita a entrevista con IA a las primeras de la matriz; vence en 3 días y les llega por correo. */
+  async function inviteTop() {
+    const people = cols.slice(0, invite);
+    const deadline = new Date();
+    deadline.setDate(deadline.getDate() + 3);
+    setInviting(true);
+    const results = await Promise.allSettled(people.map((c) => inviteToInterview(data.job.id, c.id, deadline, "es")));
+    setInviting(false);
+    const sent = people.filter((_, i) => results[i].status === "fulfilled");
+    if (sent.length) toast({ title: `Invitamos a ${sent.length} ${sent.length === 1 ? "persona" : "personas"}`, description: sent.map((c) => c.name).join(" y ") });
+    if (sent.length < people.length) toast({ tone: "error", title: "Algunas invitaciones no salieron", description: "Revisa que esas postulaciones sigan abiertas y evaluadas." });
+  }
 
   async function share() {
     try {
@@ -266,15 +280,7 @@ export function TradeoffMatrix({ data }: { data: Matrix }) {
             <div className="flex flex-wrap items-center justify-between gap-4 animate-rise [animation-delay:160ms]">
               <p className="text-[13px] text-ink-3">La matriz no puntúa a las personas: muestra qué ganas y qué cedes con cada una.</p>
               <div className="flex flex-wrap gap-2">
-                {data.secondaryAction ? (
-                  <Button variant="outline" onClick={() => toast({ title: data.secondaryAction!, description: "Les llega un enlace para presentarla antes de la entrevista." })}>
-                    {data.secondaryAction}
-                  </Button>
-                ) : null}
-                <Button
-                  icon={<Mail />}
-                  onClick={() => toast({ title: `Invitamos a ${invite} ${invite === 1 ? "persona" : "personas"}`, description: cols.slice(0, invite).map((c) => c.name).join(" y ") })}
-                >
+                <Button icon={<Mail />} loading={inviting} disabled={!invite} onClick={inviteTop}>
                   Invitar a {invite} a entrevista
                 </Button>
               </div>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
-import type { PortalApplication } from "../../types/portal";
+import { placeOf, type PortalApplication } from "../../types/portal";
 import { nextStage, outcomeLabel, StageTrack } from "./stage-track";
 
 const initials = (s: string) =>
@@ -44,7 +44,7 @@ export function ApplicationRow({ application: a, index = 0 }: { application: Por
         <span className="relative flex min-w-0 flex-col gap-1">
           <span className="truncate font-head text-[18px] leading-tight font-semibold tracking-[-0.01em]">{a.jobTitle}</span>
           <span className="truncate text-[13px] text-ink-3">
-            {a.location}, {a.modality.toLowerCase()}
+            {placeOf(a)}
             {next ? <span className="text-ink-2"> · Sigue: {next.toLowerCase()}</span> : null}
           </span>
         </span>

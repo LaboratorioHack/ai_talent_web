@@ -40,12 +40,10 @@ jobs:
             ${{ env.IMAGE }}:${{ github.sha }}
           # NEXT_PUBLIC_* are inlined at build time. They are public values: repo Variables are
           # preferred, but the repo currently stores them as Secrets, so fall back to those.
-          # NEXT_PUBLIC_USE_MOCKS stays "true" until the API serves the front's endpoints.
           build-args: |
             NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL || secrets.NEXT_PUBLIC_API_URL }}
             NEXT_PUBLIC_SUPABASE_URL=${{ vars.NEXT_PUBLIC_SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY || secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-            NEXT_PUBLIC_USE_MOCKS=${{ vars.NEXT_PUBLIC_USE_MOCKS || 'true' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

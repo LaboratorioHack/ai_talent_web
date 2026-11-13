@@ -26,11 +26,12 @@ const SOURCES = [
   return { ...s, x: Math.round(Math.cos(a) * R), y: Math.round(Math.sin(a) * R) };
 });
 
+/** Lo que sale de la criba para cada formato: sin nombres, como lo ve la IA. */
 const RESULTS = [
-  { name: "Julián Ríos", verdict: "Cumple", detail: "4 de 4 obligatorios", score: 88, tone: "success" },
-  { name: "Mariana López", verdict: "Parcial", detail: "falta Kubernetes", score: 74, tone: "warning" },
-  { name: "Ricardo Méndez", verdict: "No cumple", detail: "faltan 3 obligatorios", score: 41, tone: "danger" },
-  { name: "Daniela Osorio", verdict: "Cumple", detail: "4 de 4 obligatorios", score: 92, tone: "success" },
+  { name: "Hoja de vida anonimizada", verdict: "Cumple", detail: "Todos los obligatorios, con su cita", score: 88, tone: "success" },
+  { name: "Hoja de vida anonimizada", verdict: "Parcial", detail: "Falta un obligatorio", score: 74, tone: "warning" },
+  { name: "Escaneo leído con OCR", verdict: "No cumple", detail: "Faltan tres obligatorios", score: 41, tone: "danger" },
+  { name: "Postulación por el enlace", verdict: "Cumple", detail: "Todos los obligatorios, con su cita", score: 92, tone: "success" },
 ] as const;
 
 const HIGHLIGHTS = [

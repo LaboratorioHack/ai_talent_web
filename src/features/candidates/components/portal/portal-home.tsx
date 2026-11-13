@@ -31,7 +31,7 @@ function activity(applications: PortalApplication[]) {
  * lo próximo en un bloque ámbar vivo, postulaciones como filas con riel de
  * etapas y, al lado, la hoja de vida en una pila de papeles y lo último que pasó.
  */
-export function PortalHome({ applicant, applications, resume, jobs }: { applicant: Applicant; applications: PortalApplication[]; resume: ResumeSummary; jobs: PortalJob[] }) {
+export function PortalHome({ applicant, applications, resume, jobs }: { applicant: Applicant; applications: PortalApplication[]; resume: ResumeSummary | null; jobs: PortalJob[] }) {
   const first = applicant.name.split(" ")[0];
   const open = applications.filter((a) => a.outcome === "open");
   const ended = applications.filter((a) => a.outcome !== "open");
@@ -89,7 +89,14 @@ export function PortalHome({ applicant, applications, resume, jobs }: { applican
 
       <aside className="flex flex-col gap-10 lg:sticky lg:top-[96px] lg:self-start">
         <div className="animate-rise [animation-delay:140ms]">
-          <CvCard resume={resume} />
+          {resume ? (
+            <CvCard resume={resume} />
+          ) : (
+            <section className="panel flex flex-col gap-2 p-5">
+              <h2 className="text-[13px] font-medium tracking-[0.08em] text-ink-3 uppercase">Tu hoja de vida</h2>
+              <p className="text-[14px] text-ink-2">Se guarda aquí cuando te postulas a una vacante. Después puedes verla y editarla.</p>
+            </section>
+          )}
         </div>
 
         <section className="panel flex flex-col gap-4 p-5 animate-rise [animation-delay:200ms]">

@@ -39,19 +39,22 @@ export function PublicJobView({ job }: { job: PublicJob }) {
   const experience = inferExperience(job);
   const language = inferLanguage(job);
 
-  const facts: { icon: LucideIcon; label: string; value: string }[] = [
-    { icon: MapPin, label: "Ubicación", value: job.location },
-    { icon: Monitor, label: "Modalidad", value: job.modality },
-    { icon: FileSignature, label: "Contrato", value: job.contract },
-    { icon: Clock, label: "Jornada", value: job.schedule },
-    { icon: Wallet, label: "Salario", value: job.salary ?? "A convenir" },
-    { icon: CalendarClock, label: "Cierra", value: closes ? formatLongDate(closes) : "Abierta" },
-  ];
+  // Solo lo que la empresa publicó; el salario vacío se lee «A convenir».
+  const facts = (
+    [
+      { icon: MapPin, label: "Ubicación", value: job.location },
+      { icon: Monitor, label: "Modalidad", value: job.modality },
+      { icon: FileSignature, label: "Contrato", value: job.contract },
+      { icon: Clock, label: "Jornada", value: job.schedule },
+      { icon: Wallet, label: "Salario", value: job.salary ?? "A convenir" },
+      { icon: CalendarClock, label: "Cierra", value: closes ? formatLongDate(closes) : "Abierta" },
+    ] satisfies { icon: LucideIcon; label: string; value: string | null }[]
+  ).filter((f): f is { icon: LucideIcon; label: string; value: string } => Boolean(f.value));
   const profile = [
     { label: "Nivel", value: inferLevel(job.title) },
     { label: "Experiencia", value: experience.value },
     ...(language ? [{ label: "Idioma", value: language }] : []),
-    { label: "Área", value: job.area },
+    ...(job.area ? [{ label: "Área", value: job.area }] : []),
   ];
 
   return (

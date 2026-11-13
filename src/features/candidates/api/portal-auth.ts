@@ -1,24 +1,19 @@
 "use client";
 
-import { routes } from "@/shared/constants/routes";
-import { rememberAuthNext } from "@/shared/lib/auth-redirect";
-import { createSupabaseBrowserClient, supabaseConfigured } from "@/shared/lib/supabase/client";
-import { delay } from "@/shared/mocks";
+import { ApiError, apiFetch } from "@/shared/lib/api-client";
 
 /**
- * Enlace mágico para entrar al portal del postulante. Devuelve "mock" si no
- * hay Supabase (entra directo), "sent" si salió el correo o un mensaje de error.
- * El enlace vuelve al dominio desde el que se pidió (el desplegado en producción)
- * y termina en /portal, no en el panel de empresas.
+ * Enlace mágico para entrar al portal del postulante: lo crea la API y lo manda por el correo de
+ * Criba (POST /public/portal-link), así no depende del límite de correos de Supabase. El enlace
+ * abre /auth/confirm, que deja la sesión. Devuelve "sent" o un mensaje para la persona.
  */
-export async function sendPortalLink(email: string): Promise<"mock" | "sent" | string> {
-  if (!supabaseConfigured) return delay("mock" as const, 600);
-  const supabase = createSupabaseBrowserClient();
-  rememberAuthNext(routes.portal);
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=${routes.portal}`, shouldCreateUser: true },
-  });
-  if (error) return error.code === "over_email_send_rate_limit" ? "Demasiados intentos. Espera un momento" : "No pudimos enviar el enlace. Intenta de nuevo";
-  return "sent";
+export async function sendPortalLink(email: string): Promise<"sent" | string> {
+  try {
+    await apiFetch("/public/portal-link", { method: "POST", body: JSON.stringify({ email }) });
+    return "sent";
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 429) return "Pediste varios enlaces seguidos. Espera unos minutos";
+    if (error instanceof ApiError && error.status === 400) return "Escribe un correo válido";
+    return "No pudimos enviar el enlace. Intenta de nuevo en un momento";
+  }
 }

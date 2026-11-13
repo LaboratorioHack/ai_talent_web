@@ -36,7 +36,7 @@ export function NextStep({ application: a }: { application: PortalApplication })
 
       <div aria-hidden className="relative hidden flex-col justify-center gap-2.5 border-l border-[#1a211d]/12 p-6 sm:flex">
         <span className="chat-q max-w-[210px] self-start rounded-2xl rounded-bl-md bg-[#fff8ea] px-3.5 py-2.5 text-[12.5px] leading-snug shadow-[0_6px_16px_-10px_rgba(0,0,0,0.4)]">
-          ¿Cuántos servicios migraron a AKS y cuánto duró?
+          Cuéntame un caso concreto: qué hiciste y qué resultado tuvo.
         </span>
         <span className="grid justify-items-end">
         <span className="chat-typing col-start-1 row-start-1 flex w-fit gap-1 self-start rounded-2xl rounded-br-md bg-[#1a211d] px-3.5 py-3">
@@ -45,7 +45,7 @@ export function NextStep({ application: a }: { application: PortalApplication })
           ))}
         </span>
         <span className="chat-a col-start-1 row-start-1 max-w-[210px] rounded-2xl rounded-br-md bg-[#1a211d] px-3.5 py-2.5 text-[12.5px] leading-snug text-[#f5f1e8]">
-          Fueron 30 servicios en diez meses, por oleadas.
+          Lo cuento con mis palabras, sin prisa.
         </span>
         </span>
       </div>

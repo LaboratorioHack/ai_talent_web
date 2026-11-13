@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowRight, Clock, MessageSquareText, Send, UserCheck } from "lucide-react";
-import { Button, ButtonLink, CribaAi, LogoMark, ProgressSegments } from "@/shared/components/ui";
+import { Button, ButtonLink, Collapse, CribaAi, LogoMark, ProgressSegments } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import { cn } from "@/shared/lib/cn";
@@ -29,9 +29,11 @@ const wait = (ms: number) => new Promise((r) => window.setTimeout(r, ms));
 export function InterviewRoom({ interview: iv }: { interview: CandidateInterview }) {
   const first = iv.candidateName.split(" ")[0];
   const total = iv.questions.length;
-  const [phase, setPhase] = useState<"intro" | "chat" | "done" | "closed">(iv.state === "done" ? "closed" : "intro");
+  const [phase, setPhase] = useState<"intro" | "chat" | "done" | "closed" | "expired">(iv.state === "done" ? "closed" : iv.state === "closed" ? "expired" : "intro");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [index, setIndex] = useState(0);
+  // Si vuelve al enlace, sigue en la primera pregunta sin responder.
+  const [index, setIndex] = useState(Math.min(iv.answered, Math.max(0, total - 1)));
+  const [sendError, setSendError] = useState<string | null>(null);
   const [followed, setFollowed] = useState(false);
   const [typing, setTyping] = useState(false);
   const [draft, setDraft] = useState("");
@@ -66,17 +68,28 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
 
   async function start() {
     setPhase("chat");
-    await say(`Hola, ${first}. Son ${total} preguntas sobre tu experiencia. Responde con tus palabras; no hay respuestas perfectas.`);
-    await say(iv.questions[0]);
+    await say(
+      iv.answered > 0
+        ? `Hola de nuevo, ${first}. Te faltan ${total - index} de ${total} preguntas; seguimos donde quedaste.`
+        : `Hola, ${first}. Son ${total} preguntas sobre tu experiencia. Responde con tus palabras; no hay respuestas perfectas.`,
+    );
+    await say(iv.questions[index]);
     box.current?.focus();
   }
 
   async function send() {
     const answer = draft.trim();
     if (!answer || typing) return;
+    setSendError(null);
+    try {
+      await sendInterviewAnswer(iv.token, index + 1, answer);
+    } catch {
+      // La respuesta no se perdió: sigue en el cuadro para reenviarla.
+      setSendError("No pudimos guardar tu respuesta. Revisa tu conexión y vuelve a enviarla.");
+      return;
+    }
     setDraft("");
     push("me", answer);
-    void sendInterviewAnswer(iv.token, index + 1, answer);
 
     if (answer.length < SHORT_ANSWER && !followed) {
       setFollowed(true);
@@ -102,6 +115,22 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
       e.preventDefault();
       void send();
     }
+  }
+
+  if (phase === "expired") {
+    return (
+      <div className="stagger mx-auto flex w-full max-w-[560px] flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center sm:px-6 [&>*]:animate-rise">
+        <h1 className="font-head text-[30px] leading-[1.1] font-semibold tracking-[-0.01em]" style={{ "--i": 0 } as React.CSSProperties}>
+          Este enlace ya no está activo
+        </h1>
+        <p className="text-[15px] text-ink-2" style={{ "--i": 1 } as React.CSSProperties}>
+          La entrevista para {iv.jobTitle} venció o {iv.company} la cerró. Si crees que es un error, responde el correo de la invitación.
+        </p>
+        <ButtonLink href={routes.portal} variant="outline" style={{ "--i": 2 } as React.CSSProperties}>
+          Ir a mi portal
+        </ButtonLink>
+      </div>
+    );
   }
 
   if (phase === "closed" || phase === "done") {
@@ -231,6 +260,11 @@ export function InterviewRoom({ interview: iv }: { interview: CandidateInterview
             Enviar
           </Button>
         </div>
+        <Collapse open={Boolean(sendError)}>
+          <p role="alert" className="mt-2 text-[13px] text-danger">
+            {sendError}
+          </p>
+        </Collapse>
         <p className="mt-2 text-xs text-ink-3">Enter envía, Shift + Enter hace un salto de línea.</p>
       </form>
     </div>

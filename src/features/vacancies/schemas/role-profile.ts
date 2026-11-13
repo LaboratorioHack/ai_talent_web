@@ -16,6 +16,15 @@ export const requirementDraftSchema = z.object({
   equivalences: z.array(equivalenceSchema),
 });
 
+/** Lo que ve el candidato además del perfil. Todo es opcional; vacío no se publica. */
+export const listingDraftSchema = z.object({
+  location: z.string().trim().max(80, "Máximo 80 caracteres"),
+  modality: z.enum(["", "ONSITE", "HYBRID", "REMOTE"]),
+  contract: z.string().max(80),
+  schedule: z.string().max(80),
+  salary: z.string().trim().max(80, "Máximo 80 caracteres"),
+});
+
 export const roleProfileDraftSchema = z
   .object({
     title: z.string().trim().min(1, "Ponle nombre a la vacante").max(80, "Máximo 80 caracteres"),
@@ -26,6 +35,7 @@ export const roleProfileDraftSchema = z
     autoInterview: z.boolean(),
     ignoreSensitive: z.literal(true),
     requirements: z.array(requirementDraftSchema).min(1, "Añade al menos un requisito"),
+    listing: listingDraftSchema,
   })
   .refine((v) => v.requirements.some((r) => r.type === "MANDATORY"), {
     message: "Necesitas al menos un requisito obligatorio",
@@ -34,6 +44,9 @@ export const roleProfileDraftSchema = z
 
 export type RequirementDraft = z.infer<typeof requirementDraftSchema>;
 export type RoleProfileDraft = z.infer<typeof roleProfileDraftSchema>;
+export type ListingDraft = z.infer<typeof listingDraftSchema>;
+
+export const emptyListing = (): ListingDraft => ({ location: "", modality: "", contract: "", schedule: "", salary: "" });
 
 export const REQUIREMENT_TYPE_LABEL: Record<RequirementDraft["type"], string> = {
   MANDATORY: "Obligatorio",

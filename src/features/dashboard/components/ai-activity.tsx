@@ -1,48 +1,68 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { EyeOff, FileSearch, ListOrdered, MessageSquareText, ScanText, type LucideIcon } from "lucide-react";
+import { FileSearch, FileX, ListOrdered, MessageSquareText, type LucideIcon } from "lucide-react";
 import { CribaAi } from "@/shared/components/ui";
 import { cn } from "@/shared/lib/cn";
+import type { AiActivityItem } from "../api/dashboard";
 
-interface AiEvent {
-  icon: LucideIcon;
-  what: string;
-  detail: string;
+const SHOWN = 5;
+const STEP_MS = 4200;
+
+const FULFILLMENT: Record<string, string> = {
+  MEETS: "cumple el perfil",
+  PARTIALLY_MEETS: "cumple parcialmente",
+  DOES_NOT_MEET: "no cumple lo obligatorio",
+};
+
+function describe(e: AiActivityItem): { icon: LucideIcon; what: string; detail: string } {
+  switch (e.kind) {
+    case "read":
+      return { icon: FileSearch, what: `Leyó ${e.fileName ?? "una hoja de vida"}`, detail: [e.jobTitle, e.pages ? `${e.pages} ${e.pages === 1 ? "página" : "páginas"}` : null].filter(Boolean).join(" · ") };
+    case "unreadable":
+      return { icon: FileX, what: `No pudo leer ${e.fileName ?? "una hoja de vida"}`, detail: `${e.jobTitle} · pide el original` };
+    case "evaluated":
+      return { icon: ListOrdered, what: e.position && e.of ? `Ubicó una hoja de vida en el puesto ${e.position} de ${e.of}` : "Evaluó una hoja de vida", detail: [e.jobTitle, e.fulfillment ? FULFILLMENT[e.fulfillment] : null].filter(Boolean).join(" · ") };
+    default:
+      return { icon: MessageSquareText, what: "Terminó una entrevista por chat", detail: e.jobTitle };
+  }
 }
 
-/** Lo que Criba AI hace con cada hoja de vida, en orden. Con backend: eventos reales de la ingesta y la evaluación. */
-const EVENTS: AiEvent[] = [
-  { icon: FileSearch, what: "Leyó hv_ingeniero_cloud.docx", detail: "Ingeniero Cloud Senior · 3 páginas" },
-  { icon: EyeOff, what: "Quitó foto, fecha de nacimiento y dirección", detail: "Antes de evaluar, siempre" },
-  { icon: ScanText, what: "Encontró «AKS en producción, 4 años»", detail: "Prueba el requisito Kubernetes · CV pág. 1" },
-  { icon: ScanText, what: "Contó GCP como Azure al 80 %", detail: "Por la equivalencia que definiste" },
-  { icon: ListOrdered, what: "Ubicó la hoja de vida en el puesto 6 de 85", detail: "Ingeniero Cloud Senior · cumple parcialmente" },
-  { icon: MessageSquareText, what: "Detectó un contraste en la entrevista de Andrés", detail: "Dijo 32 servicios; la hoja de vida dice 45" },
-  { icon: FileSearch, what: "Leyó una foto del celular con reconocimiento de texto", detail: "Analista de Datos · 1 página" },
-  { icon: EyeOff, what: "Marcó un escaneo como ilegible", detail: "Pidió el original a la persona" },
-];
-
-const STEP_MS = 3200;
-const SHOWN = 5;
+/** "hace 5 min" desde el instante real del evento. */
+function ago(iso: string, now: number): string {
+  const minutes = Math.max(0, Math.round((now - new Date(iso).getTime()) / 60000));
+  if (minutes < 1) return "ahora";
+  if (minutes < 60) return `hace ${minutes} min`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `hace ${hours} h`;
+  const days = Math.round(hours / 24);
+  return `hace ${days} ${days === 1 ? "día" : "días"}`;
+}
 
 /**
- * "Criba AI, ahora": lo último que hizo la IA, como un registro que se
- * escribe solo. Cada 3 s entra una acción nueva arriba y las demás bajan.
+ * "Criba AI, ahora": lo último que hizo la IA con las hojas de vida de la organización (lecturas,
+ * evaluaciones y entrevistas reales). Si hay más de cinco eventos, la lista avanza sola mientras se ve.
  */
-export function AiActivity() {
-  const [tick, setTick] = useState(SHOWN);
+export function AiActivity({ events }: { events: AiActivityItem[] }) {
+  const [offset, setOffset] = useState(0);
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = window.setInterval(() => setTick((n) => n + 1), STEP_MS);
-    return () => window.clearInterval(t);
-  }, []);
+    // La hora del navegador se lee después de hidratar, para que servidor y cliente coincidan.
+    const first = window.requestAnimationFrame(() => setNow(Date.now()));
+    if (events.length <= SHOWN || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return () => window.cancelAnimationFrame(first);
+    const t = window.setInterval(() => {
+      setOffset((o) => (o + 1) % events.length);
+      setNow(Date.now());
+    }, STEP_MS);
+    return () => {
+      window.cancelAnimationFrame(first);
+      window.clearInterval(t);
+    };
+  }, [events.length]);
 
-  const items = Array.from({ length: SHOWN }, (_, i) => {
-    const n = tick - i;
-    return { key: n, ago: i, ...EVENTS[((n % EVENTS.length) + EVENTS.length) % EVENTS.length] };
-  });
+  const items = Array.from({ length: Math.min(SHOWN, events.length) }, (_, i) => events[(offset + i) % events.length]);
+  const recent = events[0] && now !== null && now - new Date(events[0].at).getTime() < 15 * 60_000;
 
   return (
     <section className="card flex min-w-0 flex-col gap-5 px-5 py-5 sm:px-6 sm:py-6">
@@ -51,28 +71,35 @@ export function AiActivity() {
           <CribaAi />
           ahora
         </h2>
-        <span className="flex items-center gap-1.5 text-[12.5px] text-success">
+        <span className={cn("flex items-center gap-1.5 text-[12.5px]", recent ? "text-success" : "text-ink-3")}>
           <span aria-hidden className="relative flex size-2">
-            <span className="absolute inset-0 rounded-full bg-success/50 animate-ping" />
-            <span className="relative size-2 rounded-full bg-success" />
+            {recent ? <span className="absolute inset-0 rounded-full bg-success/50 animate-ping" /> : null}
+            <span className={cn("relative size-2 rounded-full", recent ? "bg-success" : "bg-ink-3")} />
           </span>
-          Trabajando
+          {recent ? "Trabajando" : "En espera"}
         </span>
       </header>
-      <ol className="flex flex-col" aria-live="polite">
-        {items.map((e, i) => (
-          <li key={e.key} className={cn("flex gap-3 border-b border-border py-3 last:border-0", i === 0 && "animate-[option-in_420ms_var(--ease-out-soft)_both]")} style={{ opacity: 1 - i * 0.14 }}>
-            <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg", i === 0 ? "bg-amber/15 text-[color:var(--ai-ink)]" : "bg-surface-2 text-ink-3")}>
-              <e.icon aria-hidden className="size-4" />
-            </span>
-            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span className={cn("text-[13.5px] leading-snug", i === 0 && "ai-caret font-medium")}>{e.what}</span>
-              <span className="truncate text-[12px] text-ink-3">{e.detail}</span>
-            </span>
-            <span className="shrink-0 text-[11.5px] text-ink-3 tabular-nums">{i === 0 ? "ahora" : `hace ${i * 3} s`}</span>
-          </li>
-        ))}
-      </ol>
+      {items.length ? (
+        <ol className="flex flex-col" aria-live="polite">
+          {items.map((e, i) => {
+            const d = describe(e);
+            return (
+              <li key={`${e.kind}-${e.at}-${(offset + i) % events.length}`} className={cn("flex gap-3 border-b border-border py-3 last:border-0", i === 0 && "animate-[option-in_420ms_var(--ease-out-soft)_both]")} style={{ opacity: 1 - i * 0.14 }}>
+                <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg", i === 0 ? "bg-amber/15 text-[color:var(--ai-ink)]" : "bg-surface-2 text-ink-3")}>
+                  <d.icon aria-hidden className="size-4" />
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span className={cn("text-[13.5px] leading-snug", i === 0 && "font-medium")}>{d.what}</span>
+                  <span className="truncate text-[12px] text-ink-3">{d.detail}</span>
+                </span>
+                <span className="shrink-0 text-[11.5px] text-ink-3 tabular-nums">{now === null ? "" : ago(e.at, now)}</span>
+              </li>
+            );
+          })}
+        </ol>
+      ) : (
+        <p className="text-[13.5px] text-ink-3">Cuando llegue la primera postulación, aquí verás lo que Criba AI lee y evalúa.</p>
+      )}
     </section>
   );
 }

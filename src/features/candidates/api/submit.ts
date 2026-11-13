@@ -1,8 +1,6 @@
 "use client";
 
-import { env } from "@/config/env";
 import { apiFetch, ApiError } from "@/shared/lib/api-client";
-import { delay } from "@/shared/mocks";
 import type { ApplicationInput } from "../schemas/application";
 
 export type SubmitResult = { ok: true } | { ok: false; message: string };
@@ -20,7 +18,6 @@ function conflictMessage(detail: string): string {
  * POST /vacancies/{id}/applications (multipart con name, email, consent y file).
  */
 export async function submitApplication(jobId: string, input: ApplicationInput): Promise<SubmitResult> {
-  if (env.useMocks) return delay({ ok: true }, 1200);
   const body = new FormData();
   body.set("name", input.name);
   body.set("email", input.email);
@@ -39,12 +36,10 @@ export async function submitApplication(jobId: string, input: ApplicationInput):
   }
 }
 
-/** Guarda una respuesta de la entrevista. Con backend: POST /public/interviews/{token}/turns. */
+/**
+ * Guarda una respuesta de la entrevista: POST /public/interviews/{token}/turns.
+ * Una repregunta se responde con el mismo número y se suma a la respuesta anterior.
+ */
 export async function sendInterviewAnswer(token: string, order: number, answer: string): Promise<void> {
-  if (env.useMocks) return delay(undefined, 300);
-  await fetch(`${env.apiUrl}/public/interviews/${token}/turns`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ order, answer }),
-  });
+  await apiFetch(`/public/interviews/${encodeURIComponent(token)}/turns`, { method: "POST", body: JSON.stringify({ order, answer }) });
 }

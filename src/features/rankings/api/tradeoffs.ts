@@ -1,10 +1,11 @@
 import "server-only";
 
-import { env } from "@/config/env";
+import { ApiError } from "@/shared/lib/api-client";
 import { serverApi } from "@/shared/lib/api-server";
-import { delay, mockCandidatesOf, mockRequirementsOf, mockVacancies } from "@/shared/mocks";
+import { toJobOpening, type ApiVacancyDetail } from "@/shared/lib/vacancy-api";
 import type { RankedCandidate, RankRequirement } from "@/shared/types/ranking";
 import type { TradeoffCandidate, TradeoffCell, TradeoffMatrix, TradeoffRow } from "../types/tradeoffs";
+import { getRanking } from "./rankings";
 
 const initials = (name: string) =>
   name
@@ -75,62 +76,30 @@ function fromRanking(requirements: RankRequirement[], pool: RankedCandidate[], t
   return { sections: [{ title: "Requisitos del perfil de cargo", hint: "lo que pediste en la descripción de la vacante", rows: reqRows }, { title: "Señales de la evaluación", hint: "cómo leyó Criba AI cada hoja de vida", rows: signalRows }], candidates, reading };
 }
 
-/** El caso de Analista de Datos, contado a mano como en el pen.dev. */
-function dataAnalyst(): Pick<TradeoffMatrix, "sections" | "candidates" | "reading" | "secondaryAction"> {
-  const ids = ["t-mn", "t-ss", "t-so", "t-ar"];
-  const row = (label: string, tag: string, hint: string | undefined, cells: [TradeoffCell["status"], string][]): TradeoffRow => ({
-    label,
-    tag,
-    hint,
-    cells: Object.fromEntries(cells.map(([status, text], i) => [ids[i], { status, text }])),
-  });
-  return {
-    candidates: [
-      { id: ids[0], name: "Mariana Nieto", initials: "MN", score: 91, pill: { label: "En ranking", tone: "blue" }, gains: "Profundidad analítica y herramientas modernas", assumes: "Pedir inglés y banca en la entrevista." },
-      { id: ids[1], name: "Santiago Salazar", initials: "SS", score: 87, pill: { label: "Entrevista · 22 nov", tone: "green" }, gains: "Una persona ya en entrevista y con banca", assumes: "Menos evidencia con dbt y 3 empleos en 4 años." },
-      { id: ids[2], name: "Sara Ortiz", initials: "SO", score: 84, pill: { label: "En ranking", tone: "neutral" }, gains: "Conocimiento de fraude y cartera", assumes: "No hay inglés declarado: hay que probarlo." },
-      { id: ids[3], name: "Alejandro Restrepo", initials: "AR", score: 80, pill: { label: "En ranking", tone: "neutral" }, gains: "Herramientas y churn medible", assumes: "Rotación y un pedido 15 % sobre el rango." },
-    ],
-    sections: [
-      {
-        title: "Requisitos del perfil de cargo",
-        hint: "lo que pediste en la descripción de la vacante",
-        rows: [
-          row("SQL y bases de datos", "Obligatorio", undefined, [["meets", "5 años con SQL y dbt; 12 tableros de cartera."], ["meets", "SQL diario en banca; migró reportes a BigQuery."], ["meets", "SQL y Python en banco digital; modelos de riesgo."], ["partial", "SQL vía Power BI; no menciona volúmenes grandes."]]),
-          row("Experiencia en el rol · 3 años o más", "Obligatorio", undefined, [["meets", "4 años como analista de datos en servicios."], ["meets", "3 años en analítica de riesgo de crédito."], ["meets", "5 años en un banco digital."], ["partial", "2 años y medio; el resto fue soporte."]]),
-          row("Inglés B2", "Obligatorio", undefined, [["partial", "Dice inglés intermedio; no consta nivel."], ["meets", "B2 declarado; entrevista en inglés agendada."], ["missing", "No lo menciona en la hoja de vida."], ["meets", "Certificado B2 de 2022."]]),
-          row("Sector financiero", "Deseable", undefined, [["missing", "Consultoría de software, no banca."], ["meets", "3 años en banca: riesgo de crédito."], ["meets", "Banco digital: cartera y fraude."], ["meets", "Fintech de pagos, 2 años."]]),
-          row("Herramientas del cargo", "Deseable", "dbt, Power BI", [["meets", "dbt y Power BI en su último empleo."], ["partial", "Power BI sí; dbt no consta."], ["meets", "Power BI y Looker."], ["meets", "Power BI avanzado."]]),
-        ],
-      },
-      {
-        title: "Señales en la hoja de vida",
-        hint: "lo que la persona subió y cómo lo cuenta",
-        rows: [
-          row("Evidencia con resultados medibles", "Ponderado", undefined, [["meets", "Redujo 30 % el tiempo de cierre de reportes."], ["meets", "Automatizó 8 reportes de riesgo."], ["partial", "Describe tareas, no resultados."], ["meets", "Modelo de churn con 12 % de mejora."]]),
-          row("Estabilidad en el cargo", "Ponderado", undefined, [["meets", "4 años en la misma empresa."], ["partial", "3 empleos en 4 años."], ["meets", "5 años en un solo banco."], ["missing", "2 renuncias en 18 meses."]]),
-          row("Cómo entra en el ranking", "Ranking", undefined, [["meets", "1.º de 37 hojas de vida."], ["meets", "2.º, ya en entrevista."], ["meets", "3.º del ranking."], ["partial", "4.º; entra por el borde del corte."]]),
-        ],
-      },
-    ],
-    reading: "Nadie combina banca, inglés B2 y dbt: si el inglés es obligatorio, descarta a Sara Ortiz o agéndale una prueba. Alejandro Restrepo además pidió 15 % por encima del rango.",
-    secondaryAction: "Pedir prueba de inglés",
-  };
-}
-
-/** Matriz de trade-offs de una vacante. Con backend: GET /vacancies/{id}/tradeoffs (matriz completa) o POST …/compare con 2 o 3 postulaciones. */
+/**
+ * Matriz de trade-offs de una vacante, armada con su ranking real (GET /vacancies/{id}/ranking) y sus
+ * datos (GET /vacancies/{id}). La lectura de Criba AI la completa la pantalla con POST …/compare.
+ */
 export async function getTradeoffs(jobId: string): Promise<TradeoffMatrix | null> {
-  if (!env.useMocks) return serverApi<TradeoffMatrix>(`/vacancies/${jobId}/tradeoffs`).catch(() => null);
-  const job = mockVacancies.find((v) => v.id === jobId);
-  if (!job) return delay(null);
-  const evaluated = job.stats.meets + job.stats.partial + job.stats.doesNotMeet;
+  const detail = serverApi<ApiVacancyDetail>(`/vacancies/${jobId}`).catch((error: unknown) => {
+    if (error instanceof ApiError && (error.status === 404 || error.status === 400)) return null;
+    throw error;
+  });
+  const [ranking, found] = await Promise.all([getRanking(jobId), detail]);
+  const vacancy = found ? toJobOpening(found) : null;
+  if (!ranking || !vacancy) return null;
   const base = {
-    job: { id: job.id, title: job.title, status: job.status, openings: job.openings, closesAt: job.closesAt, received: job.stats.received, meets: job.stats.meets },
-    jobs: mockVacancies.filter((v) => v.status === "OPEN").map((v) => ({ value: v.id, label: v.title })),
+    job: {
+      id: vacancy.id,
+      title: vacancy.title,
+      status: vacancy.status,
+      openings: vacancy.openings,
+      closesAt: vacancy.closesAt,
+      received: vacancy.stats.received,
+      meets: vacancy.stats.meets,
+    },
+    jobs: ranking.jobs.map((j) => ({ value: j.value, label: j.label })),
   };
-  if (job.id === "v-data") return delay({ ...base, ...dataAnalyst() });
-  if (!job.stats.received) return delay({ ...base, sections: [], candidates: [], reading: "" });
-  const requirements = mockRequirementsOf(job);
-  const pool = mockCandidatesOf(job, requirements).slice(0, 3);
-  return delay({ ...base, ...fromRanking(requirements, pool, evaluated) });
+  if (!ranking.candidates.length) return { ...base, sections: [], candidates: [], reading: "" };
+  return { ...base, ...fromRanking(ranking.requirements, ranking.candidates, ranking.candidates.length) };
 }
