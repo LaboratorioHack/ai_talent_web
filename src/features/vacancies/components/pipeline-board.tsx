@@ -3,13 +3,21 @@
 import { useMemo, useState, type DragEvent } from "react";
 import Link from "next/link";
 import { ArrowUpRight, GripVertical } from "lucide-react";
-import { env } from "@/config/env";
 import { Avatar, ScrollArea, SearchField, Segmented, useToast } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
+import { ApiError } from "@/shared/lib/api-client";
 import { cn } from "@/shared/lib/cn";
 import type { PipelineStage } from "@/shared/types/domain";
 import { moveApplication } from "../api/mutations";
 import type { PipelineCard } from "../api/vacancies";
+import { PIPELINE_TO_API } from "@/shared/lib/vacancy-api";
+
+/** La API avanza de a una etapa y retrocede una para deshacer; lo demás responde 409. */
+function moveErrorMessage(error: unknown): string {
+  if (error instanceof ApiError && error.status === 409) return "Avanza una etapa a la vez: Recibidos, Cumplen, Entrevista IA y Finalistas.";
+  if (error instanceof ApiError && error.status === 404) return "Esta postulación ya no existe.";
+  return "Revisa tu conexión e inténtalo de nuevo.";
+}
 
 const COLUMNS: { stage: PipelineStage; label: string; hint: string; dot: string }[] = [
   { stage: "received", label: "Recibidos", hint: "Aún sin evaluar", dot: "bg-ink-3" },
@@ -45,15 +53,21 @@ export function PipelineBoard({ jobId, cards }: { jobId: string; cards: Pipeline
     );
   }, [items, query, filter]);
 
+  function revert(id: string, stage: PipelineStage) {
+    setItems((list) => list.map((c) => (c.id === id ? { ...c, stage } : c)));
+  }
+
   function move(id: string, stage: PipelineStage) {
     const card = items.find((c) => c.id === id);
     if (!card || card.stage === stage) return;
     const previous = card.stage;
-    setItems((list) => list.map((c) => (c.id === id ? { ...c, stage } : c)));
+    revert(id, stage);
     setLanded(id);
     window.setTimeout(() => setLanded(null), 700);
+    // «Recibidos» y «Evaluados» son la misma etapa en la API: entre ellas solo cambia la vista.
+    if (PIPELINE_TO_API[previous] === PIPELINE_TO_API[stage]) return;
     const column = COLUMNS.find((c) => c.stage === stage)?.label;
-    moveApplication(id, stage).then(
+    moveApplication(jobId, id, stage).then(
       () =>
         toast({
           title: `${card.name} pasó a ${column}`,
@@ -61,14 +75,17 @@ export function PipelineBoard({ jobId, cards }: { jobId: string; cards: Pipeline
           action: {
             label: "Deshacer",
             onClick: () => {
-              setItems((list) => list.map((c) => (c.id === id ? { ...c, stage: previous } : c)));
-              void moveApplication(id, previous);
+              revert(id, previous);
+              moveApplication(jobId, id, previous).catch(() => {
+                revert(id, stage);
+                toast({ tone: "error", title: "No se pudo deshacer", description: "Esa etapa ya no admite volver atrás." });
+              });
             },
           },
         }),
-      () => {
-        setItems((list) => list.map((c) => (c.id === id ? { ...c, stage: previous } : c)));
-        toast({ tone: "error", title: "No se pudo mover", description: env.useMocks ? "Revisa tu conexión e inténtalo de nuevo." : "Cambiar de etapa todavía no está disponible con el backend." });
+      (error: unknown) => {
+        revert(id, previous);
+        toast({ tone: "error", title: "No se pudo mover", description: moveErrorMessage(error) });
       },
     );
   }

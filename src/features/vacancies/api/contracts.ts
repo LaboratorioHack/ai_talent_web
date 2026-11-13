@@ -16,12 +16,17 @@ const toRequirementRequest = (r: RequirementDraft) => ({
   equivalences: Object.fromEntries(r.equivalences.map((e) => [e.label.trim(), e.percent])),
 });
 
-/** Cuerpo de PATCH /vacancies/{id}; POST /vacancies lo usa junto al perfil. */
+/** Cuerpo de PATCH /vacancies/{id}; POST /vacancies lo usa junto al perfil. Vacío = no lo publicó. */
 export const toVacancyFields = (d: RoleProfileDraft) => ({
   title: d.title.trim(),
   area: d.area || null,
   closingAt: toClosingAt(d.closesAt),
   positions: d.openings,
+  location: d.listing.location.trim(),
+  modality: d.listing.modality,
+  contractType: d.listing.contract,
+  schedule: d.listing.schedule,
+  salary: d.listing.salary.trim(),
 });
 
 /** Cuerpo de PUT /vacancies/{id}/profile. */

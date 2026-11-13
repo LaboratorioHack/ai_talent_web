@@ -7,8 +7,8 @@ import { useStuck } from "@/shared/hooks/use-stuck";
 import { useToday } from "@/shared/hooks/use-today";
 import { cn } from "@/shared/lib/cn";
 import { formatShortDate, fromISODate, toISODate } from "@/shared/lib/dates";
-import { mockAreas } from "@/shared/mocks";
-import { roleProfileDraftSchema, type RequirementDraft, type RoleProfileDraft } from "../schemas/role-profile";
+import { AREAS, CONTRACTS, MODALITIES, SCHEDULES } from "@/shared/constants/vacancy";
+import { roleProfileDraftSchema, type ListingDraft, type RequirementDraft, type RoleProfileDraft } from "../schemas/role-profile";
 import { profileAssistErrorMessage, proposeRequirements, suggestEquivalences } from "../api/role-profiles";
 import { RequirementRow } from "./requirement-row";
 import { ScoringSidebar } from "./scoring-sidebar";
@@ -100,6 +100,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
   const today = useToday();
 
   const patch = (p: Partial<RoleProfileDraft>) => setDraft((d) => ({ ...d, ...p }));
+  const patchListing = (p: Partial<ListingDraft>) => setDraft((d) => ({ ...d, listing: { ...d.listing, ...p } }));
   const setRequirement = (i: number, next: RequirementDraft) =>
     setDraft((d) => ({ ...d, requirements: d.requirements.map((r, j) => (j === i ? next : r)) }));
 
@@ -110,7 +111,11 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
       return true;
     }
     const next: Record<string, string> = {};
-    for (const issue of result.error.issues) next[String(issue.path[0] ?? "form")] = issue.message;
+    for (const issue of result.error.issues) {
+      // La sección (p. ej. "requirements") y el campo exacto (p. ej. "listing.salary").
+      next[String(issue.path[0] ?? "form")] ??= issue.message;
+      next[issue.path.join(".")] = issue.message;
+    }
     setErrors(next);
     return false;
   }
@@ -183,7 +188,7 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
           <h2 className="mb-6 text-[15px] font-semibold">Datos de la vacante</h2>
           <div className="grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-2">
             <TextField label="Nombre de la vacante" value={draft.title} maxLength={80} onChange={(e) => patch({ title: e.target.value })} error={errors.title} kind={`${draft.title.length} / 80`} />
-            <SelectField label="Área" value={draft.area} placeholder="Elige un área" onChange={(area) => patch({ area })} error={errors.area} options={mockAreas.map((a) => ({ value: a, label: a }))} />
+            <SelectField label="Área" value={draft.area} placeholder="Elige un área" onChange={(area) => patch({ area })} error={errors.area} options={AREAS.map((a) => ({ value: a, label: a }))} />
             <DateField label="Cierre de postulaciones" value={fromISODate(draft.closesAt)} minDate={today ?? undefined} onChange={(d) => patch({ closesAt: toISODate(d) })} error={errors.closesAt} help="Solo fechas futuras" />
             <NumberField label="Número de vacantes" value={draft.openings} min={1} max={50} onChange={(n) => patch({ openings: n })} help="Personas a contratar" />
             <div id={descriptionId} className="md:col-span-2">
@@ -197,6 +202,22 @@ export function RoleProfileEditor({ initial, eyebrow, onSave, onEvaluate, saveLa
                 help="Criba la usa para proponer requisitos y para preparar la entrevista"
                 onChange={(e) => patch({ description: e.target.value })}
               />
+            </div>
+          </div>
+        </section>
+
+        <section className="card p-7 animate-rise [animation-delay:130ms]" aria-label="Publicación">
+          <header className="mb-6 flex flex-col gap-1">
+            <h2 className="text-[15px] font-semibold">Publicación</h2>
+            <p className="text-[13px] text-ink-3">Lo que ve el candidato en la vacante pública. Lo que dejes vacío no se muestra.</p>
+          </header>
+          <div className="grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-2">
+            <TextField label="Ubicación" placeholder="Ciudad" value={draft.listing.location} maxLength={80} onChange={(e) => patchListing({ location: e.target.value })} error={errors["listing.location"]} />
+            <SelectField label="Modalidad" value={draft.listing.modality} placeholder="Elige la modalidad" onChange={(modality) => patchListing({ modality: modality as ListingDraft["modality"] })} options={MODALITIES} />
+            <SelectField label="Contrato" value={draft.listing.contract} placeholder="Elige el tipo de contrato" onChange={(contract) => patchListing({ contract })} options={CONTRACTS.map((c) => ({ value: c, label: c }))} />
+            <SelectField label="Jornada" value={draft.listing.schedule} placeholder="Elige la jornada" onChange={(schedule) => patchListing({ schedule })} options={SCHEDULES.map((s) => ({ value: s, label: s }))} />
+            <div className="md:col-span-2">
+              <TextField label="Salario" placeholder="Por ejemplo: $8 a $10 millones" value={draft.listing.salary} maxLength={80} onChange={(e) => patchListing({ salary: e.target.value })} error={errors["listing.salary"]} help="Vacío se publica como «A convenir»" />
             </div>
           </div>
         </section>
