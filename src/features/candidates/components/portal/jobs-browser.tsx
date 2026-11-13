@@ -7,7 +7,7 @@ import { SearchField, Select } from "@/shared/components/ui";
 import { routes } from "@/shared/constants/routes";
 import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
-import type { PortalJob } from "../../types/portal";
+import { placeOf, type PortalJob } from "../../types/portal";
 import { ForYou } from "./for-you";
 import { MATCH_LABEL, matchReason } from "./recommended-jobs";
 
@@ -98,7 +98,7 @@ export function JobsBrowser({ jobs }: { jobs: PortalJob[] }) {
         {visible.length ? (
           <ul className="panel flex flex-col divide-y divide-border overflow-hidden px-3">
             {visible.map((j, i) => {
-              const closes = fromISODate(j.closesAt);
+              const closes = j.closesAt ? fromISODate(j.closesAt) : null;
               return (
                 <li
                   key={j.id}
@@ -132,18 +132,15 @@ export function JobsBrowser({ jobs }: { jobs: PortalJob[] }) {
                         ) : null}
                       </span>
                       <span className="truncate text-[13px] text-ink-3">
-                        {j.company} · {j.location}, {j.modality.toLowerCase()}
+                        {[j.company, placeOf(j)].filter(Boolean).join(" · ")}
                       </span>
                     </span>
                     <span className="flex min-w-0 flex-col gap-1 max-md:col-span-2 max-md:row-start-2">
-                      <span
-                        className={cn(
-                          "w-fit rounded-full px-2 py-0.5 text-[11.5px] font-medium",
-                          MATCH_LABEL[j.match.level].tone,
-                        )}
-                      >
-                        {MATCH_LABEL[j.match.level].label}
-                      </span>
+                      {j.match ? (
+                        <span className={cn("w-fit rounded-full px-2 py-0.5 text-[11.5px] font-medium", MATCH_LABEL[j.match.level].tone)}>
+                          {MATCH_LABEL[j.match.level].label}
+                        </span>
+                      ) : null}
                       <span className="truncate text-[12.5px] text-ink-3">
                         {matchReason(j)}
                       </span>

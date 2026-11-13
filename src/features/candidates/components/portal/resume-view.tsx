@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Check, Eye, FileClock, Highlighter, MousePointerClick, PencilLine, Plus, Trash2, Upload } from "lucide-react";
 import { PdfViewer, type PdfHotspot } from "@/shared/components/pdf/pdf-viewer";
 import { Button, Modal, Segmented, TextArea, TextField, useToast } from "@/shared/components/ui";
@@ -10,6 +11,7 @@ import { cn } from "@/shared/lib/cn";
 import { formatLongDate, fromISODate } from "@/shared/lib/dates";
 import { resumeToPdf, type ResumePdf } from "@/shared/lib/resume-pdf";
 import type { ResumeDoc, ResumeLine } from "@/shared/types/resume-doc";
+import { downloadMyData, eraseMyData, uploadErrorMessage, uploadMyResume } from "../../api/portal-actions";
 import type { PortalApplication, ResumeSummary } from "../../types/portal";
 
 type Mode = "view" | "edit" | "highlight";
@@ -18,12 +20,6 @@ const MODES: { value: Mode; label: string; icon: typeof Eye }[] = [
   { value: "view", label: "Ver", icon: Eye },
   { value: "edit", label: "Editar texto", icon: PencilLine },
   { value: "highlight", label: "Resaltar", icon: Highlighter },
-];
-
-const VERSIONS = [
-  { label: "Versión actual", date: "2026-10-28" },
-  { label: "Antes de postularte a Backend", date: "2026-09-02" },
-  { label: "Primera versión", date: "2026-06-14" },
 ];
 
 const clone = (d: ResumeDoc): ResumeDoc => JSON.parse(JSON.stringify(d));
@@ -39,7 +35,9 @@ const day = (iso: string) => {
  */
 export function ResumeView({ resume, applications }: { resume: ResumeSummary; applications: PortalApplication[] }) {
   const { toast } = useToast();
+  const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState<"save" | "upload" | "export" | "erase" | null>(null);
   const [saved, setSaved] = useState(resume.doc);
   const [doc, setDoc] = useState(resume.doc);
   const [highlights, setHighlights] = useState<Set<string>>(new Set());
@@ -48,7 +46,7 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
   const [active, setActive] = useState<string | null>(null);
   const [pdf, setPdf] = useState<ResumePdf | null>(null);
   const [file, setFile] = useState({ name: resume.fileName, updatedAt: resume.updatedAt });
-  const [erase, setErase] = useState(false);
+  const [confirmErase, setConfirmErase] = useState(false);
   const [typed, setTyped] = useState("");
 
   // Regenera el PDF un momento después de cada cambio.
@@ -87,12 +85,56 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
     setActive(h.key);
   }
 
-  function save() {
-    setSaved(doc);
-    setSavedHighlights(new Set(highlights));
-    setFile((f) => ({ ...f, updatedAt: "2026-11-11" }));
-    setActive(null);
-    toast({ title: "Hoja de vida guardada", description: "Las empresas reciben esta versión en tus próximas postulaciones." });
+  /** Sube un archivo como versión nueva; Criba AI la vuelve a leer y la página se recarga con lo leído. */
+  async function upload(next: File, kind: "save" | "upload") {
+    setBusy(kind);
+    try {
+      const result = await uploadMyResume(next);
+      setFile({ name: next.name, updatedAt: new Date().toISOString().slice(0, 10) });
+      if (kind === "save") {
+        setSaved(doc);
+        setSavedHighlights(new Set(highlights));
+      }
+      setActive(null);
+      toast({
+        title: result.status === "PROCESSED" ? "Hoja de vida guardada" : "Hoja de vida guardada; Criba AI la sigue leyendo",
+        description: `Queda como versión actual en ${result.companies === 1 ? "la empresa" : `las ${result.companies} empresas`} a las que te postulaste.`,
+      });
+      router.refresh();
+    } catch (error) {
+      toast({ tone: "error", title: "No se pudo guardar", description: uploadErrorMessage(error) });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function save() {
+    // Lo que se ve es lo que se guarda: el PDF generado con las ediciones y los resaltados.
+    const generated = pdf ?? (await resumeToPdf(doc, highlights));
+    const name = file.name.replace(/\.[a-z0-9]+$/i, "") + ".pdf";
+    await upload(new File([generated.bytes as BlobPart], name, { type: "application/pdf" }), "save");
+  }
+
+  async function exportData() {
+    setBusy("export");
+    try {
+      await downloadMyData();
+    } catch {
+      toast({ tone: "error", title: "No pudimos preparar tus datos", description: "Intenta de nuevo en un momento." });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function erase() {
+    setBusy("erase");
+    try {
+      await eraseMyData();
+      router.replace(routes.portalSignIn);
+    } catch {
+      toast({ tone: "error", title: "No pudimos borrar tus datos", description: "Intenta de nuevo en un momento." });
+      setBusy(null);
+    }
   }
 
   return (
@@ -120,10 +162,10 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
               setActive(null);
             }}
           />
-          <Button variant="outline" icon={<Upload />} onClick={() => input.current?.click()}>
+          <Button variant="outline" icon={<Upload />} loading={busy === "upload"} disabled={busy !== null} onClick={() => input.current?.click()}>
             Subir otro PDF
           </Button>
-          <Button disabled={!dirty} onClick={save}>
+          <Button disabled={!dirty || busy !== null} loading={busy === "save"} onClick={save}>
             Guardar
           </Button>
         </div>
@@ -202,23 +244,23 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
               <section className="panel flex flex-col gap-3 p-5">
                 <h2 className="text-[12.5px] font-medium tracking-[0.08em] text-ink-3 uppercase">Versiones</h2>
                 <ol className="flex flex-col">
-                  {VERSIONS.map((v, i) => (
-                    <li key={v.date} className="relative flex gap-3 pb-4 last:pb-0">
-                      {i < VERSIONS.length - 1 ? <span aria-hidden className="absolute top-4 left-[7px] h-full w-px bg-border-strong" /> : null}
+                  {resume.versions.map((v, i) => (
+                    <li key={`${v.at}-${i}`} className="relative flex gap-3 pb-4 last:pb-0">
+                      {i < resume.versions.length - 1 ? <span aria-hidden className="absolute top-4 left-[7px] h-full w-px bg-border-strong" /> : null}
                       <FileClock aria-hidden className={cn("relative size-[15px] shrink-0", i === 0 ? "text-amber" : "text-ink-3")} />
                       <span className="flex flex-col">
-                        <span className="text-[13.5px]">{v.label}</span>
-                        <span className="text-[12px] text-ink-3">{day(i === 0 ? file.updatedAt : v.date)}</span>
+                        <span className="text-[13.5px]">{i === 0 ? "Versión actual" : v.fileName}</span>
+                        <span className="text-[12px] text-ink-3">{day(v.at)}</span>
                       </span>
                     </li>
                   ))}
                 </ol>
               </section>
               <footer className="flex flex-wrap justify-center gap-6 px-1 text-[12.5px] text-ink-3">
-                <button type="button" className="hover:text-ink" onClick={() => toast({ title: "Preparando tus datos", description: "Te llega un correo con el archivo." })}>
+                <button type="button" className="hover:text-ink disabled:opacity-50" disabled={busy === "export"} onClick={exportData}>
                   Descargar mis datos
                 </button>
-                <button type="button" className="hover:text-danger" onClick={() => setErase(true)}>
+                <button type="button" className="hover:text-danger" onClick={() => setConfirmErase(true)}>
                   Borrar mi cuenta
                 </button>
               </footer>
@@ -234,17 +276,15 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
         accept=".pdf,.doc,.docx"
         onChange={(e) => {
           const f = e.target.files?.[0];
-          if (!f) return;
-          setFile({ name: f.name, updatedAt: "2026-11-11" });
-          toast({ title: "Leímos tu nuevo archivo", description: "Revisa el PDF y edita lo que haga falta." });
           e.target.value = "";
+          if (f) void upload(f, "upload");
         }}
       />
 
       <Modal
-        open={erase}
+        open={confirmErase}
         onClose={() => {
-          setErase(false);
+          setConfirmErase(false);
           setTyped("");
         }}
         title="Borrar tu cuenta"
@@ -252,17 +292,14 @@ export function ResumeView({ resume, applications }: { resume: ResumeSummary; ap
         size="sm"
         footer={
           <>
-            <Button variant="text" onClick={() => setErase(false)}>
+            <Button variant="text" onClick={() => setConfirmErase(false)}>
               Cancelar
             </Button>
             <Button
               variant="danger"
               disabled={typed.trim().toUpperCase() !== "BORRAR"}
-              onClick={() => {
-                setErase(false);
-                setTyped("");
-                toast({ title: "Pedido recibido", description: "Borramos todo en las próximas 24 horas." });
-              }}
+              loading={busy === "erase"}
+              onClick={erase}
             >
               Borrar todo
             </Button>
